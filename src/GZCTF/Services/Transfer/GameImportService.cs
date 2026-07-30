@@ -401,6 +401,7 @@ public class GameImportService(
             // Flags configuration
             FlagTemplate = transferChallenge.Flags.Template,
             DisableBloodBonus = transferChallenge.Flags.DisableBloodBonus,
+            RequireSolverUpload = transferChallenge.Flags.RequireSolverUpload,
             EnableTrafficCapture = transferChallenge.Flags.EnableTrafficCapture,
 
             // Container settings

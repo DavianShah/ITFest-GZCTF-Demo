@@ -13,6 +13,23 @@ namespace GZCTF.Models.Data;
 [MemoryPackable]
 public partial class Game
 {
+    public const string DefaultBloodNotificationTemplate =
+        "Challenge **{challenge}** has been blooded!";
+    public const string DefaultBloodNotificationEmbedTitleTemplate = "{emoji} {blood} BLOOD!";
+    public const string DefaultBloodNotificationEmbedDescriptionTemplate =
+        "**{team}** conquered **{challenge}** and claimed rank **#{rank}**!";
+    public const string DefaultBloodNotificationEmbedFieldsTemplate =
+        "👤 User / Team|{team}|true\n" +
+        "🏁 Challenge|{challenge}|true\n" +
+        "📂 Category|{category}|true\n" +
+        "💯 Points|{score}|true\n" +
+        "🎮 Game|{game}|true\n" +
+        "🏆 Rank|#{rank}|true";
+    public const string DefaultBloodNotificationEmbedFooterTemplate = "Solved at {time} • ITFest CTF";
+    public const string DefaultBloodNotificationTimeZone = "Asia/Jakarta";
+    public const string DefaultSpeedrunEmergencyHintText =
+        "Overtime unlocked! Unsolved challenges remain available for 5 more minutes.";
+
     [Key]
     [Required]
     public int Id { get; set; }
@@ -48,6 +65,17 @@ public partial class Game
     /// </summary>
     public bool PracticeMode { get; set; } = true;
 
+    public GameMode Mode { get; set; } = GameMode.Jeopardy;
+    public int SpeedrunDefaultRoundDurationMinutes { get; set; } = 30;
+    public int SpeedrunOvertimeMinutes { get; set; } = 5;
+    public int SpeedrunDefaultRoundDurationSeconds { get; set; } = 1800;
+    public int SpeedrunOvertimeSeconds { get; set; } = 300;
+    public bool SpeedrunAllowManualExtend { get; set; } = true;
+    public bool SpeedrunHideInactiveChallenges { get; set; } = true;
+    public bool SpeedrunEmergencyHintEnabled { get; set; } = true;
+    [MaxLength(1000)]
+    public string SpeedrunEmergencyHintText { get; set; } = DefaultSpeedrunEmergencyHintText;
+
     /// <summary>
     /// Poster hash
     /// </summary>
@@ -68,6 +96,11 @@ public partial class Game
     /// Teams can join without review
     /// </summary>
     public bool AcceptWithoutReview { get; set; }
+
+    /// <summary>
+    /// Only pre-approved teams may join this game
+    /// </summary>
+    public bool WhitelistOnly { get; set; }
 
     /// <summary>
     /// Whether writeup is required
@@ -133,6 +166,47 @@ public partial class Game
     }
 
     /// <summary>
+    /// Whether Discord blood notifications are enabled
+    /// </summary>
+    public bool BloodNotificationEnabled { get; set; }
+
+    /// <summary>
+    /// Discord webhook URL used for blood notifications
+    /// </summary>
+    [MaxLength(512)]
+    public string? BloodDiscordWebhookUrl { get; set; }
+
+    /// <summary>
+    /// Maximum first-solve rank to notify, or 0 for all first-solves
+    /// </summary>
+    public int BloodNotificationMaxRank { get; set; } = 1;
+
+    /// <summary>
+    /// Discord blood notification embed description template
+    /// </summary>
+    [MaxLength(2000)]
+    public string BloodNotificationTemplate { get; set; } = DefaultBloodNotificationTemplate;
+
+    [MaxLength(512)]
+    public string BloodNotificationEmbedTitleTemplate { get; set; } = DefaultBloodNotificationEmbedTitleTemplate;
+
+    [MaxLength(2000)]
+    public string BloodNotificationEmbedDescriptionTemplate { get; set; } =
+        DefaultBloodNotificationEmbedDescriptionTemplate;
+
+    [MaxLength(16)]
+    public string? BloodNotificationEmbedColor { get; set; }
+
+    [MaxLength(4000)]
+    public string BloodNotificationEmbedFieldsTemplate { get; set; } = DefaultBloodNotificationEmbedFieldsTemplate;
+
+    [MaxLength(512)]
+    public string BloodNotificationEmbedFooterTemplate { get; set; } = DefaultBloodNotificationEmbedFooterTemplate;
+
+    [MaxLength(64)]
+    public string BloodNotificationTimeZone { get; set; } = DefaultBloodNotificationTimeZone;
+
+    /// <summary>
     /// Whether the game is active
     /// </summary>
     [NotMapped]
@@ -192,6 +266,7 @@ public partial class Game
         Hidden = model.Hidden;
         PracticeMode = model.PracticeMode;
         AcceptWithoutReview = model.AcceptWithoutReview;
+        WhitelistOnly = model.WhitelistOnly;
         InviteCode = model.InviteCode;
         EndTimeUtc = model.EndTimeUtc;
         StartTimeUtc = model.StartTimeUtc;
@@ -201,6 +276,36 @@ public partial class Game
         WriteupRequired = model.WriteupRequired;
         WriteupDeadline = model.WriteupDeadline;
         BloodBonus = BloodBonus.FromValue(model.BloodBonusValue);
+        Mode = model.Mode;
+        SpeedrunDefaultRoundDurationSeconds =
+            model.SpeedrunDefaultRoundDurationSeconds ?? model.SpeedrunDefaultRoundDurationMinutes * 60;
+        SpeedrunOvertimeSeconds = model.SpeedrunOvertimeSeconds ?? model.SpeedrunOvertimeMinutes * 60;
+        SpeedrunDefaultRoundDurationMinutes = SpeedrunDefaultRoundDurationSeconds / 60;
+        SpeedrunOvertimeMinutes = SpeedrunOvertimeSeconds / 60;
+
+        return this;
+    }
+
+    internal Game Update(BloodNotificationModel model)
+    {
+        BloodNotificationEnabled = model.Enabled;
+        BloodDiscordWebhookUrl = string.IsNullOrWhiteSpace(model.DiscordWebhookUrl)
+            ? null
+            : model.DiscordWebhookUrl.Trim();
+        BloodNotificationMaxRank = model.MaxRank;
+        BloodNotificationTemplate = model.Template ?? DefaultBloodNotificationTemplate;
+        BloodNotificationEmbedTitleTemplate = string.IsNullOrWhiteSpace(model.EmbedTitleTemplate)
+            ? DefaultBloodNotificationEmbedTitleTemplate
+            : model.EmbedTitleTemplate;
+        BloodNotificationEmbedDescriptionTemplate = model.EmbedDescriptionTemplate ?? string.Empty;
+        BloodNotificationEmbedColor = string.IsNullOrWhiteSpace(model.EmbedColor) ? null : model.EmbedColor.Trim();
+        BloodNotificationEmbedFieldsTemplate = model.EmbedFieldsTemplate ?? string.Empty;
+        BloodNotificationEmbedFooterTemplate = string.IsNullOrWhiteSpace(model.EmbedFooterTemplate)
+            ? DefaultBloodNotificationEmbedFooterTemplate
+            : model.EmbedFooterTemplate;
+        BloodNotificationTimeZone = string.IsNullOrWhiteSpace(model.TimeZone)
+            ? DefaultBloodNotificationTimeZone
+            : model.TimeZone.Trim();
 
         return this;
     }
@@ -247,6 +352,11 @@ public partial class Game
     /// List of divisions for the game
     /// </summary>
     public HashSet<Division>? Divisions { get; set; }
+    public List<SpeedrunCategory> SpeedrunCategories { get; set; } = [];
+    public List<SpeedrunRound> SpeedrunRounds { get; set; } = [];
+    public List<SpeedrunHintReleaseLog> SpeedrunHintReleaseLogs { get; set; } = [];
+    [MemoryPackIgnore]
+    public GameLiveScoreboardConfig? LiveScoreboardConfig { get; set; }
 
     #endregion Db Relationship
 }

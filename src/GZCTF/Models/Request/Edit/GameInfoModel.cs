@@ -40,6 +40,11 @@ public class GameInfoModel
     public bool AcceptWithoutReview { get; set; }
 
     /// <summary>
+    /// Only explicitly whitelisted teams may join
+    /// </summary>
+    public bool WhitelistOnly { get; set; }
+
+    /// <summary>
     /// Is writeup required
     /// </summary>
     public bool WriteupRequired { get; set; }
@@ -107,6 +112,15 @@ public class GameInfoModel
     /// </summary>
     [JsonPropertyName("bloodBonus")]
     public long BloodBonusValue { get; set; } = BloodBonus.DefaultValue;
+    public GameMode Mode { get; set; } = GameMode.Jeopardy;
+    [Range(1, 1440)]
+    public int SpeedrunDefaultRoundDurationMinutes { get; set; } = 30;
+    [Range(0, 120)]
+    public int SpeedrunOvertimeMinutes { get; set; } = 5;
+    [Range(1, 86400)]
+    public int? SpeedrunDefaultRoundDurationSeconds { get; set; }
+    [Range(0, 86400)]
+    public int? SpeedrunOvertimeSeconds { get; set; }
 
     internal static GameInfoModel FromGame(Data.Game game) =>
         new()
@@ -121,6 +135,7 @@ public class GameInfoModel
             InviteCode = game.InviteCode,
             PublicKey = game.PublicKey,
             AcceptWithoutReview = game.AcceptWithoutReview,
+            WhitelistOnly = game.WhitelistOnly,
             TeamMemberCountLimit = game.TeamMemberCountLimit,
             ContainerCountLimit = game.ContainerCountLimit,
             StartTimeUtc = game.StartTimeUtc,
@@ -128,6 +143,11 @@ public class GameInfoModel
             WriteupDeadline = game.WriteupDeadline,
             WriteupNote = game.WriteupNote,
             WriteupRequired = game.WriteupRequired,
-            BloodBonusValue = game.BloodBonus.Val
+            BloodBonusValue = game.BloodBonus.Val,
+            Mode = game.Mode,
+            SpeedrunDefaultRoundDurationMinutes = game.SpeedrunDefaultRoundDurationMinutes,
+            SpeedrunOvertimeMinutes = game.SpeedrunOvertimeMinutes,
+            SpeedrunDefaultRoundDurationSeconds = game.SpeedrunDefaultRoundDurationSeconds,
+            SpeedrunOvertimeSeconds = game.SpeedrunOvertimeSeconds
         };
 }

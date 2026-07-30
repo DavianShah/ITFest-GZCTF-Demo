@@ -89,7 +89,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
         {
             var submitResponse = await client.PostAsJsonAsync(
                 $"/api/Game/{game.Id}/Challenges/{challengeId}",
-                new FlagSubmitModel { Flag = $"flag{{wrong_{i}}}" });
+                new FlagSubmitModel { Flag = $"flag{{wrong_{i}}}", AiUsageDisclosure = "Saya tidak memakai AI" });
             submitResponse.EnsureSuccessStatusCode();
             var submissionId = await submitResponse.Content.ReadFromJsonAsync<int>();
             Assert.True(submissionId > 0);
@@ -98,7 +98,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
         // 4th submission should fail due to limit
         var limitedResponse = await client.PostAsJsonAsync(
             $"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = "flag{wrong_4}" });
+            new FlagSubmitModel { Flag = "flag{wrong_4}", AiUsageDisclosure = "Saya tidak memakai AI" });
         Assert.Equal(HttpStatusCode.BadRequest, limitedResponse.StatusCode);
     }
 
@@ -159,7 +159,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
         // Submission should fail due to expired deadline
         var expiredResponse = await client.PostAsJsonAsync(
             $"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = "flag{expired}" });
+            new FlagSubmitModel { Flag = "flag{expired}", AiUsageDisclosure = "Saya tidak memakai AI" });
         Assert.Equal(HttpStatusCode.BadRequest, expiredResponse.StatusCode);
     }
 
@@ -302,9 +302,9 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
 
         // Submit flags for both challenges
         await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge1.Id}",
-            new FlagSubmitModel { Flag = "flag{one}" });
+            new FlagSubmitModel { Flag = "flag{one}", AiUsageDisclosure = "Saya tidak memakai AI" });
         await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge2.Id}",
-            new FlagSubmitModel { Flag = "flag{two}" });
+            new FlagSubmitModel { Flag = "flag{two}", AiUsageDisclosure = "Saya tidak memakai AI" });
 
         // Check initial scoreboard
         var scoreboard1Response = await client.GetAsync($"/api/Game/{game.Id}/Scoreboard");
@@ -400,7 +400,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
 
         // Submit correct flag
         await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = "flag{toggle}" });
+            new FlagSubmitModel { Flag = "flag{toggle}", AiUsageDisclosure = "Saya tidak memakai AI" });
 
         // Admin disables the challenge
         using var adminClient = factory.CreateClient();
@@ -490,7 +490,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
 
         // Submit correct flag
         await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = "flag{score_update}" });
+            new FlagSubmitModel { Flag = "flag{score_update}", AiUsageDisclosure = "Saya tidak memakai AI" });
 
         // Admin updates the challenge score
         using var adminClient = factory.CreateClient();
@@ -622,7 +622,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
 
         // Should be able to submit to re-enabled challenge
         var submitResponse = await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = "flag{reenable}" });
+            new FlagSubmitModel { Flag = "flag{reenable}", AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse.EnsureSuccessStatusCode();
     }
 
@@ -738,7 +738,7 @@ public class AdvancedGameMechanicsTests(GZCTFApplicationFactory factory, ITestOu
         // 6. Submit flag and poll the result
         var submitResponse = await client.PostAsJsonAsync(
             $"/api/Game/{game.Id}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = flag });
+            new FlagSubmitModel { Flag = flag, AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse.EnsureSuccessStatusCode();
 
         var submissionId = await submitResponse.Content.ReadFromJsonAsync<int>();

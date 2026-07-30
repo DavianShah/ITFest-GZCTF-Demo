@@ -26,7 +26,7 @@ import { GameChallengeModal } from '@Components/GameChallengeModal'
 import { WriteupSubmitModal } from '@Components/WriteupSubmitModal'
 import { useChallengeCategoryLabelMap, SubmissionTypeIconMap } from '@Utils/Shared'
 import { useGame, useGameTeamInfo } from '@Hooks/useGame'
-import { ChallengeInfo, ChallengeCategory, SubmissionType } from '@Api'
+import { ChallengeInfo, ChallengeCategory, GameMode, SubmissionType } from '@Api'
 import classes from '@Styles/ChallengePanel.module.css'
 
 export const ChallengePanel: FC = () => {
@@ -287,6 +287,7 @@ export const ChallengePanel: FC = () => {
           gameEnded={dayjs(game?.end) < dayjs()}
           practiceMode={game?.practiceMode}
           status={teamInfo?.rank?.solvedChallenges?.find((c) => c.id === challenge?.id)?.type}
+          speedrun={game?.mode === GameMode.Speedrun}
           cateData={
             challengeCategoryLabelMap.get((challenge?.category as ChallengeCategory) ?? ChallengeCategory.Misc)!
           }

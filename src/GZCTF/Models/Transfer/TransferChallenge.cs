@@ -132,6 +132,11 @@ public class FlagsSection
     public bool DisableBloodBonus { get; set; }
 
     /// <summary>
+    /// Require a solver file for Jeopardy submissions
+    /// </summary>
+    public bool RequireSolverUpload { get; set; }
+
+    /// <summary>
     /// Enable traffic capture
     /// </summary>
 

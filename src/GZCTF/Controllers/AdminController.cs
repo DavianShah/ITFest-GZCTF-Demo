@@ -10,6 +10,7 @@ using GZCTF.Models.Request.Info;
 using GZCTF.Repositories.Interface;
 using GZCTF.Services.Cache;
 using GZCTF.Services.Config;
+using GZCTF.Services.Mail;
 using GZCTF.Storage.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,8 @@ public class AdminController(
     IContainerRepository containerRepository,
     IServiceProvider serviceProvider,
     IParticipationRepository participationRepository,
+    IMailSender mailSender,
+    AppDbContext dbContext,
     IStringLocalizer<Program> localizer) : ControllerBase
 {
     /// <summary>
@@ -692,6 +695,476 @@ public class AdminController(
     public async Task<IActionResult> Files([FromQuery][Range(0, 500)] int count = 50, [FromQuery] int skip = 0,
         CancellationToken token = default) =>
         Ok(new ArrayResponse<LocalFile>(await blobService.GetBlobs(count, skip, token)));
+
+    #region Whitelist
+
+    /// <summary>
+    /// Search teams for whitelist (excludes already whitelisted teams for the game)
+    /// </summary>
+    [HttpGet("Games/{gameId:int}/Whitelist/search-teams")]
+    [ProducesResponseType(typeof(TeamWithDetailedUserInfo[]), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SearchTeamsForWhitelist([FromRoute] int gameId,
+        [FromQuery] string query, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(gameId, token);
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)]));
+
+        var whitelistedTeamIds = await dbContext.Participations
+            .Where(p => p.GameId == gameId && p.WhitelistSource != WhitelistSource.None)
+            .Select(p => p.TeamId)
+            .ToArrayAsync(token);
+
+        var loweredHint = query.Trim().ToLower();
+        var teams = await dbContext.Teams
+            .Include(t => t.Members)
+            .Include(t => t.Captain)
+            .Where(t => !whitelistedTeamIds.Contains(t.Id) &&
+                        (t.Name.ToLower().Contains(loweredHint) ||
+                         (t.Captain != null && t.Captain.Email != null &&
+                          t.Captain.Email.ToLower().Contains(loweredHint))))
+            .OrderBy(t => t.Id)
+            .Take(30)
+            .ToArrayAsync(token);
+
+        return Ok(teams.Select(TeamWithDetailedUserInfo.FromTeam));
+    }
+
+    /// <summary>
+    /// Get whitelisted teams for a game
+    /// </summary>
+    [HttpGet("Games/{gameId:int}/Whitelist")]
+    [ProducesResponseType(typeof(WhitelistTeamModel[]), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWhitelist([FromRoute] int gameId, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(gameId, token);
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)]));
+
+        var whitelist = await dbContext.Participations
+            .Where(p => p.GameId == gameId && p.WhitelistSource != WhitelistSource.None)
+            .Include(p => p.Team)
+                .ThenInclude(t => t.Captain)
+            .Include(p => p.Team)
+                .ThenInclude(t => t.Members)
+            .OrderBy(p => p.Team.Name)
+            .Select(p => new WhitelistTeamModel
+            {
+                TeamId = p.TeamId,
+                TeamName = p.Team.Name,
+                CaptainEmail = p.Team.Captain != null ? p.Team.Captain.Email : null,
+                Source = p.WhitelistSource,
+                Status = p.Status
+            })
+            .ToArrayAsync(token);
+
+        return Ok(whitelist);
+    }
+
+    /// <summary>
+    /// Get audit log of whitelist join attempts for a game
+    /// </summary>
+    [HttpGet("Games/{gameId:int}/Whitelist/join-attempts")]
+    [ProducesResponseType(typeof(WhitelistJoinAttemptModel[]), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWhitelistJoinAttempts([FromRoute] int gameId, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(gameId, token);
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)]));
+
+        var attempts = await dbContext.WhitelistJoinAttempts
+            .Where(a => a.GameId == gameId)
+            .Include(a => a.Team)
+            .OrderByDescending(a => a.AttemptedAtUtc)
+            .Take(100)
+            .Select(a => new WhitelistJoinAttemptModel
+            {
+                Id = a.Id,
+                TeamId = a.TeamId,
+                TeamName = a.Team.Name,
+                AttemptedAtUtc = a.AttemptedAtUtc
+            })
+            .ToArrayAsync(token);
+
+        return Ok(attempts);
+    }
+
+    /// <summary>
+    /// Add teams to whitelist
+    /// </summary>
+    [HttpPost("Games/{gameId:int}/Whitelist")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddWhitelist([FromRoute] int gameId,
+        [FromBody] WhitelistTeamsRequest request, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(gameId, token);
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)]));
+
+        foreach (var teamId in request.TeamIds)
+        {
+            var existing = await dbContext.Participations
+                .FirstOrDefaultAsync(p => p.GameId == gameId && p.TeamId == teamId, token);
+
+            if (existing is not null)
+            {
+                existing.WhitelistSource = WhitelistSource.ManualWhitelist;
+                existing.Status = ParticipationStatus.Accepted;
+            }
+            else
+            {
+                var team = await dbContext.Teams.FindAsync([teamId], token);
+                if (team is null) continue;
+
+                var participation = new Participation
+                {
+                    GameId = gameId,
+                    TeamId = teamId,
+                    Status = ParticipationStatus.Accepted,
+                    WhitelistSource = WhitelistSource.ManualWhitelist,
+                    Token = gameRepository.GetToken(game, team),
+                    Division = null
+                };
+                dbContext.Participations.Add(participation);
+            }
+        }
+
+        await dbContext.SaveChangesAsync(token);
+        await cacheHelper.FlushScoreboardCache(gameId, token);
+
+        logger.LogInformation("{Count} teams whitelisted for {Title}", request.TeamIds.Length, game.Title);
+
+        return Ok();
+    }
+
+    /// <summary>
+    /// Remove a team from whitelist (reject their participation)
+    /// </summary>
+    [HttpDelete("Games/{gameId:int}/Whitelist/{teamId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveWhitelist([FromRoute] int gameId, [FromRoute] int teamId,
+        CancellationToken token)
+    {
+        var participation = await dbContext.Participations
+            .FirstOrDefaultAsync(p => p.GameId == gameId && p.TeamId == teamId, token);
+
+        if (participation is null)
+            return NotFound(new RequestResponse("Team is not in whitelist."));
+
+        participation.WhitelistSource = WhitelistSource.None;
+        participation.Status = ParticipationStatus.Rejected;
+
+        await dbContext.SaveChangesAsync(token);
+        await cacheHelper.FlushScoreboardCache(gameId, token);
+
+        logger.LogInformation("Team {TeamId} removed from whitelist for game {GameId}", teamId, gameId);
+
+        return Ok();
+    }
+
+    #endregion
+
+    #region CaptainOnboarding
+
+    /// <summary>
+    /// Get persistent captain onboarding history and current status.
+    /// Raw onboarding tokens are never returned by this endpoint.
+    /// </summary>
+    [HttpGet("Onboarding")]
+    [ProducesResponseType(typeof(CaptainOnboardingRecordModel[]), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetOnboardingHistory(
+        [FromQuery][Range(1, 500)] int count = 200,
+        [FromQuery][Range(0, int.MaxValue)] int skip = 0,
+        [FromQuery] string? query = null,
+        CancellationToken token = default)
+    {
+        var invitesQuery = dbContext.CaptainOnboardingInvites.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            var loweredQuery = query.Trim().ToLower();
+            invitesQuery = invitesQuery.Where(invite =>
+                invite.TeamName.ToLower().Contains(loweredQuery) ||
+                invite.CaptainEmail.ToLower().Contains(loweredQuery));
+        }
+
+        var invites = await invitesQuery
+            .OrderByDescending(invite => invite.CreatedAtUtc)
+            .Skip(skip)
+            .Take(count)
+            .ToArrayAsync(token);
+
+        var gameIds = invites.SelectMany(invite => invite.GetGameIds()).Distinct().ToArray();
+        var gameTitles = await dbContext.Games
+            .Where(game => gameIds.Contains(game.Id))
+            .ToDictionaryAsync(game => game.Id, game => game.Title, token);
+        var now = DateTimeOffset.UtcNow;
+
+        return Ok(invites.Select(invite => new CaptainOnboardingRecordModel
+        {
+            InviteId = invite.Id,
+            TeamName = invite.TeamName,
+            CaptainEmail = invite.CaptainEmail,
+            GameTitles = GetOnboardingGameTitles(invite, gameTitles),
+            Status = GetOnboardingStatus(invite, now),
+            CreatedAtUtc = invite.CreatedAtUtc,
+            ExpiresAtUtc = invite.ExpiresAtUtc,
+            OpenedAtUtc = invite.OpenedAtUtc,
+            ConsumedAtUtc = invite.ConsumedAtUtc,
+            RevokedAtUtc = invite.RevokedAtUtc,
+            LastSentAtUtc = invite.LastSentAtUtc,
+            SendCount = invite.SendCount,
+            LastEmailQueued = invite.LastEmailQueued,
+            TeamId = invite.TeamId
+        }).ToArray());
+    }
+
+    /// <summary>
+    /// Revoke an onboarding link while retaining its audit history.
+    /// </summary>
+    [HttpDelete("Onboarding/{inviteId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RevokeOnboarding([FromRoute] int inviteId, CancellationToken token)
+    {
+        var invite = await dbContext.CaptainOnboardingInvites.FindAsync([inviteId], token);
+        if (invite is null)
+            return NotFound(new RequestResponse("Onboarding invitation was not found."));
+
+        if (invite.ConsumedAtUtc.HasValue)
+            return BadRequest(new RequestResponse(
+                "A redeemed invitation cannot be revoked. Remove the team from each game whitelist instead."));
+
+        if (!invite.RevokedAtUtc.HasValue)
+        {
+            invite.RevokedAtUtc = DateTimeOffset.UtcNow;
+            invite.TokenHash = (Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")).ToSHA256String();
+            await dbContext.SaveChangesAsync(token);
+        }
+
+        logger.LogInformation("Captain onboarding invite {InviteId} was revoked", invite.Id);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Send a replacement onboarding link. The previous link becomes invalid immediately.
+    /// </summary>
+    [HttpPost("Onboarding/{inviteId:int}/Resend")]
+    [ProducesResponseType(typeof(CaptainOnboardingCreatedModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResendOnboarding([FromRoute] int inviteId,
+        [FromBody] CaptainOnboardingResendModel model, CancellationToken token)
+    {
+        var invite = await dbContext.CaptainOnboardingInvites.FindAsync([inviteId], token);
+        if (invite is null)
+            return NotFound(new RequestResponse("Onboarding invitation was not found."));
+
+        if (invite.ConsumedAtUtc.HasValue || invite.TeamId.HasValue)
+            return BadRequest(new RequestResponse("A redeemed invitation cannot be sent again."));
+
+        var assignedGameIds = invite.GetGameIds().Distinct().ToArray();
+        var games = await dbContext.Games
+            .Where(game => assignedGameIds.Contains(game.Id))
+            .ToDictionaryAsync(game => game.Id, game => game.Title, token);
+        var gameTitles = GetOnboardingGameTitles(invite, games);
+        if (gameTitles.Length != assignedGameIds.Length)
+            return BadRequest(new RequestResponse(
+                "One or more games assigned to this onboarding invitation no longer exist."));
+
+        var rawToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+        var now = DateTimeOffset.UtcNow;
+        invite.TokenHash = rawToken.ToSHA256String();
+        invite.ExpiresAtUtc = now.AddHours(model.ExpiresInHours);
+        invite.OpenedAtUtc = null;
+        invite.RevokedAtUtc = null;
+
+        var onboardingUrl = BuildOnboardingUrl(rawToken);
+        var emailQueued = mailSender.SendCaptainOnboardingUrl(
+            invite.TeamName, invite.CaptainEmail, onboardingUrl, gameTitles, invite.ExpiresAtUtc,
+            localizer, serviceProvider.GetRequiredService<IOptionsSnapshot<GlobalConfig>>());
+
+        invite.LastSentAtUtc = now;
+        invite.SendCount++;
+        invite.LastEmailQueued = emailQueued;
+        await dbContext.SaveChangesAsync(token);
+
+        logger.LogInformation(
+            "Captain onboarding invite {InviteId} replacement link queued: {EmailQueued}",
+            invite.Id, emailQueued);
+
+        return Ok(new CaptainOnboardingCreatedModel
+        {
+            InviteId = invite.Id,
+            TeamName = invite.TeamName,
+            CaptainEmail = invite.CaptainEmail,
+            OnboardingUrl = onboardingUrl,
+            EmailQueued = emailQueued,
+            GameTitles = gameTitles
+        });
+    }
+
+    /// <summary>
+    /// Bulk-create captain onboarding invites from the global admin page
+    /// </summary>
+    [HttpPost("Onboarding")]
+    [ProducesResponseType(typeof(CaptainOnboardingCreatedModel[]), StatusCodes.Status200OK)]
+    public Task<IActionResult> BulkCreateOnboarding(
+        [FromBody] CaptainOnboardingBatchModel model, CancellationToken token) =>
+        CreateOnboardingInvites(model.GameIds, model, token);
+
+    /// <summary>
+    /// Backwards-compatible per-game endpoint. GameIds may include extra games.
+    /// </summary>
+    [HttpPost("Games/{gameId:int}/Onboarding")]
+    [ProducesResponseType(typeof(CaptainOnboardingCreatedModel[]), StatusCodes.Status200OK)]
+    public Task<IActionResult> BulkCreateGameOnboarding([FromRoute] int gameId,
+        [FromBody] CaptainOnboardingBatchModel model, CancellationToken token) =>
+        CreateOnboardingInvites([gameId, .. model.GameIds], model, token);
+
+    private async Task<IActionResult> CreateOnboardingInvites(int[] requestedGameIds,
+        CaptainOnboardingBatchModel model, CancellationToken token)
+    {
+        var gameIds = requestedGameIds.Where(id => id > 0).Distinct().ToArray();
+        if (gameIds.Length == 0)
+            return BadRequest(new RequestResponse("Select at least one game for the onboarding batch."));
+
+        var unorderedGames = await dbContext.Games
+            .Where(game => gameIds.Contains(game.Id))
+            .ToArrayAsync(token);
+
+        if (unorderedGames.Length != gameIds.Length)
+            return NotFound(new RequestResponse("One or more selected games do not exist."));
+
+        var games = gameIds.Select(id => unorderedGames.First(game => game.Id == id)).ToArray();
+
+        var entries = model.Entries
+            .Select(entry => new CaptainOnboardingEntryModel
+            {
+                TeamName = entry.TeamName.Trim(),
+                CaptainEmail = entry.CaptainEmail.Trim().ToLowerInvariant()
+            })
+            .ToArray();
+
+        if (entries.Length > 1000)
+            return BadRequest(new RequestResponse("An onboarding batch may contain at most 1000 teams."));
+
+        if (entries.Any(entry => string.IsNullOrWhiteSpace(entry.TeamName) ||
+                                 string.IsNullOrWhiteSpace(entry.CaptainEmail)))
+            return BadRequest(new RequestResponse("Every line must contain a team name and captain email."));
+
+        if (entries.Select(entry => entry.TeamName).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Length)
+            return BadRequest(new RequestResponse("Duplicate team names were found in the onboarding batch."));
+
+        if (entries.Select(entry => entry.CaptainEmail).Distinct(StringComparer.OrdinalIgnoreCase).Count() !=
+            entries.Length)
+            return BadRequest(new RequestResponse("Duplicate captain emails were found in the onboarding batch."));
+
+        var loweredTeamNames = entries.Select(entry => entry.TeamName.ToLower()).ToArray();
+        if (await dbContext.Teams.AnyAsync(team => loweredTeamNames.Contains(team.Name.ToLower()), token))
+            return BadRequest(new RequestResponse("A team with one of the submitted names already exists."));
+
+        var normalizedEmails = entries.Select(entry => entry.CaptainEmail.ToUpperInvariant()).ToArray();
+        if (await userManager.Users.AnyAsync(user =>
+                user.NormalizedEmail != null && normalizedEmails.Contains(user.NormalizedEmail), token))
+            return BadRequest(new RequestResponse("An account with one of the captain emails already exists."));
+
+        var captainEmails = entries.Select(entry => entry.CaptainEmail).ToArray();
+        if (await dbContext.CaptainOnboardingInvites.AnyAsync(invite =>
+                invite.ConsumedAtUtc == null &&
+                invite.RevokedAtUtc == null &&
+                invite.ExpiresAtUtc > DateTimeOffset.UtcNow &&
+                (captainEmails.Contains(invite.CaptainEmail) ||
+                 loweredTeamNames.Contains(invite.TeamName.ToLower())), token))
+            return BadRequest(new RequestResponse(
+                "An active onboarding invitation already exists for one of the submitted teams or emails."));
+
+        var results = new List<CaptainOnboardingCreatedModel>();
+        var pendingInvites = new List<(CaptainOnboardingInvite Invite, string RawToken)>();
+        var expiresAt = DateTimeOffset.UtcNow.AddHours(Math.Max(1, model.ExpiresInHours));
+
+        foreach (var entry in entries)
+        {
+            var rawToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+            var tokenHash = rawToken.ToSHA256String();
+
+            var invite = new CaptainOnboardingInvite
+            {
+                GameId = gameIds[0],
+                AdditionalGameIds = gameIds.Skip(1).ToArray(),
+                TeamName = entry.TeamName,
+                CaptainEmail = entry.CaptainEmail,
+                TokenHash = tokenHash,
+                ExpiresAtUtc = expiresAt,
+                CreatedAtUtc = DateTimeOffset.UtcNow
+            };
+
+            dbContext.CaptainOnboardingInvites.Add(invite);
+            pendingInvites.Add((invite, rawToken));
+        }
+
+        await dbContext.SaveChangesAsync(token);
+
+        foreach (var (invite, rawToken) in pendingInvites)
+        {
+            var onboardingUrl = BuildOnboardingUrl(rawToken);
+            var gameTitles = games.Select(game => game.Title).ToArray();
+
+            var emailQueued = mailSender.SendCaptainOnboardingUrl(
+                invite.TeamName, invite.CaptainEmail, onboardingUrl, gameTitles, invite.ExpiresAtUtc,
+                localizer, serviceProvider.GetRequiredService<IOptionsSnapshot<GlobalConfig>>());
+
+            invite.LastSentAtUtc = DateTimeOffset.UtcNow;
+            invite.SendCount = 1;
+            invite.LastEmailQueued = emailQueued;
+
+            results.Add(new CaptainOnboardingCreatedModel
+            {
+                InviteId = invite.Id,
+                TeamName = invite.TeamName,
+                CaptainEmail = invite.CaptainEmail,
+                OnboardingUrl = onboardingUrl,
+                EmailQueued = emailQueued,
+                GameTitles = gameTitles
+            });
+        }
+
+        await dbContext.SaveChangesAsync(token);
+
+        logger.LogInformation("{Count} onboarding invites created for games {GameIds}",
+            entries.Length, gameIds);
+
+        return Ok(results);
+    }
+
+    private string BuildOnboardingUrl(string rawToken) =>
+        $"{Request.Scheme}://{Request.Host}/onboarding?token={rawToken}";
+
+    private static string[] GetOnboardingGameTitles(CaptainOnboardingInvite invite,
+        IReadOnlyDictionary<int, string> gameTitles) =>
+        invite.GetGameIds()
+            .Distinct()
+            .Where(gameTitles.ContainsKey)
+            .Select(gameId => gameTitles[gameId])
+            .ToArray();
+
+    private static CaptainOnboardingStatus GetOnboardingStatus(CaptainOnboardingInvite invite,
+        DateTimeOffset now)
+    {
+        if (invite.ConsumedAtUtc.HasValue)
+            return CaptainOnboardingStatus.Redeemed;
+        if (invite.RevokedAtUtc.HasValue)
+            return CaptainOnboardingStatus.Revoked;
+        if (invite.ExpiresAtUtc <= now)
+            return CaptainOnboardingStatus.Expired;
+        return invite.OpenedAtUtc.HasValue
+            ? CaptainOnboardingStatus.Opened
+            : CaptainOnboardingStatus.Pending;
+    }
+
+    #endregion
 
     private IActionResult HandleIdentityError(IEnumerable<IdentityError> errors) =>
         BadRequest(new RequestResponse(errors.FirstOrDefault()?.Description ??

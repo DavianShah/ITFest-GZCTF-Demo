@@ -35,6 +35,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
     public DbSet<GameInstance> GameInstances { get; set; } = null!;
     public DbSet<GameChallenge> GameChallenges { get; set; } = null!;
     public DbSet<FirstSolve> FirstSolves { get; set; } = null!;
+    public DbSet<SpeedrunCategory> SpeedrunCategories { get; set; } = null!;
+    public DbSet<SpeedrunRound> SpeedrunRounds { get; set; } = null!;
+    public DbSet<SpeedrunHintReleaseLog> SpeedrunHintReleaseLogs { get; set; } = null!;
+    public DbSet<GameLiveScoreboardConfig> GameLiveScoreboardConfigs { get; set; } = null!;
+    public DbSet<WhitelistJoinAttempt> WhitelistJoinAttempts { get; set; } = null!;
+    public DbSet<CaptainOnboardingInvite> CaptainOnboardingInvites { get; set; } = null!;
     public DbSet<ExerciseInstance> ExerciseInstances { get; set; } = null!;
     public DbSet<ExerciseChallenge> ExerciseChallenges { get; set; } = null!;
     public DbSet<UserParticipation> UserParticipations { get; set; } = null!;
@@ -63,6 +69,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
         // var setComparer = GetEnumerableComparer<HashSet<string>, string>();
         var listConverter = GetJsonConverter<List<string>>();
         var listComparer = GetEnumerableComparer<List<string>, string>();
+        var intListConverter = GetJsonConverter<List<int>>();
+        var intListComparer = GetEnumerableComparer<List<int>, int>();
 
         builder.Entity<UserInfo>(entity =>
         {
@@ -83,6 +91,40 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
 
         builder.Entity<Game>(entity =>
         {
+            entity.Property(e => e.Mode).HasConversion<byte>().HasDefaultValue(GameMode.Jeopardy);
+            entity.Property(e => e.WhitelistOnly).HasDefaultValue(false);
+            entity.Property(e => e.SpeedrunDefaultRoundDurationMinutes).HasDefaultValue(30);
+            entity.Property(e => e.SpeedrunOvertimeMinutes).HasDefaultValue(5);
+            entity.Property(e => e.SpeedrunDefaultRoundDurationSeconds).HasDefaultValue(1800);
+            entity.Property(e => e.SpeedrunOvertimeSeconds).HasDefaultValue(300);
+            entity.Property(e => e.SpeedrunAllowManualExtend).HasDefaultValue(true);
+            entity.Property(e => e.SpeedrunHideInactiveChallenges).HasDefaultValue(true);
+            entity.Property(e => e.SpeedrunEmergencyHintEnabled).HasDefaultValue(true);
+            entity.Property(e => e.SpeedrunEmergencyHintText).HasDefaultValue(Game.DefaultSpeedrunEmergencyHintText);
+            entity.Property(e => e.BloodNotificationEnabled)
+                .HasDefaultValue(false);
+
+            entity.Property(e => e.BloodNotificationMaxRank)
+                .HasDefaultValue(1);
+
+            entity.Property(e => e.BloodNotificationTemplate)
+                .HasDefaultValue(Game.DefaultBloodNotificationTemplate);
+
+            entity.Property(e => e.BloodNotificationEmbedTitleTemplate)
+                .HasDefaultValue(Game.DefaultBloodNotificationEmbedTitleTemplate);
+
+            entity.Property(e => e.BloodNotificationEmbedDescriptionTemplate)
+                .HasDefaultValue(Game.DefaultBloodNotificationEmbedDescriptionTemplate);
+
+            entity.Property(e => e.BloodNotificationEmbedFieldsTemplate)
+                .HasDefaultValue(Game.DefaultBloodNotificationEmbedFieldsTemplate);
+
+            entity.Property(e => e.BloodNotificationEmbedFooterTemplate)
+                .HasDefaultValue(Game.DefaultBloodNotificationEmbedFooterTemplate);
+
+            entity.Property(e => e.BloodNotificationTimeZone)
+                .HasDefaultValue(Game.DefaultBloodNotificationTimeZone);
+
             entity.HasMany(e => e.GameEvents)
                 .WithOne(e => e.Game)
                 .HasForeignKey(e => e.GameId);
@@ -103,6 +145,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
                 .WithOne(e => e.Game)
                 .HasForeignKey(e => e.GameId);
 
+            entity.HasMany(e => e.SpeedrunCategories)
+                .WithOne(e => e.Game)
+                .HasForeignKey(e => e.GameId);
+
+            entity.HasMany(e => e.SpeedrunRounds)
+                .WithOne(e => e.Game)
+                .HasForeignKey(e => e.GameId);
+
+            entity.HasMany(e => e.SpeedrunHintReleaseLogs)
+                .WithOne(e => e.Game)
+                .HasForeignKey(e => e.GameId);
+
+            entity.HasOne(e => e.LiveScoreboardConfig)
+                .WithOne(e => e.Game)
+                .HasForeignKey<GameLiveScoreboardConfig>(e => e.GameId);
+
             entity.HasMany(e => e.Teams)
                 .WithMany(e => e.Games)
                 .UsingEntity<Participation>(
@@ -113,6 +171,52 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
                         .WithMany(g => g.Participations)
                         .HasForeignKey(p => p.GameId)
                 );
+        });
+
+        builder.Entity<SpeedrunCategory>(entity =>
+        {
+            entity.Property(e => e.Category).HasConversion<byte>();
+            entity.Property(e => e.Included).HasDefaultValue(true);
+            entity.HasIndex(e => new { e.GameId, e.Category }).IsUnique();
+        });
+
+        builder.Entity<SpeedrunRound>(entity =>
+        {
+            entity.Property(e => e.Category).HasConversion<byte>();
+            entity.Property(e => e.Status).HasConversion<byte>();
+            entity.HasIndex(e => new { e.GameId, e.Status });
+        });
+
+        builder.Entity<SpeedrunHintReleaseLog>(entity =>
+        {
+            entity.HasOne(e => e.Round)
+                .WithMany()
+                .HasForeignKey(e => e.RoundId);
+            entity.HasOne(e => e.Challenge)
+                .WithMany()
+                .HasForeignKey(e => e.ChallengeId);
+            entity.HasIndex(e => new { e.RoundId, e.ChallengeId, e.HintIndex }).IsUnique();
+        });
+
+        builder.Entity<GameLiveScoreboardConfig>(entity =>
+        {
+            entity.Property(e => e.VisualIntensity).HasConversion<byte>();
+            entity.Property(e => e.Title).HasDefaultValue("ITFest Live Scoreboard");
+            entity.Property(e => e.SoundEnabled).HasDefaultValue(true);
+            entity.Property(e => e.Volume).HasDefaultValue(0.75);
+        });
+
+        builder.Entity<WhitelistJoinAttempt>(entity =>
+        {
+            entity.HasOne(e => e.Game).WithMany().HasForeignKey(e => e.GameId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Team).WithMany().HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<CaptainOnboardingInvite>(entity =>
+        {
+            entity.HasOne(e => e.Game).WithMany().HasForeignKey(e => e.GameId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Team).WithMany().HasForeignKey(e => e.TeamId).OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<Post>(entity =>
@@ -149,6 +253,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
         {
             entity.Property(e => e.Status)
                 .HasConversion<int>();
+            entity.Property(e => e.WhitelistSource)
+                .HasConversion<byte>()
+                .HasDefaultValue(WhitelistSource.None);
 
             entity.HasMany(e => e.Instances).WithOne();
 
@@ -239,10 +346,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
 
         builder.Entity<GameChallenge>(entity =>
         {
+            entity.Property(e => e.RequireSolverUpload).HasDefaultValue(false);
+
             entity.Property(e => e.Hints)
                 .HasConversion(listConverter)
                 .Metadata
                 .SetValueComparer(listComparer);
+
+            entity.Property(e => e.SpeedrunHintReleaseMinutes)
+                .HasConversion(intListConverter)
+                .Metadata
+                .SetValueComparer(intListComparer);
+
+            entity.Property(e => e.SpeedrunHintReleaseSeconds)
+                .HasConversion(intListConverter)
+                .Metadata
+                .SetValueComparer(intListComparer);
 
             entity.Property(e => e.NetworkMode)
                 .HasConversion<byte>()
@@ -333,9 +452,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) :
         {
             entity.Property(e => e.Status).HasConversion<string>();
 
+            entity.HasOne(e => e.SolverFile)
+                .WithMany()
+                .HasForeignKey(e => e.SolverFileId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             entity.Navigation(e => e.Team).AutoInclude();
             entity.Navigation(e => e.User).AutoInclude();
             entity.Navigation(e => e.GameChallenge).AutoInclude();
+            entity.Navigation(e => e.SolverFile).AutoInclude();
         });
 
         builder.Entity<FlagContext>(entity =>

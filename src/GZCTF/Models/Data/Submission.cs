@@ -19,6 +19,18 @@ public class Submission
     public string Answer { get; set; } = string.Empty;
 
     /// <summary>
+    /// AI conversation link or declaration supplied with this submission
+    /// </summary>
+    [MaxLength(Limits.MaxAiUsageDisclosureLength)]
+    public string? AiUsageDisclosure { get; set; }
+
+    /// <summary>
+    /// Original solver filename supplied with this submission
+    /// </summary>
+    [MaxLength(Limits.MaxSolverFileNameLength)]
+    public string? SolverFileName { get; set; }
+
+    /// <summary>
     /// Status of the submitted answer
     /// </summary>
     public AnswerResult Status { get; set; } = AnswerResult.Accepted;
@@ -108,6 +120,18 @@ public class Submission
     /// </summary>
     [JsonIgnore]
     public GameChallenge? GameChallenge { get; set; }
+
+    /// <summary>
+    /// Solver file database ID
+    /// </summary>
+    [JsonIgnore]
+    public int? SolverFileId { get; set; }
+
+    /// <summary>
+    /// Solver file
+    /// </summary>
+    [JsonIgnore]
+    public LocalFile? SolverFile { get; set; }
 
     #endregion Db Relationship
 }

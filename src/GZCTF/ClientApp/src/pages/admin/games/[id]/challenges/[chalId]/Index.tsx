@@ -29,7 +29,15 @@ import { ChallengePreviewModal } from '@Components/admin/ChallengePreviewModal'
 import { SwitchLabel } from '@Components/admin/SwitchLabel'
 import { WithChallengeEdit } from '@Components/admin/WithChallengeEdit'
 import { ScoreFunc } from '@Components/charts/ScoreFunc'
-import { getInputNumber, NetworkModeItem, NetworkModeList, showErrorMsg, useNetworkModeMap } from '@Utils/Shared'
+import {
+  formatDurationSeconds,
+  getInputNumber,
+  NetworkModeItem,
+  NetworkModeList,
+  parseDurationSeconds,
+  showErrorMsg,
+  useNetworkModeMap,
+} from '@Utils/Shared'
 import {
   ChallengeCategoryItem,
   useChallengeCategoryLabelMap,
@@ -39,8 +47,35 @@ import {
 } from '@Utils/Shared'
 import { useEditChallenge, useEditChallenges } from '@Hooks/useEdit'
 import { useGame } from '@Hooks/useGame'
-import api, { ChallengeCategory, ChallengeType, ChallengeUpdateModel, NetworkMode } from '@Api'
+import api, { ChallengeCategory, ChallengeType, ChallengeUpdateModel, GameMode, NetworkMode } from '@Api'
 import misc from '@Styles/Misc.module.css'
+
+const DurationInput: FC<{
+  label: string
+  value: number
+  disabled?: boolean
+  onChange: (seconds: number) => void
+}> = ({ label, value, disabled, onChange }) => {
+  const [draft, setDraft] = useState(formatDurationSeconds(value))
+  const valid = parseDurationSeconds(draft) !== null
+
+  useEffect(() => setDraft(formatDurationSeconds(value)), [value])
+
+  return (
+    <TextInput
+      label={label}
+      placeholder="mm:ss or hh:mm:ss"
+      disabled={disabled}
+      value={draft}
+      error={valid ? undefined : 'Use mm:ss or hh:mm:ss'}
+      onChange={(event) => setDraft(event.currentTarget.value)}
+      onBlur={() => {
+        const seconds = parseDurationSeconds(draft)
+        if (seconds !== null) onChange(seconds)
+      }}
+    />
+  )
+}
 
 const GameChallengeEdit: FC = () => {
   const navigate = useNavigate()
@@ -378,8 +413,46 @@ const GameChallengeEdit: FC = () => {
                 hints={challengeInfo?.hints ?? []}
                 disabled={disabled}
                 height={180}
-                onChangeHint={(hints) => setChallengeInfo({ ...challengeInfo, hints })}
+                onChangeHint={(hints, removedIndex) => {
+                  const currentSchedule = challengeInfo?.speedrunHintReleaseSeconds ?? []
+                  const schedule =
+                    removedIndex === undefined
+                      ? currentSchedule
+                      : currentSchedule.filter((_, index) => index !== removedIndex)
+                  setChallengeInfo({
+                    ...challengeInfo,
+                    hints,
+                    speedrunHintReleaseSeconds: Array.from(
+                      { length: hints.length },
+                      (_, index) => schedule[index] ?? 0
+                    ),
+                  })
+                }}
               />
+              {game?.mode === GameMode.Speedrun && (challengeInfo?.hints?.length ?? 0) > 0 && (
+                <Stack gap="xs">
+                  <Text size="sm" fw={500}>Speedrun hint release times</Text>
+                  <Text size="xs" c="dimmed">
+                    Hints remain editable above. Time 00:00 releases a hint when the round starts.
+                  </Text>
+                  {challengeInfo?.hints?.map((_, index) => (
+                    <DurationInput
+                      key={index}
+                      label={`Hint ${index + 1}`}
+                      disabled={disabled}
+                      value={challengeInfo?.speedrunHintReleaseSeconds?.[index] ?? 0}
+                      onChange={(seconds) => {
+                        const speedrunHintReleaseSeconds = Array.from(
+                          { length: challengeInfo?.hints?.length ?? 0 },
+                          (_, scheduleIndex) => challengeInfo?.speedrunHintReleaseSeconds?.[scheduleIndex] ?? 0
+                        )
+                        speedrunHintReleaseSeconds[index] = seconds
+                        setChallengeInfo({ ...challengeInfo, speedrunHintReleaseSeconds })
+                      }}
+                    />
+                  ))}
+                </Stack>
+              )}
             </Stack>
           </Grid.Col>
           <Grid.Col span={1}>
@@ -443,6 +516,18 @@ const GameChallengeEdit: FC = () => {
                   t('admin.content.games.challenges.blood_bonus.description')
                 )}
                 onChange={(e) => setChallengeInfo({ ...challengeInfo, disableBloodBonus: !e.target.checked })}
+              />
+              <Switch
+                disabled={disabled}
+                checked={challengeInfo?.requireSolverUpload ?? false}
+                label={SwitchLabel(
+                  'Require Solver Upload',
+                  'Jika aktif, peserta wajib mengupload file solver pada setiap submission Jeopardy. Matikan untuk challenge seperti OSINT yang tidak memerlukannya.'
+                )}
+                onChange={(e) => setChallengeInfo({
+                  ...challengeInfo,
+                  requireSolverUpload: e.target.checked,
+                })}
               />
             </Stack>
           </Grid.Col>

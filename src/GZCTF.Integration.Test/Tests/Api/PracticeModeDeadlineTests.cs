@@ -112,7 +112,8 @@ public class PracticeModeDeadlineTests(GZCTFApplicationFactory factory)
         }
 
         // Act & Assert: Submission should fail when deadline passed and practice mode disabled
-        var flagSubmitModel = new FlagSubmitModel { Flag = "flag{deadline_test}" };
+        var flagSubmitModel = new FlagSubmitModel
+            { Flag = "flag{deadline_test}", AiUsageDisclosure = "Saya tidak memakai AI" };
         var submitResponse1 = await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
             flagSubmitModel);
 
@@ -155,7 +156,8 @@ public class PracticeModeDeadlineTests(GZCTFApplicationFactory factory)
         }
 
         // Act & Assert: Submission should succeed even after game ends in practice mode
-        var flagSubmitModel2 = new FlagSubmitModel { Flag = "flag{game_end}" };
+        var flagSubmitModel2 = new FlagSubmitModel
+            { Flag = "flag{game_end}", AiUsageDisclosure = "Saya tidak memakai AI" };
         var submitResponse3 = await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge2.Id}",
             flagSubmitModel2);
 
@@ -212,7 +214,7 @@ public class PracticeModeDeadlineTests(GZCTFApplicationFactory factory)
             new LoginModel { UserName = user1.UserName, Password = user1Password });
 
         var submitResponse1 = await client1.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
-            new FlagSubmitModel { Flag = "flag{scoreboard}" });
+            new FlagSubmitModel { Flag = "flag{scoreboard}", AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse1.EnsureSuccessStatusCode();
         var submissionId1 = await submitResponse1.Content.ReadFromJsonAsync<int>();
         await Task.Delay(300);
@@ -222,7 +224,7 @@ public class PracticeModeDeadlineTests(GZCTFApplicationFactory factory)
             new LoginModel { UserName = user2.UserName, Password = user2Password });
 
         var submitResponse2 = await client2.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
-            new FlagSubmitModel { Flag = "flag{scoreboard}" });
+            new FlagSubmitModel { Flag = "flag{scoreboard}", AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse2.EnsureSuccessStatusCode();
         var submissionId2 = await submitResponse2.Content.ReadFromJsonAsync<int>();
         await Task.Delay(300);
@@ -265,7 +267,7 @@ public class PracticeModeDeadlineTests(GZCTFApplicationFactory factory)
             new LoginModel { UserName = user3.UserName, Password = user3Password });
 
         var submitResponse3 = await client3.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge2.Id}",
-            new FlagSubmitModel { Flag = "flag{after_deadline}" });
+            new FlagSubmitModel { Flag = "flag{after_deadline}", AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse3.EnsureSuccessStatusCode();
         var submissionId3 = await submitResponse3.Content.ReadFromJsonAsync<int>();
         await Task.Delay(300);

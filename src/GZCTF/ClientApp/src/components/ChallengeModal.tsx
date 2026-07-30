@@ -1,10 +1,12 @@
 import {
   Button,
   Divider,
+  FileInput,
   Group,
   Modal,
   ModalProps,
   Stack,
+  Textarea,
   TextInput,
   Text,
   Title,
@@ -12,7 +14,7 @@ import {
   ScrollAreaAutosize,
   Input,
 } from '@mantine/core'
-import { mdiLightbulbOnOutline, mdiOpenInNew, mdiPackageVariantClosed } from '@mdi/js'
+import { mdiFileUploadOutline, mdiLightbulbOnOutline, mdiOpenInNew, mdiPackageVariantClosed } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -86,6 +88,13 @@ export interface ChallengeModalProps extends ModalProps {
   practiceMode?: boolean
   flag: string
   setFlag: (value: string | React.ChangeEvent<any> | null | undefined) => void
+  requireAiUsageDisclosure?: boolean
+  aiUsageDisclosure?: string
+  aiUsageDisclosureError?: string
+  setAiUsageDisclosure?: (value: string) => void
+  solverFile?: File | null
+  solverFileError?: string
+  setSolverFile?: (value: File | null) => void
   onCreate: () => void
   onExtend: () => void
   onDestroy: () => void
@@ -104,6 +113,13 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
     practiceMode,
     flag,
     setFlag,
+    requireAiUsageDisclosure,
+    aiUsageDisclosure,
+    aiUsageDisclosureError,
+    setAiUsageDisclosure,
+    solverFile,
+    solverFileError,
+    setSolverFile,
     onCreate,
     onExtend,
     onDestroy,
@@ -276,18 +292,55 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
           }
         }}
       >
-        <Group justify="space-between" gap="sm" align="flex-end">
+        <Stack gap="sm">
           <TextInput
+            label="Flag"
             placeholder={placeholder}
             value={inputValue}
             disabled={inputDisabled}
             onChange={setFlag}
-            classNames={{ root: misc.flexGrow, input: misc.ffmono }}
+            classNames={{ input: misc.ffmono }}
           />
-          <Button miw="6rem" type="submit" disabled={inputDisabled}>
-            {t('challenge.button.submit_flag')}
-          </Button>
-        </Group>
+          {requireAiUsageDisclosure && (
+            <Textarea
+              label="Link AI / Pernyataan Penggunaan AI"
+              description={'Kolom ini wajib diisi. Masukkan URL http/https, atau tulis tepat "Saya tidak memakai AI".'}
+              placeholder={'https://chatgpt.com/share/... atau "Saya tidak memakai AI"'}
+              value={aiUsageDisclosure ?? ''}
+              error={aiUsageDisclosureError}
+              disabled={inputDisabled}
+              maxLength={2000}
+              minRows={1}
+              maxRows={3}
+              autosize
+              w="100%"
+              onChange={(event) => setAiUsageDisclosure?.(event.currentTarget.value)}
+            />
+          )}
+          {requireAiUsageDisclosure && (
+            <FileInput
+              label={`Upload Solver${challenge?.requireSolverUpload ? '' : ' (Opsional)'}`}
+              description={
+                challenge?.requireSolverUpload
+                  ? 'Wajib untuk challenge ini. Upload source code atau arsip solver, maksimal 10 MB.'
+                  : 'Challenge ini tidak mewajibkan solver, tetapi file tetap boleh dilampirkan.'
+              }
+              placeholder="Pilih file solver"
+              leftSection={<Icon path={mdiFileUploadOutline} size={1} />}
+              value={solverFile}
+              error={solverFileError}
+              disabled={inputDisabled}
+              clearable
+              required={challenge?.requireSolverUpload}
+              onChange={(file) => setSolverFile?.(file)}
+            />
+          )}
+          <Group justify="flex-end">
+            <Button miw="6rem" type="submit" disabled={inputDisabled}>
+              {t('challenge.button.submit_flag')}
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </Stack>
   )
@@ -298,6 +351,8 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
       {...modalProps}
       onClose={() => {
         setFlag('')
+        setAiUsageDisclosure?.('')
+        setSolverFile?.(null)
         modalProps.onClose()
       }}
       centered

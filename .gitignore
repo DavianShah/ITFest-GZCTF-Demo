@@ -259,3 +259,6 @@ docs
 
 # Node package lock files (npm)
 **/package-lock.json
+
+# Local .NET SDK bootstrap helper
+dotnet-install.sh

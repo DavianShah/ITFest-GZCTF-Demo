@@ -62,6 +62,11 @@ public class ChallengeDetailModel
     /// </summary>
     public DateTimeOffset? Deadline { get; set; }
 
+    /// <summary>
+    /// Whether this challenge requires a solver file with Jeopardy submissions
+    /// </summary>
+    public bool RequireSolverUpload { get; set; }
+
     internal static ChallengeDetailModel FromInstance(GameInstance gameInstance, int attemptCount,
         ChallengeInfo? scoreboardChallenge = null) =>
         new()
@@ -75,6 +80,7 @@ public class ChallengeDetailModel
             Type = gameInstance.Challenge.Type,
             Limit = gameInstance.Challenge.SubmissionLimit,
             Deadline = gameInstance.Challenge.DeadlineUtc,
+            RequireSolverUpload = gameInstance.Challenge.RequireSolverUpload,
             Attempts = attemptCount,
             Context = new()
             {

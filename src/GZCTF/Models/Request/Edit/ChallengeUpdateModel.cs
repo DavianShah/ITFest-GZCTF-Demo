@@ -37,6 +37,9 @@ public class ChallengeUpdateModel
     /// </summary>
     public List<string>? Hints { get; set; }
 
+    public List<int>? SpeedrunHintReleaseMinutes { get; set; }
+    public List<int>? SpeedrunHintReleaseSeconds { get; set; }
+
     /// <summary>
     /// Is the challenge enabled
     /// </summary>
@@ -104,6 +107,11 @@ public class ChallengeUpdateModel
     /// Is blood bonus disabled (enable by default)
     /// </summary>
     public bool? DisableBloodBonus { get; set; }
+
+    /// <summary>
+    /// Whether Jeopardy submissions must include a solver file
+    /// </summary>
+    public bool? RequireSolverUpload { get; set; }
 
     /// <summary>
     /// Initial score

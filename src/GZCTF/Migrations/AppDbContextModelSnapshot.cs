@@ -18,7 +18,7 @@ namespace GZCTF.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -88,6 +88,75 @@ namespace GZCTF.Migrations
                     b.HasIndex("LocalFileId");
 
                     b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.CaptainOnboardingInvite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int[]>("AdditionalGameIds")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<string>("CaptainEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("ConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("LastEmailQueued")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LastSentAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("OpenedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SendCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TeamName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeamId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("GameId", "CaptainEmail");
+
+                    b.ToTable("CaptainOnboardingInvites");
                 });
 
             modelBuilder.Entity("GZCTF.Models.Data.CheatInfo", b =>
@@ -458,6 +527,66 @@ namespace GZCTF.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("BloodBonus");
 
+                    b.Property<string>("BloodDiscordWebhookUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("BloodNotificationEmbedColor")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("BloodNotificationEmbedDescriptionTemplate")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasDefaultValue("**{team}** conquered **{challenge}** and claimed rank **#{rank}**!");
+
+                    b.Property<string>("BloodNotificationEmbedFieldsTemplate")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasDefaultValue("👤 User / Team|{team}|true\n🏁 Challenge|{challenge}|true\n📂 Category|{category}|true\n💯 Points|{score}|true\n🎮 Game|{game}|true\n🏆 Rank|#{rank}|true");
+
+                    b.Property<string>("BloodNotificationEmbedFooterTemplate")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasDefaultValue("Solved at {time} • ITFest CTF");
+
+                    b.Property<string>("BloodNotificationEmbedTitleTemplate")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasDefaultValue("{emoji} {blood} BLOOD!");
+
+                    b.Property<bool>("BloodNotificationEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("BloodNotificationMaxRank")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("BloodNotificationTemplate")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasDefaultValue("Challenge **{challenge}** has been blooded!");
+
+                    b.Property<string>("BloodNotificationTimeZone")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasDefaultValue("Asia/Jakarta");
+
                     b.Property<int>("ContainerCountLimit")
                         .HasColumnType("integer");
 
@@ -476,6 +605,11 @@ namespace GZCTF.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
+                    b.Property<byte>("Mode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((byte)0);
+
                     b.Property<string>("PosterHash")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -493,6 +627,48 @@ namespace GZCTF.Migrations
                         .HasMaxLength(63)
                         .HasColumnType("character varying(63)");
 
+                    b.Property<bool>("SpeedrunAllowManualExtend")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("SpeedrunDefaultRoundDurationMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(30);
+
+                    b.Property<int>("SpeedrunDefaultRoundDurationSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1800);
+
+                    b.Property<bool>("SpeedrunEmergencyHintEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SpeedrunEmergencyHintText")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasDefaultValue("Overtime unlocked! Unsolved challenges remain available for 5 more minutes.");
+
+                    b.Property<bool>("SpeedrunHideInactiveChallenges")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("SpeedrunOvertimeMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(5);
+
+                    b.Property<int>("SpeedrunOvertimeSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(300);
+
                     b.Property<DateTimeOffset>("StartTimeUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasJsonPropertyName("start");
@@ -507,6 +683,11 @@ namespace GZCTF.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("WhitelistOnly")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTimeOffset>("WriteupDeadline")
                         .HasColumnType("timestamp with time zone");
@@ -597,6 +778,17 @@ namespace GZCTF.Migrations
 
                     b.Property<int>("OriginalScore")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("RequireSolverUpload")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("SpeedrunHintReleaseMinutes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SpeedrunHintReleaseSeconds")
+                        .HasColumnType("text");
 
                     b.Property<int?>("StorageLimit")
                         .HasColumnType("integer");
@@ -700,6 +892,99 @@ namespace GZCTF.Migrations
                     b.HasIndex("ParticipationId");
 
                     b.ToTable("GameInstances");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.GameLiveScoreboardConfig", b =>
+                {
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SoundCategorySelected")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundCorrectSubmit")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundCountdownTick")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<bool>("SoundEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SoundFirstBlood")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundGameStart")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundHintDrop")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundOvertime")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundReminder")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundRoundFinished")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundScoreUpdate")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundSecondBlood")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundSpin")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundThirdBlood")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SoundWrongSubmit")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasDefaultValue("ITFest Live Scoreboard");
+
+                    b.Property<byte>("VisualIntensity")
+                        .HasColumnType("smallint");
+
+                    b.Property<double>("Volume")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.75);
+
+                    b.HasKey("GameId");
+
+                    b.ToTable("GameLiveScoreboardConfigs");
                 });
 
             modelBuilder.Entity("GZCTF.Models.Data.GameNotice", b =>
@@ -832,6 +1117,11 @@ namespace GZCTF.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<byte>("WhitelistSource")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((byte)0);
+
                     b.Property<int?>("WriteupId")
                         .HasColumnType("integer");
 
@@ -888,6 +1178,134 @@ namespace GZCTF.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte>("Category")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Included")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "Category")
+                        .IsUnique();
+
+                    b.ToTable("SpeedrunCategories");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunHintReleaseLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HintIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ReleasedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RoundId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("RoundId", "ChallengeId", "HintIndex")
+                        .IsUnique();
+
+                    b.ToTable("SpeedrunHintReleaseLogs");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunRound", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte>("Category")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("FinishedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManuallyExtendedMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManuallyExtendedSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("OvertimeEndsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OvertimeMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("OvertimeNoticeSent")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OvertimeSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("SelectedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "Status");
+
+                    b.ToTable("SpeedrunRounds");
+                });
+
             modelBuilder.Entity("GZCTF.Models.Data.Submission", b =>
                 {
                     b.Property<int>("Id")
@@ -895,6 +1313,10 @@ namespace GZCTF.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AiUsageDisclosure")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("Answer")
                         .IsRequired()
@@ -909,6 +1331,13 @@ namespace GZCTF.Migrations
 
                     b.Property<int>("ParticipationId")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("SolverFileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SolverFileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -931,6 +1360,8 @@ namespace GZCTF.Migrations
                     b.HasIndex("GameId");
 
                     b.HasIndex("ParticipationId");
+
+                    b.HasIndex("SolverFileId");
 
                     b.HasIndex("UserId");
 
@@ -1107,6 +1538,37 @@ namespace GZCTF.Migrations
                         .IsUnique();
 
                     b.ToTable("UserParticipations");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.WhitelistJoinAttempt", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("AttemptedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("GameId", "AttemptedAtUtc");
+
+                    b.HasIndex("TeamId", "AttemptedAtUtc");
+
+                    b.ToTable("WhitelistJoinAttempts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -1292,6 +1754,24 @@ namespace GZCTF.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("LocalFile");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.CaptainOnboardingInvite", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GZCTF.Models.Data.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("GZCTF.Models.Data.CheatInfo", b =>
@@ -1560,6 +2040,17 @@ namespace GZCTF.Migrations
                     b.Navigation("Participation");
                 });
 
+            modelBuilder.Entity("GZCTF.Models.Data.GameLiveScoreboardConfig", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithOne("LiveScoreboardConfig")
+                        .HasForeignKey("GZCTF.Models.Data.GameLiveScoreboardConfig", "GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("GZCTF.Models.Data.GameNotice", b =>
                 {
                     b.HasOne("GZCTF.Models.Data.Game", "Game")
@@ -1613,6 +2104,55 @@ namespace GZCTF.Migrations
                     b.Navigation("Author");
                 });
 
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunCategory", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithMany("SpeedrunCategories")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunHintReleaseLog", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.GameChallenge", "Challenge")
+                        .WithMany()
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithMany("SpeedrunHintReleaseLogs")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GZCTF.Models.Data.SpeedrunRound", "Round")
+                        .WithMany()
+                        .HasForeignKey("RoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Challenge");
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Round");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.SpeedrunRound", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithMany("SpeedrunRounds")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("GZCTF.Models.Data.Submission", b =>
                 {
                     b.HasOne("GZCTF.Models.Data.GameChallenge", "GameChallenge")
@@ -1633,6 +2173,11 @@ namespace GZCTF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GZCTF.Models.Data.LocalFile", "SolverFile")
+                        .WithMany()
+                        .HasForeignKey("SolverFileId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("GZCTF.Models.Data.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
@@ -1649,6 +2194,8 @@ namespace GZCTF.Migrations
                     b.Navigation("GameChallenge");
 
                     b.Navigation("Participation");
+
+                    b.Navigation("SolverFile");
 
                     b.Navigation("Team");
 
@@ -1695,6 +2242,32 @@ namespace GZCTF.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("Participation");
+
+                    b.Navigation("Team");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GZCTF.Models.Data.WhitelistJoinAttempt", b =>
+                {
+                    b.HasOne("GZCTF.Models.Data.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GZCTF.Models.Data.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GZCTF.Models.Data.UserInfo", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Game");
 
                     b.Navigation("Team");
 
@@ -1794,7 +2367,15 @@ namespace GZCTF.Migrations
 
                     b.Navigation("GameNotices");
 
+                    b.Navigation("LiveScoreboardConfig");
+
                     b.Navigation("Participations");
+
+                    b.Navigation("SpeedrunCategories");
+
+                    b.Navigation("SpeedrunHintReleaseLogs");
+
+                    b.Navigation("SpeedrunRounds");
 
                     b.Navigation("Submissions");
                 });

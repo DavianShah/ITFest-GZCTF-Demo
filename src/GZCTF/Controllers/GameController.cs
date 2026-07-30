@@ -8,8 +8,10 @@ using GZCTF.Middlewares;
 using GZCTF.Models;
 using GZCTF.Models.Internal;
 using GZCTF.Models.Request.Admin;
+using GZCTF.Models.Request.Edit;
 using GZCTF.Models.Request.Game;
 using GZCTF.Repositories.Interface;
+using GZCTF.Services;
 using GZCTF.Services.Cache;
 using GZCTF.Services.Config;
 using GZCTF.Storage.Interface;
@@ -51,9 +53,45 @@ public class GameController(
     IGameChallengeRepository challengeRepository,
     IGameInstanceRepository gameInstanceRepository,
     IParticipationRepository participationRepository,
+    SpeedrunService speedrunService,
+    AppDbContext dbContext,
     IOptionsSnapshot<ContainerPolicy> containerPolicy,
     IStringLocalizer<Program> localizer) : ControllerBase
 {
+    [HttpGet("{id:int}/Live")]
+    [ProducesResponseType(typeof(LiveScoreboardStateModel), StatusCodes.Status200OK)]
+    public async Task<IActionResult> LiveScoreboard(int id, CancellationToken token)
+    {
+        var game = await dbContext.Games.AsNoTracking().Include(g => g.LiveScoreboardConfig)
+            .SingleOrDefaultAsync(g => g.Id == id, token);
+        if (game is null)
+            return NotFound(new RequestResponse("Game not found.", StatusCodes.Status404NotFound));
+
+        var scoreboard = await gameRepository.TryGetScoreboard(id, token) ?? await gameRepository.GetScoreboard(game, token);
+        (var notices, _) = await noticeRepository.GetLatestNotices(id, token);
+        return Ok(new LiveScoreboardStateModel
+        {
+            GameId = id,
+            GameTitle = game.Title,
+            GameMode = game.Mode,
+            Config = LiveScoreboardConfigModel.FromConfig(game.LiveScoreboardConfig),
+            SpeedrunState = await speedrunService.GetState(id, token),
+            TopTeams = scoreboard.ItemList.OrderBy(team => team.Rank).Take(10).Select(team => new LiveScoreboardTeamModel
+            {
+                Id = team.Id, Rank = team.Rank, Name = team.Name, Score = team.Score, SolvedCount = team.SolvedCount
+            }).ToArray(),
+            RecentEvents = notices.OrderByDescending(notice => notice.PublishTimeUtc).Take(20).Select(notice =>
+                new LiveScoreboardEventModel
+                {
+                    Id = $"notice-{notice.Id}", Type = notice.Type, CreatedAt = notice.PublishTimeUtc,
+                    Message = notice.Values is { Count: > 0 } ? string.Join(" ", notice.Values) : notice.Type.ToString(),
+                    TeamName = notice.Type is NoticeType.FirstBlood or NoticeType.SecondBlood or NoticeType.ThirdBlood
+                        ? notice.Values?.ElementAtOrDefault(0) : null,
+                    ChallengeTitle = notice.Type is NoticeType.FirstBlood or NoticeType.SecondBlood or NoticeType.ThirdBlood
+                        ? notice.Values?.ElementAtOrDefault(1) : null
+                }).ToArray()
+        });
+    }
     /// <summary>
     /// Get the recent games
     /// </summary>
@@ -126,6 +164,11 @@ public class GameController(
         return Ok(gameInfo.WithParticipation(part, count));
     }
 
+    [HttpGet("{id:int}/Speedrun/State")]
+    [ProducesResponseType(typeof(SpeedrunStateModel), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSpeedrunState(int id, CancellationToken token) =>
+        Ok(await speedrunService.GetState(id, token));
+
     /// <summary>
     /// Get check info for joining a game
     /// </summary>
@@ -189,6 +232,26 @@ public class GameController(
         if (team.Members.All(u => u.Id != user!.Id))
             return BadRequest(new RequestResponse(localizer[nameof(Resources.Program.Game_NotMemberOfTeam)]));
 
+        var part = await participationRepository.GetParticipation(team, game, token);
+        if (game.WhitelistOnly && part?.WhitelistSource is null or WhitelistSource.None)
+        {
+            dbContext.WhitelistJoinAttempts.Add(new()
+            {
+                GameId = game.Id,
+                TeamId = team.Id,
+                UserId = user!.Id,
+                AttemptedAtUtc = DateTimeOffset.UtcNow
+            });
+            await dbContext.SaveChangesAsync(token);
+            await transaction.CommitAsync(token);
+            logger.LogWarning("Whitelist join rejected for TeamId {TeamId}, GameId {GameId}, UserId {UserId}",
+                team.Id, game.Id, user.Id);
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new RequestResponse(
+                    "Tim ini belum terdaftar di whitelist kompetisi ini. Hubungi panitia jika sudah melakukan pembayaran.",
+                    StatusCodes.Status403Forbidden));
+        }
+
         // =============== Validate division and permissions ===============
 
         var joinableDivisionIds = await divisionRepository.GetJoinableDivisionIds(id, token);
@@ -226,9 +289,6 @@ public class GameController(
 
         // =============== Check and handle participation state ===============
 
-        // Get existing participation for this team in this game
-        var part = await participationRepository.GetParticipation(team, game, token);
-
         // Check if user is already in this game through a different team (exclude rejected participations)
         if (await participationRepository.CheckRepeatParticipation(user!, game, token))
             return BadRequest(new RequestResponse(localizer[nameof(Resources.Program.Game_InOtherTeam)]));
@@ -247,6 +307,12 @@ public class GameController(
             // Allow changing division when re-joining after rejection
             part.Division = div;
             part.Status = ParticipationStatus.Pending;
+        }
+        else if (part.WhitelistSource != WhitelistSource.None && part.Members.Count == 0 &&
+                 part.DivisionId is null)
+        {
+            // Pre-approved onboarding/manual whitelist entries choose their division on first join.
+            part.Division = div;
         }
         else if (part.DivisionId != model.DivisionId)
         {
@@ -735,12 +801,13 @@ public class GameController(
             return BadRequest(
                 new RequestResponse(localizer[nameof(Resources.Program.Game_Ended)], ErrorCodes.GameEnded));
 
+        var isSpeedrun = (await gameRepository.GetGameById(id, token))?.Mode == GameMode.Speedrun;
         var scoreboard = await gameRepository.TryGetScoreboard(id, token);
         string eTag;
         if (scoreboard is not null)
         {
             eTag = GameETag(id, scoreboard.UpdateTimeUtc);
-            if (ContextHelper.IsNotModified(Request, Response, eTag, scoreboard.UpdateTimeUtc, true))
+            if (!isSpeedrun && ContextHelper.IsNotModified(Request, Response, eTag, scoreboard.UpdateTimeUtc, true))
                 return StatusCode(StatusCodes.Status304NotModified);
         }
 
@@ -760,6 +827,23 @@ public class GameController(
         {
             // filter out challenges is can be viewed by division permission
             challenges = FilterChallengesByPermission(scoreboard.Challenges, division);
+        }
+
+        if (context.Game!.Mode == GameMode.Speedrun)
+        {
+            // Filter only the participant challenge-card response. The normal scoreboard remains unchanged.
+            var state = await speedrunService.GetState(id, token);
+            if (state.CurrentRound is not { Status: SpeedrunRoundStatus.Running or SpeedrunRoundStatus.Overtime } round)
+                challenges = [];
+            else
+            {
+                challenges = challenges
+                    .Where(pair => pair.Key == round.Category)
+                    .ToDictionary(pair => pair.Key,
+                        pair => round.Status == SpeedrunRoundStatus.Overtime
+                            ? pair.Value.Where(challenge => challenge.SolvedCount == 0)
+                            : pair.Value);
+            }
         }
 
         var boardItem = scoreboard.Items.TryGetValue(context.Participation!.TeamId, out var item)
@@ -926,6 +1010,10 @@ public class GameController(
         if (context.Result is not null)
             return context.Result;
 
+        if (!await speedrunService.CanAccessChallenge(context.Game!, challengeId, token))
+            return NotFound(new RequestResponse("Challenge is not active in the current Speedrun round.",
+                StatusCodes.Status404NotFound));
+
         var permission = await divisionRepository.GetPermission(context.Participation?.DivisionId, challengeId, token);
 
         if (!permission.HasFlag(GamePermission.ViewChallenge))
@@ -944,7 +1032,9 @@ public class GameController(
 
         var attempts = await submissionRepository.CountSubmissions(context.Participation!.Id, challengeId, token);
 
-        return Ok(ChallengeDetailModel.FromInstance(instance, attempts, scoreboardChallenge));
+        var detail = ChallengeDetailModel.FromInstance(instance, attempts, scoreboardChallenge);
+        detail.Hints = await speedrunService.GetVisibleHints(context.Game!, instance.Challenge, token);
+        return Ok(detail);
     }
 
     /// <summary>
@@ -966,8 +1056,27 @@ public class GameController(
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Submit([FromRoute] int id, [FromRoute] int challengeId,
-        [FromBody] FlagSubmitModel model, CancellationToken token)
+    public Task<IActionResult> Submit([FromRoute] int id, [FromRoute] int challengeId,
+        [FromBody] FlagSubmitModel model, CancellationToken token) =>
+        SubmitCore(id, challengeId, model, null, token);
+
+    /// <summary>
+    /// Submits a flag with a solver file
+    /// </summary>
+    [RequireUser]
+    [HttpPost("{id:int}/Challenges/{challengeId:int}/WithSolver")]
+    [EnableRateLimiting(nameof(RateLimiter.LimitPolicy.Submit))]
+    [Consumes("multipart/form-data")]
+    [RequestFormLimits(MultipartBodyLengthLimit = Limits.MaxSolverFileSize + 1024 * 1024)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public Task<IActionResult> SubmitWithSolver([FromRoute] int id, [FromRoute] int challengeId,
+        [FromForm] FlagSubmitWithSolverModel model, CancellationToken token) =>
+        SubmitCore(id, challengeId, model, model.SolverFile, token);
+
+    private async Task<IActionResult> SubmitCore(int id, int challengeId, FlagSubmitModel model,
+        IFormFile? solverFile, CancellationToken token)
     {
         var submitTime = DateTimeOffset.UtcNow;
         var answer = configService.DecryptApiData(model.Flag);
@@ -977,11 +1086,48 @@ public class GameController(
         if (answer.Length > Limits.MaxFlagLength)
             return BadRequest(new RequestResponse(localizer[nameof(Resources.Program.Model_FlagTooLong)]));
 
+        string? solverFileName = null;
+        if (solverFile is not null)
+        {
+            solverFileName = string.Concat(Path.GetFileName(solverFile.FileName.Replace('\\', '/'))
+                .Where(character => !char.IsControl(character))).Trim();
+            if (solverFile.Length == 0)
+                return BadRequest(new RequestResponse("File solver tidak boleh kosong."));
+            if (solverFile.Length > Limits.MaxSolverFileSize)
+                return BadRequest(new RequestResponse("Ukuran file solver maksimal 10 MB."));
+            if (string.IsNullOrWhiteSpace(solverFileName) ||
+                solverFileName.Length > Limits.MaxSolverFileNameLength)
+            {
+                return BadRequest(new RequestResponse(
+                    $"Nama file solver wajib diisi dan maksimal {Limits.MaxSolverFileNameLength} karakter."));
+            }
+        }
+
         var context = await GetContextInfo(id, token: token);
 
         if (context.Result is not null)
             return context.Result;
 
+        var aiUsageDisclosure = model.AiUsageDisclosure?.Trim();
+
+        if (context.Game!.Mode == GameMode.Jeopardy && string.IsNullOrWhiteSpace(aiUsageDisclosure))
+        {
+            return BadRequest(new RequestResponse(AiUsageDisclosureValidator.RequiredMessage));
+        }
+
+        if (aiUsageDisclosure?.Length > Limits.MaxAiUsageDisclosureLength)
+        {
+            return BadRequest(new RequestResponse(
+                $"Link AI atau pernyataan penggunaan AI tidak boleh melebihi {Limits.MaxAiUsageDisclosureLength} karakter."));
+        }
+
+        if (context.Game.Mode == GameMode.Jeopardy && !AiUsageDisclosureValidator.IsValid(aiUsageDisclosure))
+            return BadRequest(new RequestResponse(AiUsageDisclosureValidator.InvalidFormatMessage));
+
+        if (!await speedrunService.CanAccessChallenge(context.Game!, challengeId, token))
+            return BadRequest(new RequestResponse("Challenge is not submittable in the current Speedrun round."));
+
+        // Valid Speedrun submissions continue through the normal submission queue and VerifyAnswer pipeline.
         const int maxRetries = 3;
         for (var retry = 0; retry < maxRetries; retry++)
         {
@@ -993,6 +1139,13 @@ public class GameController(
             if (instance is null)
                 return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_ChallengeNotFound)],
                     StatusCodes.Status404NotFound));
+
+            if (context.Game.Mode == GameMode.Jeopardy && instance.Challenge.RequireSolverUpload &&
+                solverFile is null)
+            {
+                return BadRequest(new RequestResponse(
+                    "Upload file solver sebelum mengirim flag untuk challenge ini."));
+            }
 
             // Check if submission exceeds challenge deadline (only reject in non-practice mode)
             var hasExceededDeadline = instance.Challenge.DeadlineUtc is { } deadline && submitTime > deadline;
@@ -1015,20 +1168,27 @@ public class GameController(
                     new RequestResponse(localizer[nameof(Resources.Program.Challenge_SubmissionLimitExceeded)]));
             }
 
-            Submission submission = new()
-            {
-                Game = context.Game!,
-                User = context.User!,
-                GameChallenge = instance.Challenge,
-                Team = context.Participation!.Team,
-                Participation = context.Participation!,
-                Status = AnswerResult.FlagSubmitted,
-                SubmitTimeUtc = submitTime,
-                Answer = answer
-            };
-
             try
             {
+                LocalFile? solverBlob = null;
+                if (solverFile is not null)
+                    solverBlob = await blobService.CreateOrUpdateBlob(solverFile, solverFileName, token);
+
+                Submission submission = new()
+                {
+                    Game = context.Game!,
+                    User = context.User!,
+                    GameChallenge = instance.Challenge,
+                    Team = context.Participation!.Team,
+                    Participation = context.Participation!,
+                    Status = AnswerResult.FlagSubmitted,
+                    SubmitTimeUtc = submitTime,
+                    Answer = answer,
+                    AiUsageDisclosure = aiUsageDisclosure,
+                    SolverFile = solverBlob,
+                    SolverFileName = solverFileName
+                };
+
                 submission = await submissionRepository.AddSubmission(submission, token);
                 await transaction.CommitAsync(token);
 

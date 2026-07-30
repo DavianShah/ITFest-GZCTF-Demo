@@ -78,7 +78,7 @@ public partial record DataWithModifiedTime<T>(T Data, DateTimeOffset LastModifie
 /// </summary>
 /// <param name="SubType">Submission type</param>
 /// <param name="AnsRes">Flag submission result</param>
-public record VerifyResult(SubmissionType SubType, AnswerResult AnsRes);
+public record VerifyResult(SubmissionType SubType, AnswerResult AnsRes, int FirstSolveRank = 0);
 
 /// <summary>
 /// Team information

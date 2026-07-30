@@ -10,11 +10,11 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import { GameProgress } from '@Components/GameProgress'
 import { IconTabs } from '@Components/IconTabs'
 import { RequireRole } from '@Components/WithRole'
-import { DEFAULT_LOADING_OVERLAY } from '@Utils/Shared'
+import { DEFAULT_LOADING_OVERLAY, formatDurationSeconds } from '@Utils/Shared'
 import { getGameStatus, useGame } from '@Hooks/useGame'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useUserRole } from '@Hooks/useUser'
-import { DetailedGameInfoModel, ParticipationStatus, Role } from '@Api'
+import api, { DetailedGameInfoModel, GameMode, ParticipationStatus, Role, SpeedrunRoundStatus, SpeedrunStateModel } from '@Api'
 import misc from '@Styles/Misc.module.css'
 
 dayjs.extend(duration)
@@ -23,28 +23,53 @@ const GameCountdown: FC<{ game?: DetailedGameInfoModel }> = ({ game }) => {
   const { endTime, progress } = getGameStatus(game)
 
   const [now, setNow] = useState(dayjs())
+  const [speedrunState, setSpeedrunState] = useState<SpeedrunStateModel>()
 
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (!game || dayjs() > dayjs(game.end)) return
+    if (!game) return
     const interval = setInterval(() => setNow(dayjs()), 1000)
     return () => clearInterval(interval)
   }, [game])
 
-  const countdown = dayjs.duration(endTime.diff(now))
+  useEffect(() => {
+    if (!game?.id || game.mode !== GameMode.Speedrun) {
+      setSpeedrunState(undefined)
+      return
+    }
+    const refresh = async () => setSpeedrunState((await api.game.gameGetSpeedrunState(game.id!)).data)
+    void refresh()
+    const interval = window.setInterval(refresh, 3000)
+    return () => window.clearInterval(interval)
+  }, [game?.id, game?.mode])
+
+  const round = speedrunState?.currentRound
+  const speedrunActive = round?.status === SpeedrunRoundStatus.Running || round?.status === SpeedrunRoundStatus.Overtime
+  const speedrunStart = round?.status === SpeedrunRoundStatus.Overtime ? round.endsAtUtc : round?.startedAtUtc
+  const speedrunEnd = round?.status === SpeedrunRoundStatus.Overtime ? round.overtimeEndsAtUtc : round?.endsAtUtc
+  const effectiveEnd = speedrunActive && speedrunEnd ? dayjs(speedrunEnd) : endTime
+  const countdown = dayjs.duration(effectiveEnd.diff(now))
+  const speedrunTotal = speedrunStart && speedrunEnd ? dayjs(speedrunEnd).diff(dayjs(speedrunStart)) : 0
+  const speedrunElapsed = speedrunStart ? now.diff(dayjs(speedrunStart)) : 0
+  const speedrunProgress =
+    speedrunActive && speedrunTotal > 0
+      ? Math.min(100, Math.max(0, (speedrunElapsed / speedrunTotal) * 100))
+      : progress
 
   return (
     <Card miw="9rem" ta="center" pt={4} className={misc.overflowVisible}>
       <Text fw="bold" lineClamp={1}>
-        {countdown.asHours() > 999
+        {speedrunActive
+          ? formatDurationSeconds(countdown.asSeconds())
+          : countdown.asHours() > 999
           ? t('game.content.game_lasts_long')
           : countdown.asSeconds() > 0
             ? `${Math.floor(countdown.asHours())} : ${countdown.format('mm : ss')}`
             : t('game.content.game_ended')}
       </Text>
       <Card.Section mt={4}>
-        <GameProgress percentage={progress} py={0} />
+        <GameProgress percentage={speedrunProgress} py={0} />
       </Card.Section>
     </Card>
   )

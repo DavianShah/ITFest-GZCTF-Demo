@@ -1,6 +1,7 @@
 ﻿using System.Threading.Channels;
 using GZCTF.Repositories.Interface;
 using GZCTF.Services.Cache;
+using GZCTF.Services.Integrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace GZCTF.Services;
@@ -93,10 +94,12 @@ public class FlagChecker(
                     scope.ServiceProvider.GetRequiredService<IGameNoticeRepository>();
                 var submissionRepository =
                     scope.ServiceProvider.GetRequiredService<ISubmissionRepository>();
+                var discordWebhookService =
+                    scope.ServiceProvider.GetRequiredService<DiscordWebhookService>();
 
                 try
                 {
-                    var (type, ans) = await instanceRepository.VerifyAnswer(item, token);
+                    var (type, ans, firstSolveRank) = await instanceRepository.VerifyAnswer(item, token);
 
                     switch (ans)
                     {
@@ -122,6 +125,7 @@ public class FlagChecker(
 
                                 // always flush the scoreboard
                                 await cacheHelper.FlushScoreboardCache(item.GameId, token);
+                                await discordWebhookService.SendBloodNotification(item.Id, firstSolveRank, token);
                                 break;
                             }
                         default:

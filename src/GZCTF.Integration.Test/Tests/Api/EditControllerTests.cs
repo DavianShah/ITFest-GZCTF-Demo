@@ -79,7 +79,7 @@ public class EditControllerTests(GZCTFApplicationFactory factory, ITestOutputHel
         // Submit correct flag
         var submitResponse = await userClient.PostAsJsonAsync(
             $"/api/Game/{game.Id}/Challenges/{challenge1.Id}",
-            new FlagSubmitModel { Flag = "flag{test1}" });
+            new FlagSubmitModel { Flag = "flag{test1}", AiUsageDisclosure = "Saya tidak memakai AI" });
         submitResponse.EnsureSuccessStatusCode();
 
         // Wait a bit for scoreboard calculation
@@ -156,13 +156,13 @@ public class EditControllerTests(GZCTFApplicationFactory factory, ITestOutputHel
         await user1Client.PostAsJsonAsync("/api/Account/LogIn",
             new LoginModel { UserName = user1.UserName, Password = user1Password });
         await user1Client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
-            new FlagSubmitModel { Flag = "flag{solution}" });
+            new FlagSubmitModel { Flag = "flag{solution}", AiUsageDisclosure = "Saya tidak memakai AI" });
 
         using var user2Client = factory.CreateClient();
         await user2Client.PostAsJsonAsync("/api/Account/LogIn",
             new LoginModel { UserName = user2.UserName, Password = user2Password });
         await user2Client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
-            new FlagSubmitModel { Flag = "flag{solution}" });
+            new FlagSubmitModel { Flag = "flag{solution}", AiUsageDisclosure = "Saya tidak memakai AI" });
 
         // Wait for scoreboard update
         await Task.Delay(500);

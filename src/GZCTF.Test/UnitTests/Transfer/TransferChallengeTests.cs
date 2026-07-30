@@ -27,6 +27,7 @@ public class TransferChallengeTests
             DeadlineUtc = DateTimeOffset.UtcNow.AddDays(7),
             FlagTemplate = null,
             DisableBloodBonus = false,
+            RequireSolverUpload = true,
             EnableTrafficCapture = false,
             Hints = ["Hint 1", "Hint 2"],
             Flags = [new() { Flag = "flag{test_flag}" }]
@@ -48,6 +49,7 @@ public class TransferChallengeTests
         Assert.Equal(0, transfer.Limits.Submission);
         Assert.Null(transfer.Flags.Template);
         Assert.False(transfer.Flags.DisableBloodBonus);
+        Assert.True(transfer.Flags.RequireSolverUpload);
         Assert.Equal(2, transfer.Hints!.Count);
         Assert.NotNull(transfer.Flags.Static);
         Assert.Single(transfer.Flags.Static);
@@ -113,6 +115,7 @@ public class TransferChallengeTests
         {
             Template = null,
             DisableBloodBonus = true,
+            RequireSolverUpload = true,
             EnableTrafficCapture = false,
             Static = [new() { Value = "flag{crypto_master}" }]
         },
@@ -136,6 +139,7 @@ public class TransferChallengeTests
         Assert.Equal(4.0, challenge.Difficulty);
         Assert.Equal(10, challenge.SubmissionLimit);
         Assert.True(challenge.DisableBloodBonus);
+        Assert.True(challenge.RequireSolverUpload);
         Assert.Equal(2, challenge.Hints!.Count);
     }
 

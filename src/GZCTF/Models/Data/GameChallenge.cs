@@ -17,6 +17,21 @@ public class GameChallenge : Challenge
     public bool DisableBloodBonus { get; set; }
 
     /// <summary>
+    /// Whether Jeopardy submissions must include a solver file
+    /// </summary>
+    public bool RequireSolverUpload { get; set; }
+
+    /// <summary>
+    /// Speedrun hint release minute by hint index. Missing entries default to minute 0.
+    /// </summary>
+    public List<int>? SpeedrunHintReleaseMinutes { get; set; }
+
+    /// <summary>
+    /// Speedrun hint release second by hint index. Missing entries default to second 0.
+    /// </summary>
+    public List<int>? SpeedrunHintReleaseSeconds { get; set; }
+
+    /// <summary>
     /// Initial score
     /// </summary>
     [Required]
@@ -62,7 +77,27 @@ public class GameChallenge : Challenge
         Title = model.Title ?? Title;
         Content = model.Content ?? Content;
         Category = model.Category ?? Category;
-        Hints = model.Hints ?? Hints;
+        if (model.Hints is not null)
+        {
+            Hints = model.Hints;
+            var secondSchedule = model.SpeedrunHintReleaseSeconds ?? SpeedrunHintReleaseSeconds ??
+                                 (model.SpeedrunHintReleaseMinutes ?? SpeedrunHintReleaseMinutes ?? [])
+                                 .Select(minute => minute * 60).ToList();
+            SpeedrunHintReleaseSeconds = Enumerable.Range(0, Hints.Count)
+                .Select(index => secondSchedule.ElementAtOrDefault(index))
+                .ToList();
+            SpeedrunHintReleaseMinutes = SpeedrunHintReleaseSeconds.Select(second => second / 60).ToList();
+        }
+        else if (model.SpeedrunHintReleaseSeconds is not null)
+        {
+            SpeedrunHintReleaseSeconds = model.SpeedrunHintReleaseSeconds;
+            SpeedrunHintReleaseMinutes = model.SpeedrunHintReleaseSeconds.Select(second => second / 60).ToList();
+        }
+        else if (model.SpeedrunHintReleaseMinutes is not null)
+        {
+            SpeedrunHintReleaseMinutes = model.SpeedrunHintReleaseMinutes;
+            SpeedrunHintReleaseSeconds = model.SpeedrunHintReleaseMinutes.Select(minute => minute * 60).ToList();
+        }
         CPUCount = model.CPUCount ?? CPUCount;
         MemoryLimit = model.MemoryLimit ?? MemoryLimit;
         StorageLimit = model.StorageLimit ?? StorageLimit;
@@ -74,6 +109,7 @@ public class GameChallenge : Challenge
         Difficulty = model.Difficulty ?? Difficulty;
         FileName = model.FileName ?? FileName;
         DisableBloodBonus = model.DisableBloodBonus ?? DisableBloodBonus;
+        RequireSolverUpload = model.RequireSolverUpload ?? RequireSolverUpload;
         SubmissionLimit = model.SubmissionLimit ?? SubmissionLimit;
 
         // isEnabled should be updated alone

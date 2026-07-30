@@ -77,6 +77,7 @@ public class DetailedGameInfoModel
     /// Whether the game is in practice mode (can still be accessed after the game ends)
     /// </summary>
     public bool PracticeMode { get; set; } = true;
+    public GameMode Mode { get; set; } = GameMode.Jeopardy;
 
     /// <summary>
     /// Team participation status
@@ -114,6 +115,7 @@ public class DetailedGameInfoModel
             Summary = game.Summary,
             Content = game.Content,
             PracticeMode = game.PracticeMode,
+            Mode = game.Mode,
             Divisions =
                 game.Divisions?.Select(d => new DivisionInfo
                 {

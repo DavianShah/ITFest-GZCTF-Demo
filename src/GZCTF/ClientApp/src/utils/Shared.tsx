@@ -620,6 +620,29 @@ export const randomInviteCode = () => {
   return Array.from({ length: 12 }, () => pool[Math.floor(Math.random() * pool.length)]).join('')
 }
 
+export const formatDurationSeconds = (seconds: number) => {
+  const safeSeconds = Math.max(0, Math.floor(seconds))
+  const hours = Math.floor(safeSeconds / 3600)
+  const minutes = Math.floor((safeSeconds % 3600) / 60)
+  const secs = safeSeconds % 60
+  return hours > 0
+    ? `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    : `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
+export const parseDurationSeconds = (value: string): number | null => {
+  const parts = value.trim().split(':').map(Number)
+  if (
+    (parts.length !== 2 && parts.length !== 3) ||
+    parts.some((part) => !Number.isInteger(part) || part < 0)
+  )
+    return null
+
+  const [hours, minutes, seconds] = parts.length === 3 ? parts : [0, parts[0], parts[1]]
+  if (minutes >= 60 || seconds >= 60) return null
+  return hours * 3600 + minutes * 60 + seconds
+}
+
 export const tryGetErrorMsg = (err: any, t: (key: string) => string): string => {
   const tryGetErrorString = (err: any): string | null => {
     return typeof err === 'string' ? err : null

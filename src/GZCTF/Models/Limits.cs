@@ -8,6 +8,21 @@ public static class Limits
     public const int MaxFlagLength = 127;
 
     /// <summary>
+    /// Maximum length of the AI usage disclosure attached to a submission
+    /// </summary>
+    public const int MaxAiUsageDisclosureLength = 2000;
+
+    /// <summary>
+    /// Maximum solver file size attached to a submission (10 MiB)
+    /// </summary>
+    public const long MaxSolverFileSize = 10 * 1024 * 1024;
+
+    /// <summary>
+    /// Maximum stored solver file name length
+    /// </summary>
+    public const int MaxSolverFileNameLength = 255;
+
+    /// <summary>
     /// Flag 模板最大长度, 为替换操作预留空间
     /// </summary>
     public const int MaxFlagTemplateLength = 120;

@@ -23,6 +23,11 @@ public class Participation
     public ParticipationStatus Status { get; set; } = ParticipationStatus.Pending;
 
     /// <summary>
+    /// How this team was approved for a whitelist-only game
+    /// </summary>
+    public WhitelistSource WhitelistSource { get; set; }
+
+    /// <summary>
     /// Team token
     /// </summary>
     [Required]

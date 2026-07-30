@@ -7,6 +7,7 @@ import {
   Image,
   Input,
   NumberInput,
+  Select,
   SimpleGrid,
   Stack,
   Switch,
@@ -40,7 +41,7 @@ import { downloadBlob } from '@Utils/ApiHelper'
 import { getInputNumber, randomInviteCode, showErrorMsg, tryGetErrorMsg } from '@Utils/Shared'
 import { IMAGE_MIME_TYPES } from '@Utils/Shared'
 import { useAdminGame } from '@Hooks/useGame'
-import api, { GameInfoModel } from '@Api'
+import api, { GameInfoModel, GameMode } from '@Api'
 import misc from '@Styles/Misc.module.css'
 
 dayjs.extend(localizedFormat)
@@ -316,6 +317,16 @@ const GameInfoEdit: FC = () => {
         />
         <Switch
           disabled={disabled}
+          checked={game?.whitelistOnly ?? false}
+          classNames={{ root: misc.switchVerticalMiddle }}
+          label={SwitchLabel(
+            'Whitelist Only',
+            'Only explicitly whitelisted teams may join this game.'
+          )}
+          onChange={(e) => game && setGame({ ...game, whitelistOnly: e.target.checked })}
+        />
+        <Switch
+          disabled={disabled}
           checked={game?.practiceMode ?? true}
           classNames={{ root: misc.switchVerticalMiddle }}
           label={SwitchLabel(
@@ -324,6 +335,75 @@ const GameInfoEdit: FC = () => {
           )}
           onChange={(e) => game && setGame({ ...game, practiceMode: e.target.checked })}
         />
+        <Select
+          label="Competition mode"
+          description="Speedrun restricts challenges to the active category."
+          disabled={disabled}
+          data={[
+            { value: GameMode.Jeopardy, label: 'Jeopardy' },
+            { value: GameMode.Speedrun, label: 'Speedrun' },
+          ]}
+          value={game?.mode ?? GameMode.Jeopardy}
+          onChange={(value) => game && value && setGame({ ...game, mode: value as GameMode })}
+        />
+        {game?.mode === GameMode.Speedrun && (
+          <>
+            <Group grow align="end">
+              <NumberInput
+                label="Default round minutes"
+                min={0}
+                value={Math.floor((game.speedrunDefaultRoundDurationSeconds ?? 1800) / 60)}
+                onChange={(value) =>
+                  game && setGame({
+                    ...game,
+                    speedrunDefaultRoundDurationSeconds:
+                      getInputNumber(value) * 60 + (game.speedrunDefaultRoundDurationSeconds ?? 1800) % 60,
+                  })
+                }
+              />
+              <NumberInput
+                label="Seconds"
+                min={0}
+                max={59}
+                value={(game.speedrunDefaultRoundDurationSeconds ?? 1800) % 60}
+                onChange={(value) =>
+                  game && setGame({
+                    ...game,
+                    speedrunDefaultRoundDurationSeconds:
+                      Math.floor((game.speedrunDefaultRoundDurationSeconds ?? 1800) / 60) * 60 + getInputNumber(value),
+                  })
+                }
+              />
+            </Group>
+            <Group grow align="end">
+              <NumberInput
+                label="Overtime minutes"
+                min={0}
+                value={Math.floor((game.speedrunOvertimeSeconds ?? 300) / 60)}
+                onChange={(value) =>
+                  game && setGame({
+                    ...game,
+                    speedrunOvertimeSeconds:
+                      getInputNumber(value) * 60 + (game.speedrunOvertimeSeconds ?? 300) % 60,
+                  })
+                }
+              />
+              <NumberInput
+                label="Seconds"
+                min={0}
+                max={59}
+                value={(game.speedrunOvertimeSeconds ?? 300) % 60}
+                onChange={(value) =>
+                  game && setGame({
+                    ...game,
+                    speedrunOvertimeSeconds:
+                      Math.floor((game.speedrunOvertimeSeconds ?? 300) / 60) * 60 + getInputNumber(value),
+                  })
+                }
+              />
+            </Group>
+          </>
+        )}
       </SimpleGrid>
       <Group grow justify="space-between">
         <Textarea

@@ -2,11 +2,16 @@ import { Button, Group, GroupProps, LoadingOverlay, Stack, Tabs } from '@mantine
 import {
   mdiAccountGroupOutline,
   mdiBullhornOutline,
+  mdiBellRingOutline,
   mdiFileDocumentCheckOutline,
   mdiFlagOutline,
   mdiKeyboardBackspace,
+  mdiRobotOutline,
+  mdiShieldCheckOutline,
   mdiTagOutline,
   mdiTextBoxOutline,
+  mdiTimerOutline,
+  mdiTelevisionAmbientLight,
 } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import React, { FC, useEffect, useState } from 'react'
@@ -40,7 +45,12 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
   const pages = [
     { icon: mdiTextBoxOutline, title: t('admin.tab.games.info'), path: 'info' },
     { icon: mdiBullhornOutline, title: t('admin.tab.games.notices'), path: 'notices' },
+    { icon: mdiBellRingOutline, title: 'Blood Alerts', path: 'blood' },
+    { icon: mdiTimerOutline, title: 'Speedrun', path: 'speedrun' },
+    { icon: mdiTelevisionAmbientLight, title: 'Live Scoreboard', path: 'live-scoreboard' },
+    { icon: mdiRobotOutline, title: 'AI Disclosures', path: 'ai-disclosures' },
     { icon: mdiFlagOutline, title: t('admin.tab.games.challenges'), path: 'challenges' },
+    { icon: mdiShieldCheckOutline, title: 'Whitelist', path: 'whitelist' },
     { icon: mdiTagOutline, title: t('admin.tab.games.divisions'), path: 'divisions' },
     { icon: mdiAccountGroupOutline, title: t('admin.tab.games.review'), path: 'review' },
     { icon: mdiFileDocumentCheckOutline, title: t('admin.tab.games.writeups'), path: 'writeups' },
@@ -65,7 +75,7 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
       head={
         <>
           <Button
-            w="10rem"
+            w="12rem"
             component={Link}
             classNames={{ inner: misc.justifyBetween }}
             leftSection={<Icon path={mdiKeyboardBackspace} size={1} />}
@@ -73,7 +83,7 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
           >
             {t('admin.button.back')}
           </Button>
-          <Group wrap="nowrap" justify={contentPos ?? 'space-between'} w="calc(100% - 11rem)">
+          <Group wrap="nowrap" justify={contentPos ?? 'space-between'} w="calc(100% - 13rem)">
             {head}
           </Group>
         </>
@@ -81,23 +91,25 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
     >
       <Group wrap="nowrap" justify="space-between" align="flex-start" w="100%" pb="xl">
         <Tabs
+          w="12rem"
           orientation="vertical"
           value={activeTab}
           onChange={(value) => value && navigate(`/admin/games/${id}/${value}`)}
-          classNames={{
-            root: misc.w10rem,
-            list: misc.w10rem,
-          }}
         >
-          <Tabs.List>
+          <Tabs.List w="12rem">
             {pages.map((page) => (
-              <Tabs.Tab key={page.path} leftSection={<Icon path={page.icon} size={1} />} value={page.path}>
+              <Tabs.Tab
+                key={page.path}
+                w="100%"
+                leftSection={<Icon path={page.icon} size={1} />}
+                value={page.path}
+              >
                 {page.title}
               </Tabs.Tab>
             ))}
           </Tabs.List>
         </Tabs>
-        <Stack w="calc(100% - 11rem)" pos="relative">
+        <Stack w="calc(100% - 13rem)" pos="relative">
           <LoadingOverlay visible={isLoading ?? false} overlayProps={DEFAULT_LOADING_OVERLAY} />
           {children}
         </Stack>

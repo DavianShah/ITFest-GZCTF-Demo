@@ -247,6 +247,32 @@ public enum SubmissionType : byte
     Normal = 4
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter<GameMode>))]
+public enum GameMode : byte
+{
+    Jeopardy = 0,
+    Speedrun = 1
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<LiveScoreboardVisualIntensity>))]
+public enum LiveScoreboardVisualIntensity : byte
+{
+    Calm = 0,
+    Normal = 1,
+    Hype = 2
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<SpeedrunRoundStatus>))]
+public enum SpeedrunRoundStatus : byte
+{
+    Pending = 0,
+    Ready = 1,
+    Running = 2,
+    Overtime = 3,
+    Finished = 4,
+    Cancelled = 5
+}
+
 [JsonConverter(typeof(JsonStringEnumConverter<ParticipationStatus>))]
 public enum ParticipationStatus : byte
 {
@@ -274,6 +300,24 @@ public enum ParticipationStatus : byte
     /// Not submitted
     /// </summary>
     Unsubmitted = 4
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<WhitelistSource>))]
+public enum WhitelistSource : byte
+{
+    None = 0,
+    BulkOnboarding = 1,
+    ManualWhitelist = 2
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<CaptainOnboardingStatus>))]
+public enum CaptainOnboardingStatus : byte
+{
+    Pending = 0,
+    Opened = 1,
+    Redeemed = 2,
+    Expired = 3,
+    Revoked = 4
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ChallengeType>))]

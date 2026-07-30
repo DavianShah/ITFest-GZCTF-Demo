@@ -59,14 +59,14 @@ public class DetailedGameScoringTests(GZCTFApplicationFactory factory)
 
         using (var submission1 = await client1.PostAsJsonAsync(
                    $"/api/Game/{game.Id}/Challenges/{challenge1.Id}",
-                   new FlagSubmitModel { Flag = "flag{one}" }))
+                   new FlagSubmitModel { Flag = "flag{one}", AiUsageDisclosure = "Saya tidak memakai AI" }))
         {
             submission1.EnsureSuccessStatusCode();
         }
 
         using (var submission2 = await client1.PostAsJsonAsync(
                    $"/api/Game/{game.Id}/Challenges/{challenge2.Id}",
-                   new FlagSubmitModel { Flag = "flag{two}" }))
+                   new FlagSubmitModel { Flag = "flag{two}", AiUsageDisclosure = "Saya tidak memakai AI" }))
         {
             submission2.EnsureSuccessStatusCode();
         }
@@ -87,7 +87,7 @@ public class DetailedGameScoringTests(GZCTFApplicationFactory factory)
 
         using (var submission2 = await client2.PostAsJsonAsync(
                    $"/api/Game/{game.Id}/Challenges/{challenge1.Id}",
-                   new FlagSubmitModel { Flag = "flag{one}" }))
+                   new FlagSubmitModel { Flag = "flag{one}", AiUsageDisclosure = "Saya tidak memakai AI" }))
         {
             submission2.EnsureSuccessStatusCode();
         }
@@ -385,7 +385,7 @@ public class DetailedGameScoringTests(GZCTFApplicationFactory factory)
 
         // Unauthenticated access to submit flag should fail
         var submitResponse = await client.PostAsJsonAsync($"/api/Game/{game.Id}/Challenges/{challenge.Id}",
-            new FlagSubmitModel { Flag = "flag{auth}" });
+            new FlagSubmitModel { Flag = "flag{auth}", AiUsageDisclosure = "Saya tidak memakai AI" });
         Assert.Equal(HttpStatusCode.Unauthorized, submitResponse.StatusCode);
     }
 }

@@ -337,7 +337,7 @@ public class GameInstanceRepository(
 
             var time = await Context.Games.IgnoreAutoIncludes().AsNoTracking()
                 .Where(g => g.Id == participation.GameId)
-                .Select(g => new { g.StartTimeUtc, g.EndTimeUtc })
+                .Select(g => new { g.StartTimeUtc, g.EndTimeUtc, g.BloodNotificationMaxRank })
                 .SingleAsync(token);
 
             // Check if submission is within game time window
@@ -368,6 +368,12 @@ public class GameInstanceRepository(
                 };
             }
 
+            var firstSolveRank = time.BloodNotificationMaxRank == 0
+                ? await CountFirstSolves(submission.ChallengeId, null, null, token) + 1
+                : withinGameWindow
+                    ? await CountFirstSolves(submission.ChallengeId, time.StartTimeUtc, time.EndTimeUtc, token) + 1
+                    : 0;
+
             Context.FirstSolves.Add(new FirstSolve
             {
                 ParticipationId = submission.ParticipationId,
@@ -378,7 +384,7 @@ public class GameInstanceRepository(
             await SaveAsync(token);
             await transaction.CommitAsync(token);
 
-            return new(submissionType, updateSub.Status);
+            return new(submissionType, updateSub.Status, firstSolveRank);
         }
         catch (Exception ex)
         {
@@ -388,6 +394,17 @@ public class GameInstanceRepository(
             throw;
         }
     }
+
+    private Task<int> CountFirstSolves(int challengeId, DateTimeOffset? start, DateTimeOffset? end,
+        CancellationToken token) =>
+        (
+            from fs in Context.FirstSolves.AsNoTracking()
+            join submission in Context.Submissions.AsNoTracking() on fs.SubmissionId equals submission.Id
+            where fs.ChallengeId == challengeId
+                  && (!start.HasValue || submission.SubmitTimeUtc >= start.Value)
+                  && (!end.HasValue || submission.SubmitTimeUtc < end.Value)
+            select fs
+        ).CountAsync(token);
 
     private Task<int> CountBloodEligibleSolves(int challengeId, DateTimeOffset start, DateTimeOffset end,
         CancellationToken token)

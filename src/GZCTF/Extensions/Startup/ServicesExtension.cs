@@ -9,6 +9,7 @@ using GZCTF.Services.Config;
 using GZCTF.Services.Container;
 using GZCTF.Services.CronJob;
 using GZCTF.Services.Mail;
+using GZCTF.Services.Integrations;
 using GZCTF.Services.Token;
 using GZCTF.Services.Traffic;
 using GZCTF.Services.Transfer;
@@ -85,6 +86,10 @@ internal static class ServicesExtension
             builder.Services.AddScoped<ExcelHelper>();
             builder.Services.AddScoped<GameExportService>();
             builder.Services.AddScoped<GameImportService>();
+            builder.Services.AddScoped<SpeedrunService>();
+            builder.Services.AddHttpClient<DiscordWebhookService>(client =>
+                    client.Timeout = TimeSpan.FromSeconds(5))
+                .RemoveAllLoggers();
 
             builder.Services.AddChannel<Submission>();
             builder.Services.AddChannel<CacheRequest>();

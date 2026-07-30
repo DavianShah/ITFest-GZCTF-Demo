@@ -48,6 +48,26 @@ export enum SubmissionType {
   Normal = "Normal",
 }
 
+export enum GameMode {
+  Jeopardy = "Jeopardy",
+  Speedrun = "Speedrun",
+}
+
+export enum SpeedrunRoundStatus {
+  Pending = "Pending",
+  Ready = "Ready",
+  Running = "Running",
+  Overtime = "Overtime",
+  Finished = "Finished",
+  Cancelled = "Cancelled",
+}
+
+export enum LiveScoreboardVisualIntensity {
+  Calm = "Calm",
+  Normal = "Normal",
+  Hype = "Hype",
+}
+
 /** Container network mode */
 export enum NetworkMode {
   Open = "Open",
@@ -936,6 +956,8 @@ export interface GameInfoModel {
   content?: string;
   /** Accept teams without review */
   acceptWithoutReview?: boolean;
+  /** Only explicitly whitelisted teams may join */
+  whitelistOnly?: boolean;
   /** Is writeup required */
   writeupRequired?: boolean;
   /**
@@ -981,6 +1003,129 @@ export interface GameInfoModel {
    * @format int64
    */
   bloodBonus?: number;
+  mode?: GameMode;
+  speedrunDefaultRoundDurationMinutes?: number;
+  speedrunOvertimeMinutes?: number;
+  speedrunDefaultRoundDurationSeconds?: number;
+  speedrunOvertimeSeconds?: number;
+}
+
+export interface SpeedrunRoundModel {
+  id?: number;
+  category?: ChallengeCategory;
+  status?: SpeedrunRoundStatus;
+  startedAtUtc?: number | null;
+  endsAtUtc?: number | null;
+  overtimeEndsAtUtc?: number | null;
+  timeLeftSeconds?: number;
+  isOvertime?: boolean;
+}
+
+export interface SpeedrunStateModel {
+  isSpeedrun?: boolean;
+  currentRound?: SpeedrunRoundModel | null;
+  usedCategories?: ChallengeCategory[];
+  remainingCategories?: ChallengeCategory[];
+  message?: string | null;
+}
+
+export interface SpeedrunCategoryModel {
+  id?: number;
+  category?: ChallengeCategory;
+  used?: boolean;
+  included?: boolean;
+}
+
+export interface SpeedrunSettingsModel {
+  defaultRoundDurationMinutes?: number;
+  overtimeMinutes?: number;
+  defaultRoundDurationSeconds?: number;
+  overtimeSeconds?: number;
+  allowManualExtend?: boolean;
+  hideInactiveChallenges?: boolean;
+  emergencyHintEnabled?: boolean;
+  emergencyHintText?: string;
+  state?: SpeedrunStateModel;
+  categories?: SpeedrunCategoryModel[];
+}
+
+export interface LiveScoreboardSoundModel {
+  spin?: string | null;
+  categorySelected?: string | null;
+  gameStart?: string | null;
+  hintDrop?: string | null;
+  firstBlood?: string | null;
+  secondBlood?: string | null;
+  thirdBlood?: string | null;
+  correctSubmit?: string | null;
+  wrongSubmit?: string | null;
+  reminder?: string | null;
+  countdownTick?: string | null;
+  overtime?: string | null;
+  roundFinished?: string | null;
+  scoreUpdate?: string | null;
+}
+
+export interface LiveScoreboardConfigModel {
+  enabled?: boolean;
+  title: string;
+  subtitle?: string | null;
+  soundEnabled?: boolean;
+  volume?: number;
+  visualIntensity?: LiveScoreboardVisualIntensity;
+  sounds?: LiveScoreboardSoundModel;
+}
+
+export interface LiveScoreboardTeamModel {
+  id?: number;
+  rank?: number;
+  name?: string;
+  score?: number;
+  solvedCount?: number;
+}
+
+export interface LiveScoreboardEventModel {
+  id?: string;
+  type?: NoticeType;
+  createdAt?: number;
+  message?: string;
+  teamName?: string | null;
+  challengeTitle?: string | null;
+}
+
+export interface LiveScoreboardStateModel {
+  gameId?: number;
+  gameTitle?: string;
+  gameMode?: GameMode;
+  serverTimeUtc?: number;
+  config?: LiveScoreboardConfigModel;
+  speedrunState?: SpeedrunStateModel;
+  topTeams?: LiveScoreboardTeamModel[];
+  recentEvents?: LiveScoreboardEventModel[];
+}
+
+/** Discord blood notification settings for a game */
+export interface BloodNotificationModel {
+  /** Enable Discord blood notifications */
+  enabled?: boolean;
+  /**
+   * Discord webhook URL
+   * @maxLength 512
+   */
+  discordWebhookUrl?: string | null;
+  /**
+   * Maximum rank to notify, or 0 for all first-solves
+   * @format int32
+   */
+  maxRank?: number;
+  /** Legacy description template */
+  template: string;
+  embedTitleTemplate: string;
+  embedDescriptionTemplate: string;
+  embedColor?: string | null;
+  embedFieldsTemplate: string;
+  embedFooterTemplate: string;
+  timeZone: string;
 }
 
 /** List response */
@@ -1122,6 +1267,8 @@ export interface ChallengeEditDetailModel {
   type: ChallengeType;
   /** Challenge hints */
   hints?: string[];
+  speedrunHintReleaseMinutes?: number[];
+  speedrunHintReleaseSeconds?: number[];
   /**
    * Flag template, used to generate Flag based on Token and challenge, game information
    * @maxLength 120
@@ -1173,6 +1320,8 @@ export interface ChallengeEditDetailModel {
   enableTrafficCapture?: boolean | null;
   /** Whether to disable blood bonus */
   disableBloodBonus?: boolean | null;
+  /** Whether Jeopardy submissions must include a solver file */
+  requireSolverUpload: boolean;
   /**
    * The deadline of the challenge, null means no deadline
    * @format uint64
@@ -1304,6 +1453,8 @@ export interface ChallengeUpdateModel {
   category?: ChallengeCategory | null;
   /** Challenge hints */
   hints?: string[] | null;
+  speedrunHintReleaseMinutes?: number[] | null;
+  speedrunHintReleaseSeconds?: number[] | null;
   /** Is the challenge enabled */
   isEnabled?: boolean | null;
   /** Unified file name */
@@ -1354,6 +1505,8 @@ export interface ChallengeUpdateModel {
   enableTrafficCapture?: boolean | null;
   /** Is blood bonus disabled (enable by default) */
   disableBloodBonus?: boolean | null;
+  /** Whether Jeopardy submissions must include a solver file */
+  requireSolverUpload?: boolean | null;
   /**
    * Initial score
    * @format int32
@@ -1481,6 +1634,7 @@ export interface DetailedGameInfoModel {
   teamName?: string | null;
   /** Whether the game is in practice mode (can still be accessed after the game ends) */
   practiceMode?: boolean;
+  mode?: GameMode;
   /** Team participation status */
   status?: ParticipationStatus;
   /**
@@ -1785,6 +1939,11 @@ export interface Submission {
    * @maxLength 127
    */
   answer?: string;
+  /**
+   * AI conversation link or declaration supplied with this submission
+   * @maxLength 2000
+   */
+  aiUsageDisclosure?: string | null;
   /** Status of the submitted answer */
   status?: AnswerResult;
   /**
@@ -1798,6 +1957,24 @@ export interface Submission {
   team?: string;
   /** Challenge that was submitted */
   challenge?: string;
+}
+
+/** AI usage disclosure submitted with a Jeopardy flag attempt */
+export interface AiUsageDisclosureModel {
+  /** @format int32 */
+  submissionId: number;
+  /** @format uint64 */
+  submitTimeUtc: number;
+  team: string;
+  user: string;
+  challenge: string;
+  answer: string;
+  status: AnswerResult;
+  aiUsageDisclosure: string;
+  solverFileName?: string | null;
+  /** @format int64 */
+  solverFileSize?: number | null;
+  hasSolverFile: boolean;
 }
 
 /** Cheat behavior information */
@@ -1919,6 +2096,141 @@ export interface GameDetailModel {
   writeupDeadline: number;
 }
 
+/** Whitelist source enum */
+export enum WhitelistSource {
+  None = "None",
+  BulkOnboarding = "BulkOnboarding",
+  ManualWhitelist = "ManualWhitelist",
+}
+
+export enum CaptainOnboardingStatus {
+  Pending = "Pending",
+  Opened = "Opened",
+  Redeemed = "Redeemed",
+  Expired = "Expired",
+  Revoked = "Revoked",
+}
+
+/** Whitelist team entry (Admin) */
+export interface WhitelistTeamModel {
+  /**
+   * Team ID
+   * @format int32
+   */
+  teamId: number;
+  /** Team name */
+  teamName: string;
+  /** Captain email */
+  captainEmail?: string | null;
+  /** Whitelist source */
+  source: WhitelistSource;
+  /** Participation status */
+  status: ParticipationStatus;
+}
+
+/** Whitelist join attempt log (Admin) */
+export interface WhitelistJoinAttemptModel {
+  /**
+   * Attempt ID
+   * @format int64
+   */
+  id: number;
+  /**
+   * Team ID
+   * @format int32
+   */
+  teamId: number;
+  /** Team name */
+  teamName: string;
+  /** Attempt time */
+  attemptedAtUtc: string;
+}
+
+/** Request to whitelist teams */
+export interface WhitelistTeamsRequest {
+  /** @format int32 */
+  teamIds: number[];
+}
+
+/** Captain onboarding batch entry */
+export interface CaptainOnboardingEntryModel {
+  /** @maxLength 20 */
+  teamName: string;
+  /** @format email */
+  captainEmail: string;
+}
+
+/** Captain onboarding batch request */
+export interface CaptainOnboardingBatchModel {
+  entries: CaptainOnboardingEntryModel[];
+  /** Games that the teams will be whitelisted for */
+  gameIds?: number[];
+  /** @format int32 */
+  expiresInHours?: number;
+}
+
+/** Captain onboarding created result */
+export interface CaptainOnboardingCreatedModel {
+  /** @format int32 */
+  inviteId: number;
+  teamName: string;
+  captainEmail: string;
+  onboardingUrl: string;
+  emailQueued: boolean;
+  gameTitles: string[];
+}
+
+export interface CaptainOnboardingRecordModel {
+  /** @format int32 */
+  inviteId: number;
+  teamName: string;
+  captainEmail: string;
+  gameTitles: string[];
+  status: CaptainOnboardingStatus;
+  createdAtUtc: string | number;
+  expiresAtUtc: string | number;
+  openedAtUtc?: string | number | null;
+  consumedAtUtc?: string | number | null;
+  revokedAtUtc?: string | number | null;
+  lastSentAtUtc?: string | number | null;
+  /** @format int32 */
+  sendCount: number;
+  lastEmailQueued: boolean;
+  /** @format int32 */
+  teamId?: number | null;
+}
+
+export interface CaptainOnboardingResendModel {
+  /** @format int32 */
+  expiresInHours?: number;
+}
+
+/** Captain onboarding info for redeem page */
+export interface CaptainOnboardingInfoModel {
+  teamName: string;
+  captainEmail: string;
+  gameTitle: string;
+  gameTitles: string[];
+  expiresAtUtc: string;
+}
+
+/** Captain onboarding redeem model */
+export interface CaptainOnboardingRedeemModel {
+  /** Username */
+  userName: string;
+  /** Password */
+  password: string;
+}
+
+/** Result returned after provisioning the captain and team */
+export interface CaptainOnboardingRedeemResultModel {
+  /** @format int32 */
+  teamId: number;
+  teamName: string;
+  inviteCode: string;
+  gameTitles: string[];
+}
+
 /** Participation for review (Admin) */
 export interface ParticipationInfoModel {
   /**
@@ -2002,6 +2314,8 @@ export interface ChallengeDetailModel {
    * @format uint64
    */
   deadline?: number | null;
+  /** Whether this challenge requires a solver file with Jeopardy submissions */
+  requireSolverUpload?: boolean;
 }
 
 export interface ClientFlagContext {
@@ -2028,6 +2342,17 @@ export interface FlagSubmitModel {
    * @minLength 1
    */
   flag: string;
+  /**
+   * AI conversation link or declaration that AI was not used
+   * @maxLength 2000
+   */
+  aiUsageDisclosure?: string | null;
+}
+
+/** Multipart flag submission with a solver file */
+export interface FlagSubmitWithSolverModel extends FlagSubmitModel {
+  /** @format binary */
+  solverFile: File;
 }
 
 /** Game writeup submission information */
@@ -2600,6 +2925,37 @@ export class Api<
         ...params,
       }),
   };
+  onboarding = {
+    /**
+     * @description Read a captain onboarding invitation.
+     * @request GET:/api/onboarding/{token}
+     */
+    onboardingGetInfo: (token: string, params: RequestParams = {}) =>
+      this.request<CaptainOnboardingInfoModel, RequestResponse>({
+        path: `/api/onboarding/${token}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Create the captain account and provision its team.
+     * @request POST:/api/onboarding/{token}/redeem
+     */
+    onboardingRedeem: (
+      token: string,
+      data: CaptainOnboardingRedeemModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<CaptainOnboardingRedeemResultModel, RequestResponse>({
+        path: `/api/onboarding/${token}/redeem`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
   admin = {
     /**
      * @description Use this API to add users in batch, requires Admin permission
@@ -2980,6 +3336,187 @@ export class Api<
         method: "PUT",
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Search teams for whitelist (excludes already whitelisted teams)
+     *
+     * @tags Admin
+     * @name AdminSearchWhitelistTeams
+     * @summary Search teams for whitelist
+     * @request GET:/api/admin/games/{gameId}/whitelist/search-teams
+     */
+    adminSearchWhitelistTeams: (
+      gameId: number,
+      query?: { query?: string },
+      params: RequestParams = {},
+    ) =>
+      this.request<TeamWithDetailedUserInfo[], RequestResponse>({
+        path: `/api/admin/games/${gameId}/whitelist/search-teams`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get whitelisted teams for a game
+     *
+     * @tags Admin
+     * @name AdminGetWhitelist
+     * @summary Get whitelist
+     * @request GET:/api/admin/games/{gameId}/whitelist
+     */
+    adminGetWhitelist: (gameId: number, params: RequestParams = {}) =>
+      this.request<WhitelistTeamModel[], RequestResponse>({
+        path: `/api/admin/games/${gameId}/whitelist`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Add teams to whitelist
+     *
+     * @tags Admin
+     * @name AdminAddWhitelist
+     * @summary Add to whitelist
+     * @request POST:/api/admin/games/{gameId}/whitelist
+     */
+    adminAddWhitelist: (
+      gameId: number,
+      data: WhitelistTeamsRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, RequestResponse>({
+        path: `/api/admin/games/${gameId}/whitelist`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Remove a team from whitelist
+     *
+     * @tags Admin
+     * @name AdminRemoveWhitelist
+     * @summary Remove from whitelist
+     * @request DELETE:/api/admin/games/{gameId}/whitelist/{teamId}
+     */
+    adminRemoveWhitelist: (
+      gameId: number,
+      teamId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, RequestResponse>({
+        path: `/api/admin/games/${gameId}/whitelist/${teamId}`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * @description Get whitelist join attempts for a game
+     *
+     * @tags Admin
+     * @name AdminGetWhitelistJoinAttempts
+     * @summary Get join attempts
+     * @request GET:/api/admin/games/{gameId}/whitelist/join-attempts
+     */
+    adminGetWhitelistJoinAttempts: (gameId: number, params: RequestParams = {}) =>
+      this.request<WhitelistJoinAttemptModel[], RequestResponse>({
+        path: `/api/admin/games/${gameId}/whitelist/join-attempts`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get persistent captain onboarding history and status.
+     * @request GET:/api/admin/onboarding
+     */
+    adminGetOnboardingHistory: (
+      query?: { count?: number; skip?: number; query?: string },
+      params: RequestParams = {},
+    ) =>
+      this.request<CaptainOnboardingRecordModel[], RequestResponse>({
+        path: `/api/admin/onboarding`,
+        method: "GET",
+        query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Revoke an onboarding invitation.
+     * @request DELETE:/api/admin/onboarding/{inviteId}
+     */
+    adminRevokeOnboarding: (inviteId: number, params: RequestParams = {}) =>
+      this.request<void, RequestResponse>({
+        path: `/api/admin/onboarding/${inviteId}`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * @description Replace and resend an onboarding invitation.
+     * @request POST:/api/admin/onboarding/{inviteId}/resend
+     */
+    adminResendOnboarding: (
+      inviteId: number,
+      data: CaptainOnboardingResendModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<CaptainOnboardingCreatedModel, RequestResponse>({
+        path: `/api/admin/onboarding/${inviteId}/resend`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Bulk-create captain onboarding invites
+     *
+     * @tags Admin
+     * @name AdminBulkCreateOnboarding
+     * @summary Bulk create onboarding
+     * @request POST:/api/admin/games/{gameId}/onboarding
+     */
+    adminBulkCreateOnboarding: (
+      gameId: number,
+      data: CaptainOnboardingBatchModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<CaptainOnboardingCreatedModel[], RequestResponse>({
+        path: `/api/admin/games/${gameId}/onboarding`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Bulk-create captain onboarding invites for multiple games
+     *
+     * @tags Admin
+     * @name AdminBulkCreateGlobalOnboarding
+     * @summary Bulk create global onboarding
+     * @request POST:/api/admin/onboarding
+     */
+    adminBulkCreateGlobalOnboarding: (
+      data: CaptainOnboardingBatchModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<CaptainOnboardingCreatedModel[], RequestResponse>({
+        path: `/api/admin/onboarding`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -3880,6 +4417,25 @@ export class Api<
       }),
 
     /**
+     * @tags Edit
+     * @name EditTestGameBloodNotification
+     * @summary Test Game Blood Notification
+     * @request POST:/api/edit/games/{id}/bloodnotification/test
+     */
+    editTestGameBloodNotification: (
+      id: number,
+      data: BloodNotificationModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, RequestResponse>({
+        path: `/api/edit/games/${id}/bloodnotification/test`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * @description Retrieve all divisions for a game; requires administrator privileges
      *
      * @tags Edit
@@ -3972,6 +4528,184 @@ export class Api<
       data?: GameInfoModel | Promise<GameInfoModel>,
       options?: MutatorOptions,
     ) => mutate<GameInfoModel>(`/api/edit/games/${id}`, data, options),
+
+    /**
+     * @description Retrieve AI usage disclosures submitted for a game; requires administrator privileges
+     *
+     * @tags Edit
+     * @name EditGetGameAiDisclosures
+     * @summary Get Game AI Disclosures
+     * @request GET:/api/edit/games/{id}/aidisclosures
+     */
+    editGetGameAiDisclosures: (
+      id: number,
+      query?: {
+        /** @format int32 */
+        count?: number;
+        /** @format int32 */
+        skip?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<AiUsageDisclosureModel[], RequestResponse>({
+        path: `/api/edit/games/${id}/aidisclosures`,
+        method: "GET",
+        query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @tags Edit
+     * @name EditGetGameBloodNotification
+     * @summary Get Game Blood Notification
+     * @request GET:/api/edit/games/{id}/bloodnotification
+     */
+    editGetGameBloodNotification: (id: number, params: RequestParams = {}) =>
+      this.request<BloodNotificationModel, RequestResponse>({
+        path: `/api/edit/games/${id}/bloodnotification`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    editGetSpeedrunSettings: (id: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    editGetLiveScoreboardConfig: (id: number, params: RequestParams = {}) =>
+      this.request<LiveScoreboardConfigModel, RequestResponse>({
+        path: `/api/edit/games/${id}/livescoreboard`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    editUpdateLiveScoreboardConfig: (id: number, data: LiveScoreboardConfigModel, params: RequestParams = {}) =>
+      this.request<LiveScoreboardConfigModel, RequestResponse>({
+        path: `/api/edit/games/${id}/livescoreboard`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editResetLiveScoreboardSounds: (id: number, params: RequestParams = {}) =>
+      this.request<LiveScoreboardConfigModel, RequestResponse>({
+        path: `/api/edit/games/${id}/livescoreboard/resetsounds`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editRefreshSpeedrunCategories: (id: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/refreshcategories`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    editSpinSpeedrun: (id: number, params: RequestParams = {}) =>
+      this.request<SpeedrunRoundModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/spin`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editStartSpeedrunRound: (id: number, roundId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/rounds/${roundId}/start`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    editEndSpeedrunRound: (id: number, roundId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/rounds/${roundId}/end`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    editExtendSpeedrunRound: (id: number, roundId: number, seconds: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/rounds/${roundId}/extend`,
+        method: "POST",
+        body: { seconds },
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editSetSpeedrunRoundTimer: (id: number, roundId: number, seconds: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/rounds/${roundId}/settimer`,
+        method: "POST",
+        body: { seconds },
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editMakeSpeedrunCategoryAvailable: (id: number, categoryId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/categories/${categoryId}/available`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editMarkSpeedrunCategoryUsed: (id: number, categoryId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/categories/${categoryId}/used`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editEnableSpeedrunCategory: (id: number, categoryId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/categories/${categoryId}/enable`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editDisableSpeedrunCategory: (id: number, categoryId: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/categories/${categoryId}/disable`,
+        method: "POST",
+        body: {},
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editResetSpeedrunCategories: (id: number, params: RequestParams = {}) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun/resetcategories`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
 
     /**
      * @description Retrieving a game challenge requires administrator privileges
@@ -4340,6 +5074,40 @@ export class Api<
     ) =>
       this.request<GameInfoModel, RequestResponse>({
         path: `/api/edit/games/${id}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    editUpdateSpeedrunSettings: (
+      id: number,
+      data: SpeedrunSettingsModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<SpeedrunSettingsModel, RequestResponse>({
+        path: `/api/edit/games/${id}/speedrun`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @tags Edit
+     * @name EditUpdateGameBloodNotification
+     * @summary Update Game Blood Notification
+     * @request PUT:/api/edit/games/{id}/bloodnotification
+     */
+    editUpdateGameBloodNotification: (
+      id: number,
+      data: BloodNotificationModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<BloodNotificationModel, RequestResponse>({
+        path: `/api/edit/games/${id}/bloodnotification`,
         method: "PUT",
         body: data,
         type: ContentType.Json,
@@ -4752,6 +5520,22 @@ export class Api<
     gameGame: (id: number, params: RequestParams = {}) =>
       this.request<DetailedGameInfoModel, RequestResponse>({
         path: `/api/game/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    gameGetSpeedrunState: (id: number, params: RequestParams = {}) =>
+      this.request<SpeedrunStateModel, RequestResponse>({
+        path: `/api/game/${id}/speedrun/state`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    gameGetLiveScoreboard: (id: number, params: RequestParams = {}) =>
+      this.request<LiveScoreboardStateModel, RequestResponse>({
+        path: `/api/game/${id}/live`,
         method: "GET",
         format: "json",
         ...params,
@@ -5772,6 +6556,29 @@ export class Api<
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Submits a flag with a solver file; requires User permission and active team participation
+     *
+     * @tags Game
+     * @name GameSubmitWithSolver
+     * @summary Submits a flag with a solver file
+     * @request POST:/api/game/{id}/challenges/{challengeId}/withsolver
+     */
+    gameSubmitWithSolver: (
+      id: number,
+      challengeId: number,
+      data: FlagSubmitWithSolverModel,
+      params: RequestParams = {},
+    ) =>
+      this.request<number, RequestResponse>({
+        path: `/api/game/${id}/challenges/${challengeId}/withsolver`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
         format: "json",
         ...params,
       }),

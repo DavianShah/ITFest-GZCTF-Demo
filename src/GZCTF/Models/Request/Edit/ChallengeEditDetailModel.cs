@@ -44,6 +44,9 @@ public class ChallengeEditDetailModel
     /// </summary>
     public List<string> Hints { get; set; } = [];
 
+    public List<int> SpeedrunHintReleaseMinutes { get; set; } = [];
+    public List<int> SpeedrunHintReleaseSeconds { get; set; } = [];
+
     /// <summary>
     /// Flag template, used to generate Flag based on Token and challenge, game information
     /// </summary>
@@ -126,6 +129,11 @@ public class ChallengeEditDetailModel
     public bool? DisableBloodBonus { get; set; } = false;
 
     /// <summary>
+    /// Whether Jeopardy submissions must include a solver file
+    /// </summary>
+    public bool RequireSolverUpload { get; set; }
+
+    /// <summary>
     /// The deadline of the challenge, null means no deadline
     /// </summary>
     public DateTimeOffset? DeadlineUtc { get; set; }
@@ -165,6 +173,9 @@ public class ChallengeEditDetailModel
             Type = chal.Type,
             FlagTemplate = chal.FlagTemplate,
             Hints = chal.Hints ?? [],
+            SpeedrunHintReleaseMinutes = chal.SpeedrunHintReleaseMinutes ?? [],
+            SpeedrunHintReleaseSeconds = chal.SpeedrunHintReleaseSeconds ??
+                                         (chal.SpeedrunHintReleaseMinutes ?? []).Select(minute => minute * 60).ToList(),
             IsEnabled = chal.IsEnabled,
             ContainerImage = chal.ContainerImage,
             MemoryLimit = chal.MemoryLimit,
@@ -174,6 +185,7 @@ public class ChallengeEditDetailModel
             NetworkMode = chal.NetworkMode,
             EnableTrafficCapture = chal.EnableTrafficCapture,
             DisableBloodBonus = chal.DisableBloodBonus,
+            RequireSolverUpload = chal.RequireSolverUpload,
             OriginalScore = chal.OriginalScore,
             MinScoreRate = chal.MinScoreRate,
             Difficulty = chal.Difficulty,

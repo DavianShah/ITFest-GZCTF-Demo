@@ -1396,7 +1396,7 @@ public class ScoreboardCalculationTests(GZCTFApplicationFactory factory, ITestOu
     {
         var response = await client.PostAsJsonAsync(
             $"/api/Game/{gameId}/Challenges/{challengeId}",
-            new FlagSubmitModel { Flag = flag }
+            new FlagSubmitModel { Flag = flag, AiUsageDisclosure = "Saya tidak memakai AI" }
         );
         if (ensureSuccess)
             response.EnsureSuccessStatusCode();

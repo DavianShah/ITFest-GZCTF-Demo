@@ -36,11 +36,17 @@ public class ParticipationInfoModel
     [Required]
     public ParticipationStatus Status { get; set; } = ParticipationStatus.Pending;
 
+    /// <summary>
+    /// Whitelist source (how this team was pre-approved)
+    /// </summary>
+    public WhitelistSource WhitelistSource { get; set; }
+
     internal static ParticipationInfoModel FromParticipation(Participation part) =>
         new()
         {
             Id = part.Id,
             Status = part.Status,
+            WhitelistSource = part.WhitelistSource,
             DivisionId = part.DivisionId,
             RegisteredMembers = part.Members.Select(m => m.UserId).ToArray(),
             Team = TeamWithDetailedUserInfo.FromTeam(part.Team)

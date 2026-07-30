@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 interface HintListProps extends InputWrapperProps {
   hints: string[]
-  onChangeHint: (value: string[]) => void
+  onChangeHint: (value: string[], removedIndex?: number) => void
   disabled?: boolean
   height?: number
 }
@@ -31,7 +31,7 @@ export const HintList: FC<HintListProps> = (props) => {
 
   const handleDelete = (key: number) => {
     const newHints = hintdict.filter((h) => h.key !== key)
-    onChangeHint(newHints.map((h) => h.hint))
+    onChangeHint(newHints.map((h) => h.hint), key)
   }
 
   return (
@@ -40,10 +40,10 @@ export const HintList: FC<HintListProps> = (props) => {
         <Stack gap="xs">
           {hintdict.map((kv) => (
             <TextInput
+              key={kv.key}
               mr={4}
               value={kv.hint}
               disabled={disabled}
-              key={kv.key}
               onChange={(e) => handleChange(kv.key, e.target.value)}
               rightSection={
                 <ActionIcon onClick={() => handleDelete(kv.key)}>

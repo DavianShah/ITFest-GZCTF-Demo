@@ -12,6 +12,25 @@ import { ChallengeCategoryItemProps } from '@Utils/Shared'
 import { useConfig } from '@Hooks/useConfig'
 import api, { AnswerResult, ChallengeType, SubmissionType } from '@Api'
 
+const AI_USAGE_DISCLOSURE_REQUIRED =
+  'Isi link AI atau pernyataan bahwa Anda tidak memakai AI sebelum mengirim flag.'
+const AI_USAGE_DISCLOSURE_INVALID =
+  'Isi harus berupa link percakapan AI dengan protokol http/https atau tepat "Saya tidak memakai AI".'
+const NO_AI_DECLARATION = 'Saya tidak memakai AI'
+const AI_USAGE_DISCLOSURE_MAX_LENGTH = 2000
+const MAX_SOLVER_FILE_SIZE = 10 * 1024 * 1024
+
+const isValidAiUsageDisclosure = (value: string) => {
+  if (value === NO_AI_DECLARATION) return true
+
+  try {
+    const url = new URL(value)
+    return Boolean(url.hostname) && (url.protocol === 'http:' || url.protocol === 'https:')
+  } catch {
+    return false
+  }
+}
+
 interface GameChallengeModalProps extends ModalProps {
   gameId: number
   gameTitle: string
@@ -22,14 +41,15 @@ interface GameChallengeModalProps extends ModalProps {
   score: number
   challengeId: number
   status?: SubmissionType
+  speedrun?: boolean
 }
 
 export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
-  const { gameId, gameTitle, gameEnded, practiceMode, challengeId, cateData, status, title, score, ...modalProps } =
-    props
+  const { gameId, gameTitle, gameEnded, practiceMode, challengeId, cateData, status, speedrun, title, score,
+    ...modalProps } = props
 
   const { data: challenge, mutate } = api.game.useGameGetChallenge(gameId, challengeId, {
-    refreshInterval: 120 * 1000,
+    refreshInterval: speedrun ? 5 * 1000 : 120 * 1000,
   })
 
   const { config } = useConfig()
@@ -45,6 +65,10 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
   const [disabled, setDisabled] = useState(false)
   const [submitId, setSubmitId] = useState(0)
   const [flag, setFlag] = useInputState('')
+  const [aiUsageDisclosure, setAiUsageDisclosure] = useState('')
+  const [aiUsageDisclosureError, setAiUsageDisclosureError] = useState<string>()
+  const [solverFile, setSolverFile] = useState<File | null>(null)
+  const [solverFileError, setSolverFileError] = useState<string>()
   const [solvedChallengeId, setSolvedChallengeId] = useState<number | null>(null)
 
   const isLimitReached = (challenge?.limit && (challenge.attempts ?? 0) >= challenge.limit) || false
@@ -141,12 +165,74 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
       return
     }
 
+    const normalizedAiUsageDisclosure = aiUsageDisclosure.trim()
+    if (!speedrun && !normalizedAiUsageDisclosure) {
+      setAiUsageDisclosureError(AI_USAGE_DISCLOSURE_REQUIRED)
+      showNotification({
+        color: 'red',
+        message: AI_USAGE_DISCLOSURE_REQUIRED,
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
+    if (!speedrun && normalizedAiUsageDisclosure.length > AI_USAGE_DISCLOSURE_MAX_LENGTH) {
+      const message = `Link AI atau pernyataan penggunaan AI tidak boleh melebihi ${AI_USAGE_DISCLOSURE_MAX_LENGTH} karakter.`
+      setAiUsageDisclosureError(message)
+      showNotification({
+        color: 'red',
+        message,
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
+    if (!speedrun && !isValidAiUsageDisclosure(normalizedAiUsageDisclosure)) {
+      setAiUsageDisclosureError(AI_USAGE_DISCLOSURE_INVALID)
+      showNotification({
+        color: 'red',
+        message: AI_USAGE_DISCLOSURE_INVALID,
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
+    if (!speedrun && challenge?.requireSolverUpload && !solverFile) {
+      const message = 'Upload file solver sebelum mengirim flag untuk challenge ini.'
+      setSolverFileError(message)
+      showNotification({
+        color: 'red',
+        message,
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
+    if (solverFile && solverFile.size > MAX_SOLVER_FILE_SIZE) {
+      const message = 'Ukuran file solver maksimal 10 MB.'
+      setSolverFileError(message)
+      showNotification({
+        color: 'red',
+        message,
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
     setDisabled(true)
 
     try {
-      const res = await api.game.gameSubmit(gameId, challengeId, {
-        flag: await encryptApiData(t, flag, config.apiPublicKey),
-      })
+      const encryptedFlag = await encryptApiData(t, flag, config.apiPublicKey)
+      const res = !speedrun && solverFile
+        ? await api.game.gameSubmitWithSolver(gameId, challengeId, {
+          flag: encryptedFlag,
+          aiUsageDisclosure: normalizedAiUsageDisclosure,
+          solverFile,
+        })
+        : await api.game.gameSubmit(gameId, challengeId, {
+          flag: encryptedFlag,
+          aiUsageDisclosure: speedrun ? undefined : normalizedAiUsageDisclosure,
+        })
       setSubmitId(res.data)
       notifications.clean()
       showNotification({
@@ -182,12 +268,20 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
         if (res.data !== AnswerResult.FlagSubmitted) {
           setDisabled(false)
           setFlag('')
+          setAiUsageDisclosure('')
+          setAiUsageDisclosureError(undefined)
+          setSolverFile(null)
+          setSolverFileError(undefined)
           checkDataFlag(submitId, res.data)
           clearInterval(polling)
         }
       } catch (err) {
         setDisabled(false)
         setFlag('')
+        setAiUsageDisclosure('')
+        setAiUsageDisclosureError(undefined)
+        setSolverFile(null)
+        setSolverFileError(undefined)
         showErrorMsg(err, t)
         clearInterval(polling)
       }
@@ -255,6 +349,19 @@ export const GameChallengeModal: FC<GameChallengeModalProps> = (props) => {
       solved={(status !== SubmissionType.Unaccepted && status !== undefined) || solvedChallengeId === challengeId}
       flag={flag}
       setFlag={setFlag}
+      requireAiUsageDisclosure={!speedrun}
+      aiUsageDisclosure={aiUsageDisclosure}
+      aiUsageDisclosureError={aiUsageDisclosureError}
+      setAiUsageDisclosure={(value) => {
+        setAiUsageDisclosure(value)
+        setAiUsageDisclosureError(undefined)
+      }}
+      solverFile={solverFile}
+      solverFileError={solverFileError}
+      setSolverFile={(file) => {
+        setSolverFile(file)
+        setSolverFileError(undefined)
+      }}
       onCreate={onCreate}
       onDestroy={onDestroy}
       onSubmitFlag={onSubmit}

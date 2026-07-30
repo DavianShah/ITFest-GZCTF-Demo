@@ -3,6 +3,7 @@ import { FC } from 'react'
 import { ChallengePanel } from '@Components/ChallengePanel'
 import { GameNoticePanel } from '@Components/GameNoticePanel'
 import { TeamRank } from '@Components/TeamRank'
+import { SpeedrunBanner } from '@Components/SpeedrunBanner'
 import { WithGameTab } from '@Components/WithGameTab'
 import { WithNavBar } from '@Components/WithNavbar'
 import { WithRole } from '@Components/WithRole'
@@ -13,6 +14,7 @@ const Challenges: FC = () => {
     <WithNavBar width="90%">
       <WithRole requiredRole={Role.User}>
         <WithGameTab>
+          <SpeedrunBanner />
           <Group gap="sm" justify="space-between" align="flex-start" wrap="nowrap">
             <ChallengePanel />
             <Stack gap="sm" miw="22rem" maw="22rem">

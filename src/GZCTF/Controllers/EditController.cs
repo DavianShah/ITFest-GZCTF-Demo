@@ -6,11 +6,16 @@ using GZCTF.Models.Request.Edit;
 using GZCTF.Models.Request.Game;
 using GZCTF.Models.Request.Info;
 using GZCTF.Repositories.Interface;
+using GZCTF.Services;
 using GZCTF.Services.Cache;
 using GZCTF.Services.Container.Manager;
+using GZCTF.Services.Integrations;
 using GZCTF.Services.Transfer;
+using GZCTF.Storage.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using NSwag.Annotations;
 
@@ -37,11 +42,125 @@ public class EditController(
     IGameRepository gameRepository,
     IContainerManager containerService,
     IBlobRepository blobService,
+    IBlobStorage blobStorage,
     GameExportService exportService,
     GameImportService importService,
+    DiscordWebhookService discordWebhookService,
+    SpeedrunService speedrunService,
+    AppDbContext dbContext,
     IDivisionRepository divisionRepository,
     IStringLocalizer<Program> localizer) : Controller
 {
+    /// <summary>
+    /// Get AI usage disclosures submitted for a game
+    /// </summary>
+    /// <remarks>
+    /// Retrieving AI usage disclosures requires administrator privileges
+    /// </remarks>
+    [HttpGet("Games/{id:int}/AiDisclosures")]
+    [ProducesResponseType(typeof(AiUsageDisclosureModel[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetGameAiDisclosures([FromRoute] int id,
+        [FromQuery][Range(1, 500)] int count = 200, [FromQuery][Range(0, int.MaxValue)] int skip = 0,
+        CancellationToken token = default)
+    {
+        if (!await dbContext.Games.AnyAsync(game => game.Id == id, token))
+            return NotFound(new RequestResponse("Game not found.", StatusCodes.Status404NotFound));
+
+        var disclosures = await dbContext.Submissions.AsNoTracking()
+            .Where(submission => submission.GameId == id
+                                 && submission.AiUsageDisclosure != null
+                                 && submission.AiUsageDisclosure != string.Empty)
+            .OrderByDescending(submission => submission.SubmitTimeUtc)
+            .Skip(skip)
+            .Take(count)
+            .Select(submission => new AiUsageDisclosureModel
+            {
+                SubmissionId = submission.Id,
+                SubmitTimeUtc = submission.SubmitTimeUtc,
+                Team = submission.Team != null ? submission.Team.Name : string.Empty,
+                User = submission.User != null ? submission.User.UserName ?? string.Empty : string.Empty,
+                Challenge = submission.GameChallenge != null ? submission.GameChallenge.Title : string.Empty,
+                Answer = submission.Answer,
+                Status = submission.Status,
+                AiUsageDisclosure = submission.AiUsageDisclosure!,
+                SolverFileName = submission.SolverFileName,
+                SolverFileSize = submission.SolverFile != null ? submission.SolverFile.FileSize : null,
+                HasSolverFile = submission.SolverFileId != null
+            })
+            .ToArrayAsync(token);
+
+        return Ok(disclosures);
+    }
+
+    /// <summary>
+    /// Download the solver file attached to a submission
+    /// </summary>
+    [HttpGet("Games/{id:int}/Submissions/{submissionId:int}/Solver")]
+    [Produces(MediaTypeNames.Application.Octet)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadSubmissionSolver([FromRoute] int id, [FromRoute] int submissionId,
+        CancellationToken token)
+    {
+        var submission = await dbContext.Submissions.AsNoTracking()
+            .Include(item => item.SolverFile)
+            .SingleOrDefaultAsync(item => item.GameId == id && item.Id == submissionId, token);
+
+        if (submission?.SolverFile is null)
+            return NotFound(new RequestResponse("Solver file not found.", StatusCodes.Status404NotFound));
+
+        var path = StoragePath.Combine(PathHelper.Uploads, submission.SolverFile.Location,
+            submission.SolverFile.Hash);
+        if (!await blobStorage.ExistsAsync(path, token))
+            return NotFound(new RequestResponse("Solver file not found.", StatusCodes.Status404NotFound));
+
+        var stream = await blobStorage.OpenReadAsync(path, token);
+        var downloadName = string.Concat(
+            Path.GetFileName(submission.SolverFileName ?? submission.SolverFile.Name)
+                .Where(character => !char.IsControl(character))).Trim();
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(stream, MediaTypeNames.Application.Octet,
+            string.IsNullOrWhiteSpace(downloadName) ? "solver.bin" : downloadName);
+    }
+
+    [HttpGet("Games/{id:int}/LiveScoreboard")]
+    public async Task<IActionResult> GetLiveScoreboardConfig(int id, CancellationToken token)
+    {
+        if (!await dbContext.Games.AnyAsync(game => game.Id == id, token))
+            return NotFound(new RequestResponse("Game not found."));
+        var config = await dbContext.GameLiveScoreboardConfigs.AsNoTracking()
+            .SingleOrDefaultAsync(item => item.GameId == id, token);
+        return Ok(LiveScoreboardConfigModel.FromConfig(config));
+    }
+
+    [HttpPut("Games/{id:int}/LiveScoreboard")]
+    public async Task<IActionResult> UpdateLiveScoreboardConfig(int id, [FromBody] LiveScoreboardConfigModel model,
+        CancellationToken token)
+    {
+        if (!await dbContext.Games.AnyAsync(game => game.Id == id, token))
+            return NotFound(new RequestResponse("Game not found."));
+        var config = await dbContext.GameLiveScoreboardConfigs.SingleOrDefaultAsync(item => item.GameId == id, token);
+        if (config is null)
+        {
+            config = new() { GameId = id };
+            dbContext.GameLiveScoreboardConfigs.Add(config);
+        }
+        model.Apply(config);
+        await dbContext.SaveChangesAsync(token);
+        return Ok(LiveScoreboardConfigModel.FromConfig(config));
+    }
+
+    [HttpPost("Games/{id:int}/LiveScoreboard/ResetSounds")]
+    public async Task<IActionResult> ResetLiveScoreboardSounds(int id, CancellationToken token)
+    {
+        var config = await dbContext.GameLiveScoreboardConfigs.SingleOrDefaultAsync(item => item.GameId == id, token);
+        if (config is null)
+            return NotFound(new RequestResponse("Live Scoreboard configuration not found."));
+        new LiveScoreboardSoundModel().Apply(config);
+        await dbContext.SaveChangesAsync(token);
+        return Ok(LiveScoreboardConfigModel.FromConfig(config));
+    }
     /// <summary>
     /// Add Post
     /// </summary>
@@ -231,6 +350,186 @@ public class EditController(
 
         return Ok(GameInfoModel.FromGame(game));
     }
+
+    /// <summary>
+    /// Get a game's Discord blood notification settings
+    /// </summary>
+    [HttpGet("Games/{id:int}/BloodNotification")]
+    [ProducesResponseType(typeof(BloodNotificationModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetGameBloodNotification([FromRoute] int id, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)],
+                StatusCodes.Status404NotFound));
+
+        return Ok(BloodNotificationModel.FromGame(game));
+    }
+
+    /// <summary>
+    /// Update a game's Discord blood notification settings
+    /// </summary>
+    [HttpPut("Games/{id:int}/BloodNotification")]
+    [ProducesResponseType(typeof(BloodNotificationModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateGameBloodNotification([FromRoute] int id,
+        [FromBody] BloodNotificationModel model, CancellationToken token)
+    {
+        if (model.Validate() is { } error)
+            return BadRequest(new RequestResponse(error, StatusCodes.Status400BadRequest));
+
+        var game = await gameRepository.GetGameById(id, token);
+
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)],
+                StatusCodes.Status404NotFound));
+
+        game.Update(model);
+        await gameRepository.UpdateGame(game, token);
+
+        return Ok(BloodNotificationModel.FromGame(game));
+    }
+
+    /// <summary>
+    /// Test a game's Discord blood notification webhook
+    /// </summary>
+    [HttpPost("Games/{id:int}/BloodNotification/Test")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> TestGameBloodNotification([FromRoute] int id,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] BloodNotificationModel? model, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+
+        if (game is null)
+            return NotFound(new RequestResponse(localizer[nameof(Resources.Program.Game_NotFound)],
+                StatusCodes.Status404NotFound));
+
+        model ??= BloodNotificationModel.FromGame(game);
+        if (string.IsNullOrWhiteSpace(model.DiscordWebhookUrl))
+            model.DiscordWebhookUrl = game.BloodDiscordWebhookUrl;
+
+        if (model.Validate(requireWebhook: true) is { } error)
+            return BadRequest(new RequestResponse(error, StatusCodes.Status400BadRequest));
+
+        return await discordWebhookService.SendTestWebhook(model.DiscordWebhookUrl!, model, game.Title, token)
+            ? Ok()
+            : BadRequest(new RequestResponse("Discord webhook test failed.", StatusCodes.Status400BadRequest));
+    }
+
+    [HttpGet("Games/{id:int}/Speedrun")]
+    public async Task<IActionResult> GetSpeedrunSettings(int id, CancellationToken token) =>
+        await speedrunService.GetSettings(id, token) is { } settings
+            ? Ok(settings)
+            : NotFound(new RequestResponse("Game not found.", StatusCodes.Status404NotFound));
+
+    [HttpPut("Games/{id:int}/Speedrun")]
+    public async Task<IActionResult> UpdateSpeedrunSettings(int id, [FromBody] SpeedrunSettingsModel model,
+        CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+        if (game is null)
+            return NotFound(new RequestResponse("Game not found.", StatusCodes.Status404NotFound));
+        game.SpeedrunDefaultRoundDurationSeconds =
+            model.DefaultRoundDurationSeconds ?? model.DefaultRoundDurationMinutes * 60;
+        game.SpeedrunOvertimeSeconds = model.OvertimeSeconds ?? model.OvertimeMinutes * 60;
+        game.SpeedrunDefaultRoundDurationMinutes = game.SpeedrunDefaultRoundDurationSeconds / 60;
+        game.SpeedrunOvertimeMinutes = game.SpeedrunOvertimeSeconds / 60;
+        game.SpeedrunAllowManualExtend = model.AllowManualExtend;
+        game.SpeedrunHideInactiveChallenges = model.HideInactiveChallenges;
+        game.SpeedrunEmergencyHintEnabled = model.EmergencyHintEnabled;
+        game.SpeedrunEmergencyHintText = model.EmergencyHintText;
+        await gameRepository.UpdateGame(game, token);
+        return Ok(await speedrunService.GetSettings(id, token));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/RefreshCategories")]
+    public async Task<IActionResult> RefreshSpeedrunCategories(int id, CancellationToken token)
+    {
+        await speedrunService.RefreshCategories(id, token);
+        return Ok(await speedrunService.GetSettings(id, token));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/Spin")]
+    public async Task<IActionResult> SpinSpeedrun(int id, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+        if (game is null || game.Mode != GameMode.Speedrun)
+            return BadRequest(new RequestResponse("Speedrun mode is not enabled."));
+        var user = await userManager.GetUserAsync(User);
+        return await speedrunService.Spin(game, user?.Id, token) is { } round
+            ? Ok(round)
+            : BadRequest(new RequestResponse("No unused category is available or another round is active."));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/Rounds/{roundId:int}/Start")]
+    public async Task<IActionResult> StartSpeedrunRound(int id, int roundId, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+        return game is not null && game.Mode == GameMode.Speedrun && await speedrunService.Start(game, roundId, token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Speedrun round cannot be started."));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/Rounds/{roundId:int}/End")]
+    public async Task<IActionResult> EndSpeedrunRound(int id, int roundId, CancellationToken token) =>
+        await speedrunService.End(id, roundId, token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Speedrun round cannot be ended."));
+
+    [HttpPost("Games/{id:int}/Speedrun/Rounds/{roundId:int}/Extend")]
+    public async Task<IActionResult> ExtendSpeedrunRound(int id, int roundId, [FromBody] SpeedrunExtendModel model,
+        CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+        return game is not null && game.Mode == GameMode.Speedrun &&
+               await speedrunService.Extend(game, roundId, model.GetSeconds(), token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Speedrun round cannot be extended."));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/Rounds/{roundId:int}/SetTimer")]
+    public async Task<IActionResult> SetSpeedrunRoundTimer(int id, int roundId,
+        [FromBody] SpeedrunSetTimerModel model, CancellationToken token)
+    {
+        var game = await gameRepository.GetGameById(id, token);
+        return game is not null && game.Mode == GameMode.Speedrun &&
+               await speedrunService.SetRemainingTime(game, roundId, model.GetSeconds(), token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Speedrun round timer cannot be updated."));
+    }
+
+    [HttpPost("Games/{id:int}/Speedrun/Categories/{categoryId:int}/Available")]
+    public async Task<IActionResult> MakeSpeedrunCategoryAvailable(int id, int categoryId, CancellationToken token) =>
+        await UpdateSpeedrunCategory(id, categoryId, used: false, included: null, token);
+
+    [HttpPost("Games/{id:int}/Speedrun/Categories/{categoryId:int}/Used")]
+    public async Task<IActionResult> MarkSpeedrunCategoryUsed(int id, int categoryId, CancellationToken token) =>
+        await UpdateSpeedrunCategory(id, categoryId, used: true, included: null, token);
+
+    [HttpPost("Games/{id:int}/Speedrun/Categories/{categoryId:int}/Enable")]
+    public async Task<IActionResult> EnableSpeedrunCategory(int id, int categoryId, CancellationToken token) =>
+        await UpdateSpeedrunCategory(id, categoryId, used: null, included: true, token);
+
+    [HttpPost("Games/{id:int}/Speedrun/Categories/{categoryId:int}/Disable")]
+    public async Task<IActionResult> DisableSpeedrunCategory(int id, int categoryId, CancellationToken token) =>
+        await UpdateSpeedrunCategory(id, categoryId, used: null, included: false, token);
+
+    private async Task<IActionResult> UpdateSpeedrunCategory(int id, int categoryId, bool? used, bool? included,
+        CancellationToken token) =>
+        await speedrunService.UpdateCategory(id, categoryId, used, included, token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Speedrun category cannot be updated while it is selected."));
+
+    [HttpPost("Games/{id:int}/Speedrun/ResetCategories")]
+    public async Task<IActionResult> ResetSpeedrunCategories(int id, CancellationToken token) =>
+        await speedrunService.ResetCategories(id, token)
+            ? Ok(await speedrunService.GetSettings(id, token))
+            : BadRequest(new RequestResponse("Categories cannot be reset while a round is active."));
 
     /// <summary>
     /// Delete Game
@@ -699,6 +998,11 @@ public class EditController(
             return BadRequest(
                 new RequestResponse(localizer[nameof(Resources.Program.Challenge_DynamicAssetsNotNullable)]));
 
+        if (model.SpeedrunHintReleaseMinutes?.Any(minute => minute < 0) is true)
+            return BadRequest(new RequestResponse("Speedrun hint release minutes must be zero or greater."));
+        if (model.SpeedrunHintReleaseSeconds?.Any(second => second < 0) is true)
+            return BadRequest(new RequestResponse("Speedrun hint release seconds must be zero or greater."));
+
         var hintUpdated = model.IsHintUpdated(res.Hints?.GetSetHashCode());
 
         if (!string.IsNullOrWhiteSpace(model.FlagTemplate) && res.Type == ChallengeType.DynamicContainer &&
@@ -714,7 +1018,7 @@ public class EditController(
                     // Will also update IsEnabled
                     await challengeRepository.EnsureInstances(res, game, token);
 
-                    if (game.IsActive)
+                    if (game.IsActive && game.Mode != GameMode.Speedrun)
                         await gameNoticeRepository.AddNotice(
                             new() { Game = game, Type = NoticeType.NewChallenge, Values = [res.Title] }, token);
                     break;
@@ -727,7 +1031,7 @@ public class EditController(
                 break;
         }
 
-        if (game.IsActive && res.IsEnabled && hintUpdated)
+        if (game.IsActive && game.Mode != GameMode.Speedrun && res.IsEnabled && hintUpdated)
             await gameNoticeRepository.AddNotice(
                 new() { Game = game, Type = NoticeType.NewHint, Values = [res.Title] },
                 token);

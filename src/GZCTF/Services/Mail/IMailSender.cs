@@ -44,4 +44,8 @@ public interface IMailSender
     /// <param name="options">全局配置</param>
     public bool SendResetPasswordUrl(string? userName, string? email, string? resetLink,
         IStringLocalizer<Program> localizer, IOptionsSnapshot<GlobalConfig> options);
+
+    public bool SendCaptainOnboardingUrl(string? teamName, string? email, string? onboardingLink,
+        IReadOnlyCollection<string> gameTitles, DateTimeOffset expiresAtUtc,
+        IStringLocalizer<Program> localizer, IOptionsSnapshot<GlobalConfig> options);
 }

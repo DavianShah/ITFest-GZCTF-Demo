@@ -42,6 +42,17 @@ import tableClasses from '@Styles/Table.module.css'
 
 const ITEM_COUNT_PER_PAGE = 50
 
+const getSafeDisclosureUrl = (value?: string | null) => {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null
+  } catch {
+    return null
+  }
+}
+
 const AnswerResultMap = new Map([
   [AnswerResult.Accepted, 'AC'],
   [AnswerResult.WrongAnswer, 'WA'],
@@ -158,35 +169,58 @@ const Submissions: FC = () => {
 
   const filteredSubs = newSubmissions.current.filter((item) => type === 'All' || item.status === type)
 
-  const rows = [...(activePage === 1 ? filteredSubs : []), ...(submissions ?? [])].map((item, i) => (
-    <Table.Tr
-      key={`${item.time}@${i}`}
-      className={cx({ [tableClasses.fade]: i === 0 && activePage === 1 && filteredSubs.length > 0 })}
-    >
-      <Table.Td>
-        <Icon {...iconMap.get(item.status ?? AnswerResult.FlagSubmitted)!} />
-      </Table.Td>
-      <Table.Td ff="monospace">
-        <Badge size="sm" color="indigo" fullWidth>
-          {dayjs(item.time).locale(locale).format('SL HH:mm:ss')}
-        </Badge>
-      </Table.Td>
-      <Table.Td>
-        <Text size="sm" fw="bold">
-          {item.team ?? 'Team'}
-        </Text>
-      </Table.Td>
-      <Table.Td>
-        <Text ff="monospace" size="sm" fw="bold">
-          {item.user ?? 'User'}
-        </Text>
-      </Table.Td>
-      <Table.Td>{item.challenge ?? 'Challenge'}</Table.Td>
-      <Table.Td w="36vw" maw="100%" p="0">
-        <Input variant="unstyled" value={item.answer} readOnly size="sm" classNames={inputClasses} />
-      </Table.Td>
-    </Table.Tr>
-  ))
+  const rows = [...(activePage === 1 ? filteredSubs : []), ...(submissions ?? [])].map((item, i) => {
+    const disclosureUrl = getSafeDisclosureUrl(item.aiUsageDisclosure)
+
+    return (
+      <Table.Tr
+        key={`${item.time}@${i}`}
+        className={cx({ [tableClasses.fade]: i === 0 && activePage === 1 && filteredSubs.length > 0 })}
+      >
+        <Table.Td>
+          <Icon {...iconMap.get(item.status ?? AnswerResult.FlagSubmitted)!} />
+        </Table.Td>
+        <Table.Td ff="monospace">
+          <Badge size="sm" color="indigo" fullWidth>
+            {dayjs(item.time).locale(locale).format('SL HH:mm:ss')}
+          </Badge>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm" fw="bold">
+            {item.team ?? 'Team'}
+          </Text>
+        </Table.Td>
+        <Table.Td>
+          <Text ff="monospace" size="sm" fw="bold">
+            {item.user ?? 'User'}
+          </Text>
+        </Table.Td>
+        <Table.Td>{item.challenge ?? 'Challenge'}</Table.Td>
+        <Table.Td w="28vw" maw="100%" p="0">
+          <Input variant="unstyled" value={item.answer} readOnly size="sm" classNames={inputClasses} />
+        </Table.Td>
+        <Table.Td miw="16rem">
+          {disclosureUrl ? (
+            <Text
+              component="a"
+              href={disclosureUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              c="blue"
+              size="sm"
+              lineClamp={2}
+            >
+              {item.aiUsageDisclosure}
+            </Text>
+          ) : (
+            <Text size="sm" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }} lineClamp={3}>
+              {item.aiUsageDisclosure ?? '-'}
+            </Text>
+          )}
+        </Table.Td>
+      </Table.Tr>
+    )
+  })
 
   const onDownloadSubmissionSheet = () =>
     downloadBlob(
@@ -256,6 +290,7 @@ const Submissions: FC = () => {
                 <Table.Th miw="4.5rem">{t('common.label.user')}</Table.Th>
                 <Table.Th miw="3rem">{t('common.label.challenge')}</Table.Th>
                 <Table.Th ff="monospace">{t('common.label.flag')}</Table.Th>
+                <Table.Th miw="16rem">Penggunaan AI</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

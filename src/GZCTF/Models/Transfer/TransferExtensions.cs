@@ -85,6 +85,7 @@ public static class TransferExtensions
                 {
                     Template = challenge.FlagTemplate,
                     DisableBloodBonus = challenge.DisableBloodBonus,
+                    RequireSolverUpload = challenge.RequireSolverUpload,
                     EnableTrafficCapture = challenge.EnableTrafficCapture,
                     // For dynamic challenges with FlagTemplate, don't export the template flag to Static list
                     // to avoid duplication during import
@@ -262,6 +263,7 @@ public static class TransferExtensions
                 DeadlineUtc = transfer.Limits.Deadline,
                 FlagTemplate = transfer.Flags.Template,
                 DisableBloodBonus = transfer.Flags.DisableBloodBonus,
+                RequireSolverUpload = transfer.Flags.RequireSolverUpload,
                 EnableTrafficCapture = transfer.Flags.EnableTrafficCapture,
                 Hints = transfer.Hints
             };
