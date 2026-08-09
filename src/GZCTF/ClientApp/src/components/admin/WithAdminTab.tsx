@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { IconTabs } from '@Components/IconTabs'
 import { DEFAULT_LOADING_OVERLAY } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
+import adminClasses from '@Styles/Admin.module.css'
 
 export interface AdminTabProps extends React.PropsWithChildren {
   head?: React.ReactNode
@@ -62,9 +63,10 @@ export const WithAdminTab: FC<AdminTabProps> = ({ head, headProps, isLoading, ch
   usePageTitle(pages[tabIndex].title)
 
   return (
-    <Stack gap="xs" align="center" pt="md">
+    <Stack gap="xs" align="center" pt="md" className={adminClasses.root}>
       <IconTabs
         withIcon
+        className={adminClasses.globalTabs}
         active={activeTab}
         onTabChange={onChange}
         tabs={pages.map((p) => ({
@@ -74,7 +76,14 @@ export const WithAdminTab: FC<AdminTabProps> = ({ head, headProps, isLoading, ch
         }))}
       />
       {head && (
-        <Group wrap="nowrap" justify="space-between" h="40px" w="100%" {...headProps}>
+        <Group
+          wrap="nowrap"
+          justify="space-between"
+          mih="40px"
+          w="100%"
+          className={adminClasses.toolbar}
+          {...headProps}
+        >
           {head}
         </Group>
       )}

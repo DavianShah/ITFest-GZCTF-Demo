@@ -58,7 +58,7 @@ const Verify: FC = () => {
   }
 
   return (
-    <AccountView onSubmit={verify}>
+    <AccountView title={t('account.title.verify')} onSubmit={verify}>
       {email && token ? (
         <>
           <Text size="md" fw={500}>

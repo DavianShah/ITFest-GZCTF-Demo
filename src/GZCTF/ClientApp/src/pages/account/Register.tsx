@@ -135,7 +135,7 @@ const Register: FC = () => {
   }
 
   return (
-    <AccountView onSubmit={onRegister}>
+    <AccountView title={t('account.title.register')} onSubmit={onRegister}>
       <TextInput
         required
         label={t('account.label.email')}

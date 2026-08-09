@@ -37,6 +37,7 @@ import {
 } from '@Utils/Shared'
 import { useGameScoreboard } from '@Hooks/useGame'
 import { ChallengeInfo, ChallengeCategory, ScoreboardItem, SubmissionType } from '@Api'
+import competition from '@Styles/Competition.module.css'
 import misc from '@Styles/Misc.module.css'
 import classes from '@Styles/ScoreboardTable.module.css'
 
@@ -161,7 +162,7 @@ const TableRow: FC<{
   }, [solved])
 
   return (
-    <Table.Tr>
+    <Table.Tr className={classes.row}>
       <Table.Td className={cx(classes.mono, classes.left)} style={{ left: Lefts[0] }}>
         {item.rank || '-'}
       </Table.Td>
@@ -175,7 +176,7 @@ const TableRow: FC<{
           wrap="nowrap"
           onClick={onOpenDetail}
           maw={Widths[2] - 10}
-          className={classes.pointer}
+          className={cx(classes.pointer, classes.teamTrigger)}
         >
           <Avatar alt="avatar" src={item.avatar} radius="xl" size={30} color={theme.primaryColor}>
             {item.name?.slice(0, 1) ?? 'T'}
@@ -319,9 +320,9 @@ export const ScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivisionId
   const hasDivisionFilter = divisionOptions.length > 0
 
   return (
-    <Paper shadow="md" p="md">
-      <Stack gap="xs">
-        <Grid>
+    <Paper shadow="md" p="md" className={cx(classes.surface, competition.scoreboardSurface)}>
+      <Stack gap="xs" className={classes.stack}>
+        <Grid className={classes.toolbar}>
           <Grid.Col span={3}>
             <Select
               defaultValue="all"
@@ -347,12 +348,14 @@ export const ScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivisionId
               value={keyword}
               onChange={(e) => setKeyword(e.currentTarget.value)}
               leftSection={<Icon path={mdiMagnify} size={1} />}
+              className={classes.searchInput}
             />
           </Grid.Col>
         </Grid>
-        <Box pos="relative" mih="calc(100vh - 14rem)">
+        <Box pos="relative" mih="calc(100vh - 14rem)" className={classes.tableRegion}>
           <Table.ScrollContainer
             minWidth="100%"
+            className={classes.scroller}
             classNames={{
               scrollContainer: misc.noScrollBars,
             }}
@@ -382,7 +385,7 @@ export const ScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivisionId
           <Box className={classes.legend}>
             <Stack gap="xs">
               <Tooltip.Group>
-                <Group gap="lg">
+                <Group gap="lg" className={classes.legendItems}>
                   {BloodsTypes.map((type, idx) => (
                     <Tooltip key={idx} label={bloodData.get(type)?.name} transitionProps={{ transition: 'pop' }}>
                       <Group justify="left" gap={2}>
@@ -399,7 +402,7 @@ export const ScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivisionId
             </Stack>
           </Box>
         </Box>
-        <Group justify="space-between">
+        <Group justify="space-between" className={classes.paginationBar}>
           <Text size="sm" c="dimmed">
             {t('game.content.scoreboard_tip')}
           </Text>

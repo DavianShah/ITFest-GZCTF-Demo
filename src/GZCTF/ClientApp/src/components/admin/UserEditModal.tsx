@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { showErrorMsg } from '@Utils/Shared'
 import { useUser } from '@Hooks/useUser'
 import api, { AdminUserInfoModel, Role, UserInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 export const RoleColorMap = new Map<Role, string>([
   [Role.Admin, 'blue'],
@@ -73,7 +74,7 @@ export const UserEditModal: FC<UserEditModalProps> = (props) => {
   return (
     <Modal {...modalProps}>
       {/* User Info */}
-      <Stack gap="md" m="auto" mt={15}>
+      <Stack gap="md" m="auto" mt={15} className={adminClasses.modalBody}>
         <Grid grow>
           <Grid.Col span={8}>
             <TextInput
@@ -94,6 +95,7 @@ export const UserEditModal: FC<UserEditModalProps> = (props) => {
           </Grid.Col>
         </Grid>
         <Radio.Group
+          className={adminClasses.roleGrid}
           label={t('admin.label.users.role')}
           value={profile.role as Role | undefined}
           onChange={(value) => {
@@ -180,7 +182,7 @@ export const UserEditModal: FC<UserEditModalProps> = (props) => {
           </Group>
         </Stack>
 
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onChangeProfile}>
             {t('admin.button.save')}
           </Button>

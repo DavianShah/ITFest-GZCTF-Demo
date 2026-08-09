@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { showErrorMsg, tryGetErrorMsg } from '@Utils/Shared'
 import { IMAGE_MIME_TYPES } from '@Utils/Shared'
 import api, { TeamInfoModel, TeamUserInfoModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 import misc from '@Styles/Misc.module.css'
 import styles from '@Styles/TeamEditModal.module.css'
 
@@ -321,9 +322,9 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
         props.onClose()
       }}
     >
-      <Stack gap="sm">
+      <Stack className={styles.modalStack} data-role={isCaptain ? 'captain' : 'member'}>
         {/* Team Info */}
-        <Grid grow>
+        <Grid className={styles.identitySection} grow>
           <Grid.Col span={8}>
             <TextInput
               label={t('team.label.name')}
@@ -338,6 +339,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
           <Grid.Col span={4}>
             <Center>
               <Avatar
+                className={styles.teamAvatar}
                 alt="avatar"
                 radius="xl"
                 size={70}
@@ -351,6 +353,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
         </Grid>
         {isCaptain && (
           <PasswordInput
+            classNames={{ input: experience.technicalInput }}
             label={
               <Group gap={3}>
                 <Text fw={500} size="sm">
@@ -385,10 +388,10 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
           maxRows={4}
           onChange={(event) => setTeamInfo({ ...teamInfo, bio: event.target.value })}
         />
-        <Text fw={500} size="sm">
+        <Text className={styles.sectionTitle} fw={500} size="sm">
           {t('team.label.members')}
         </Text>
-        <ScrollArea h={210} offsetScrollbars>
+        <ScrollArea className={styles.memberList} h={210} offsetScrollbars>
           <Stack gap="xs">
             {captain && (
               <Group justify="space-between" p="xs" className={styles.captainGroup}>
@@ -447,7 +450,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
           </Stack>
         </ScrollArea>
 
-        <Group grow m="auto" w="100%">
+        <Group className={styles.actions} grow m="auto" w="100%">
           <Button
             fullWidth
             color="red"

@@ -27,7 +27,24 @@
 }
 
 .root {
-  filter: saturate(0.9);
+  position: relative;
+  min-height: 10rem;
+  overflow: hidden;
+  filter: saturate(0.92);
+  border-color: var(--ht-color-border-strong);
+
+  &::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: var(--ht-color-primary);
+    content: '';
+    pointer-events: none;
+  }
+
+  &[data-solved]::before {
+    background: var(--ht-status-solved);
+  }
 
   &[data-faded] {
     @mixin dark {
@@ -40,6 +57,23 @@
   }
 }
 
+.content {
+  z-index: 99;
+  height: 100%;
+}
+
+.titleRow {
+  padding-top: 2px;
+}
+
+.score {
+  letter-spacing: -0.04em;
+}
+
+.solveMeta {
+  min-width: 6.5rem;
+}
+
 .flag {
   position: absolute;
   width: 2rem;
@@ -49,9 +83,11 @@
   top: 0;
   right: 0;
   padding: calc(0.25 * var(--mantine-spacing-xs));
-  border-radius: 0 0 0 var(--mantine-radius-md);
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-3));
-  color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0 0 0 var(--ht-radius-md);
+  background-color: var(--ht-status-solved);
+  color: var(--mantine-color-white);
 }
 
 .icon {
@@ -69,5 +105,11 @@
 
   @mixin hover {
     transform: translateY(-2px);
+  }
+}
+
+@mixin smaller-than $mantine-breakpoint-xs {
+  .root {
+    min-height: 9rem;
   }
 }

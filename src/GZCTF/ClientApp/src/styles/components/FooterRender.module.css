@@ -2,7 +2,8 @@
   overflow-x: auto;
   text-align: center;
   font-size: var(--mantine-font-size-sm);
-  color: var(--mantine-color-dimmed);
+  color: var(--ht-color-text-muted);
+  font-family: var(--ht-font-technical);
 
   & p {
     word-break: break-word;
@@ -12,7 +13,7 @@
   }
 
   & :not(pre) > code {
-    color: var(--mantine-color-dimmed);
+    color: var(--ht-color-text-muted);
     white-space: normal;
     font-size: 0.95em;
     background-color: transparent;
@@ -21,16 +22,17 @@
   }
 
   & strong {
-    color: light-dark(var(--mantine-primary-color-7), var(--mantine-primary-color-6));
+    color: var(--ht-color-primary);
   }
 
   & a {
-    color: var(--mantine-color-dimmed);
+    color: var(--ht-color-text-muted);
     text-decoration: none;
     transition: all 0.2s ease-in-out;
   }
 
   & a:hover {
+    color: var(--ht-color-primary);
     text-decoration: none;
   }
 }

@@ -1,10 +1,28 @@
+.workspace {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: var(--mantine-spacing-sm);
+  min-width: 0;
+  width: 100%;
+}
+
+.sidebar {
+  align-self: start;
+  min-width: 0;
+  padding: var(--mantine-spacing-xs);
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-sm);
+}
+
 .tabRoot {
-  min-width: 10.5rem;
+  min-width: 0;
   width: 100%;
 }
 
 .tabList {
   width: 100%;
+  gap: 4px;
 }
 
 .tabLabel {
@@ -12,6 +30,8 @@
 }
 
 .tab {
+  min-height: 2.5rem;
+
   &:not([data-active='true']) {
     span[data-position='left'] {
       color: var(--tabs-color);
@@ -25,5 +45,53 @@
 }
 
 .scrollArea {
-  flex-grow: 1;
+  min-width: 0;
+  height: calc(100vh - 6.67rem);
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-sm);
+}
+
+.cardGrid {
+  width: 100%;
+  padding: var(--mantine-spacing-xs);
+}
+
+.panelEmpty,
+.fullEmpty {
+  min-height: calc(100vh - 10rem);
+  padding: var(--mantine-spacing-lg);
+  text-align: center;
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .tabList {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 9rem;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tab {
+    min-width: 0;
+  }
+
+  .scrollArea {
+    height: auto;
+    min-height: 18rem;
+  }
+
+  .panelEmpty,
+  .fullEmpty {
+    min-height: 18rem;
+  }
 }

@@ -2,6 +2,7 @@ import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import api, { SpeedrunRoundStatus, SpeedrunStateModel } from '@Api'
+import competition from '@Styles/Competition.module.css'
 
 export const SpeedrunBanner: FC = () => {
   const { id } = useParams()
@@ -34,7 +35,11 @@ export const SpeedrunBanner: FC = () => {
   if (!state?.isSpeedrun) return null
 
   return (
-    <Alert color={overtime ? 'red' : 'blue'} title={overtime ? 'Speedrun overtime' : 'Speedrun mode'}>
+    <Alert
+      color={overtime ? 'red' : 'blue'}
+      title={overtime ? 'Speedrun overtime' : 'Speedrun mode'}
+      className={competition.speedrunBanner}
+    >
       <Stack gap={4}>
         <Group>
           <Text fw={700}>
@@ -43,7 +48,9 @@ export const SpeedrunBanner: FC = () => {
           {round && <Badge color={overtime ? 'red' : 'blue'}>{round.status}</Badge>}
         </Group>
         <Text size="sm">Scores still count toward the main scoreboard.</Text>
-        {round?.status === SpeedrunRoundStatus.Ready && <Text>Category selected. Waiting for the admin to start the round.</Text>}
+        {round?.status === SpeedrunRoundStatus.Ready && (
+          <Text>Category selected. Waiting for the admin to start the round.</Text>
+        )}
         {overtime && <Text>{state.message}</Text>}
       </Stack>
     </Alert>

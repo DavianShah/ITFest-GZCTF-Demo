@@ -7,6 +7,14 @@
   }
 }
 
+.posts::before {
+  width: min(14rem, 36%);
+  height: 6px;
+  background: var(--ht-color-coral);
+  border: 1px solid var(--ht-color-ink);
+  content: '';
+}
+
 .wrapper {
   box-sizing: border-box;
   padding-left: var(--mantine-spacing-md);
@@ -22,9 +30,7 @@
 }
 
 .inner {
-  padding-top: 0;
-  padding-bottom: var(--mantine-spacing-xl);
-  padding-left: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-md);
   width: 260px;
   max-width: 260px;
   min-width: 260px;

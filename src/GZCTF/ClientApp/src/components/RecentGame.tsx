@@ -10,6 +10,7 @@ import { useLanguage } from '@Utils/I18n'
 import { useForeground } from '@Hooks/useForeground'
 import { getGameStatus } from '@Hooks/useGame'
 import { BasicGameInfoModel } from '@Api'
+import classes from '@Styles/GameCard.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export interface RecentGameProps {
@@ -33,8 +34,15 @@ export const RecentGame: FC<RecentGameProps> = ({ game, ...others }) => {
   const titleColor = useForeground(poster)
 
   return (
-    <Card {...others} shadow="sm" component={Link} to={`/games/${game.id}`} classNames={{ root: misc.hoverCard }}>
-      <Card.Section pos="relative">
+    <Card
+      {...others}
+      component={Link}
+      to={`/games/${game.id}`}
+      className={`${misc.hoverCard} ${classes.recentRoot}`}
+      data-status={status}
+      radius={0}
+    >
+      <Card.Section className={classes.recentPoster} pos="relative">
         {poster ? (
           <Image src={poster} h={POSTER_HEIGHT} alt="poster" />
         ) : (
@@ -46,7 +54,7 @@ export const RecentGame: FC<RecentGameProps> = ({ game, ...others }) => {
 
       <Card.Section inheritPadding pos="relative" mt={`calc(16px - ${POSTER_HEIGHT})`} className={misc.alignEnd}>
         <Group wrap="nowrap" gap="xs" justify="right">
-          <Badge size="xs" color={color} variant="filled">
+          <Badge className={classes.recentStatus} size="xs" color={color} variant="filled">
             {status}
           </Badge>
         </Group>
@@ -58,15 +66,15 @@ export const RecentGame: FC<RecentGameProps> = ({ game, ...others }) => {
         mt={`calc(${POSTER_HEIGHT} - 2rem - 34px)`}
         display="flex"
         p="0 16px"
-        className={misc.alignCenter}
+        className={`${misc.alignCenter} ${classes.recentTitleBand}`}
       >
-        <Title lineClamp={1} order={4} ta="left" c={titleColor}>
+        <Title className={classes.recentTitle} lineClamp={1} order={4} ta="left" c={titleColor}>
           &gt; {title}
         </Title>
       </Card.Section>
 
-      <Stack gap={0} mt={16}>
-        <Group wrap="nowrap" gap={0} justify="space-between">
+      <Stack className={classes.recentMeta} mt={16}>
+        <Group className={classes.recentMetaRow} wrap="nowrap" gap={0} justify="space-between">
           <Text size="sm" fw="bold">
             {status === GameStatus.Coming ? t('game.content.start_at') : t('game.content.end_at')}
           </Text>
@@ -76,7 +84,7 @@ export const RecentGame: FC<RecentGameProps> = ({ game, ...others }) => {
               : dayjs(endTime).locale(locale).format('L LT')}
           </Text>
         </Group>
-        <Group wrap="nowrap" gap={0} justify="space-between">
+        <Group className={classes.recentMetaRow} wrap="nowrap" gap={0} justify="space-between">
           <Text size="sm" fw="bold">
             {status === GameStatus.OnGoing ? t('game.content.remaining_time') : t('game.content.total_time')}
           </Text>

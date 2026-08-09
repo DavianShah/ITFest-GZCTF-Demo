@@ -17,6 +17,7 @@ import { FC, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { TeamUpdateModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 
 interface TeamEditModalProps extends ModalProps {
   disallowCreate: boolean
@@ -55,7 +56,7 @@ export const TeamCreateModal: FC<TeamEditModalProps> = (props) => {
   return (
     <Modal {...modalProps}>
       {disallowCreate ? (
-        <Stack gap="lg" p={40} ta="center">
+        <Stack className={experience.statusPanel} gap="lg" p={40} ta="center">
           <Center>
             <Icon color={theme.colors.red[7]} path={mdiCloseCircle} size={4} />
           </Center>
@@ -65,8 +66,8 @@ export const TeamCreateModal: FC<TeamEditModalProps> = (props) => {
           </Text>
         </Stack>
       ) : (
-        <Stack>
-          <Text>{t('team.content.create')}</Text>
+        <Stack className={experience.modalStack}>
+          <Text className={experience.modalIntro}>{t('team.content.create')}</Text>
           <TextInput
             label={t('team.label.name')}
             type="text"

@@ -33,6 +33,7 @@ import { useLanguage } from '@Utils/I18n'
 import { showErrorMsg } from '@Utils/Shared'
 import { useChallengeCategoryLabelMap, getProxyUrl } from '@Utils/Shared'
 import api, { ChallengeModel, ChallengeCategory, TeamModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import classes from '@Styles/Instances.module.css'
 import misc from '@Styles/Misc.module.css'
 import tableClasses from '@Styles/Table.module.css'
@@ -190,7 +191,7 @@ const Instances: FC = () => {
           </Group>
 
           <Group justify="right">
-            <Text fw="bold" size="sm">
+            <Text fw="bold" size="sm" className={adminClasses.stats}>
               <Trans i18nKey="admin.content.instances.stats" values={{ count: instances?.length }}>
                 _<Code>_</Code>_
               </Trans>
@@ -199,9 +200,9 @@ const Instances: FC = () => {
         </>
       }
     >
-      <Paper shadow="md" p="xs" w="100%">
-        <ScrollArea offsetScrollbars scrollbarSize={4} h="calc(100vh - 205px)">
-          <Table className={tableClasses.table}>
+      <Paper shadow="md" p="xs" w="100%" className={adminClasses.ledgerSurface}>
+        <ScrollArea offsetScrollbars scrollbarSize={4} h="calc(100vh - 205px)" className={adminClasses.ledgerViewport}>
+          <Table className={`${tableClasses.table} ${adminClasses.ledger}`}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>{t('common.label.team')}</Table.Th>
@@ -252,7 +253,7 @@ const Instances: FC = () => {
                               ff="monospace"
                               bg="transparent"
                               fz="sm"
-                              className={tableClasses.clickable}
+                              className={`${tableClasses.clickable} ${adminClasses.technicalAction}`}
                               onClick={() => {
                                 clipBoard.copy(inst.containerGuid && getProxyUrl(inst.containerGuid))
                                 showNotification({
@@ -276,7 +277,7 @@ const Instances: FC = () => {
                             ff="monospace"
                             bg="transparent"
                             fz="sm"
-                            className={tableClasses.clickable}
+                            className={`${tableClasses.clickable} ${adminClasses.technicalAction}`}
                             onClick={() => {
                               clipBoard.copy(`${inst.ip ?? ''}:${inst.port ?? ''}`)
                               showNotification({
@@ -294,7 +295,7 @@ const Instances: FC = () => {
                         </Tooltip>
                       </Table.Td>
                       <Table.Td align="right">
-                        <Group wrap="nowrap" gap="sm" justify="right">
+                        <Group wrap="nowrap" gap="sm" justify="right" className={adminClasses.rowActions}>
                           <ActionIconWithConfirm
                             iconPath={mdiPackageVariantClosedRemove}
                             color="alert"
@@ -312,7 +313,7 @@ const Instances: FC = () => {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-        <Text size="xs" c="dimmed">
+        <Text size="xs" c="dimmed" className={adminClasses.note}>
           {t('admin.content.instances.note')}
         </Text>
       </Paper>

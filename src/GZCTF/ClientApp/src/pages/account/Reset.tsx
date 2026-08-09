@@ -74,7 +74,7 @@ const Reset: FC = () => {
   const enterHandler = getHotkeyHandler([['Enter', onReset]])
 
   return (
-    <AccountView>
+    <AccountView title={t('account.title.reset')}>
       <StrengthPasswordInput
         value={pwd}
         onChange={(event) => setPwd(event.currentTarget.value)}

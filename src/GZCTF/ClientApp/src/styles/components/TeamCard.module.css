@@ -2,11 +2,11 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  background: orange;
-  border-radius: 50%;
+  background: var(--ht-status-warning);
+  border-radius: var(--ht-radius-sm);
   width: 30px;
   height: 30px;
-  border: 2px solid white;
+  border: var(--ht-border-width) solid var(--ht-color-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,20 +17,36 @@
   max-width: 600px;
   width: 100%;
   position: relative;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-sm);
+
+  &[data-role='captain'] {
+    border-top: 6px solid var(--ht-color-yellow);
+  }
 }
 
 .cardMobile {
   width: 100%;
   position: relative;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-sm);
+
+  &[data-role='captain'] {
+    border-top: 6px solid var(--ht-color-yellow);
+  }
 }
 
 .contentGroup {
   align-items: center;
+  padding: var(--mantine-spacing-sm);
 }
 
 .contentGroupMobile {
   align-items: center;
   flex-wrap: wrap;
+  padding: var(--mantine-spacing-xs);
 }
 
 .avatarGroup {
@@ -38,5 +54,6 @@
 }
 
 .captainIcon {
-  color: var(--mantine-color-yellow-6);
+  color: var(--ht-color-yellow);
+  filter: drop-shadow(1px 1px 0 var(--ht-color-ink));
 }

@@ -27,6 +27,7 @@ import { useIsMobile } from '@Utils/ThemeOverride'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useTeams, useUser } from '@Hooks/useUser'
 import api, { Role, TeamInfoModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 
 const Teams: FC = () => {
   const { user, error: userError } = useUser()
@@ -108,14 +109,16 @@ const Teams: FC = () => {
   return (
     <WithNavBar minWidth={0}>
       <WithRole requiredRole={Role.User}>
-        <Stack pt="md">
-          <Group justify={isMobile ? 'center' : 'space-between'} grow={isMobile}>
+        <Stack className={`${experience.page} ${experience.pageStack}`}>
+          <Group className={experience.pageHeader} justify={isMobile ? 'center' : 'space-between'} grow={isMobile}>
             {isMobile ? (
               btns
             ) : (
               <>
                 <LogoHeader />
-                <Group justify="right">{btns}</Group>
+                <Group className={experience.pageActions} justify="right">
+                  {btns}
+                </Group>
               </>
             )}
           </Group>
@@ -132,7 +135,7 @@ const Teams: FC = () => {
                 ))}
               </SimpleGrid>
             ) : (
-              <Center w="100%" h="80vh">
+              <Center className={experience.contentSurface} w="100%" h="80vh">
                 <Stack align="center" gap="md" maw={isMobile ? '90%' : '100%'}>
                   <Icon path={mdiAccountMultiplePlus} size={4} color={theme.colors.gray[5]} />
                   <Title order={2} ta="center" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
@@ -152,9 +155,12 @@ const Teams: FC = () => {
         </Stack>
 
         <Modal opened={joinOpened} title={t('team.button.join')} onClose={() => setJoinOpened(false)}>
-          <Stack>
-            <Text size="sm">{t('team.content.join')}</Text>
+          <Stack className={experience.modalStack}>
+            <Text className={experience.modalIntro} size="sm">
+              {t('team.content.join')}
+            </Text>
             <TextInput
+              classNames={{ input: experience.technicalInput }}
               label={t('team.label.invite_code')}
               type="text"
               placeholder="team:0:01234567890123456789012345678901"

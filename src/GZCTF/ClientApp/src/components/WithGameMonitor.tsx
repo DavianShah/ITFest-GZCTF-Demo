@@ -11,6 +11,7 @@ import { downloadBlob } from '@Utils/ApiHelper'
 import { DEFAULT_LOADING_OVERLAY } from '@Utils/Shared'
 import api, { Role } from '@Api'
 import misc from '@Styles/Misc.module.css'
+import monitor from '@Styles/Monitor.module.css'
 
 interface WithGameMonitorProps extends React.PropsWithChildren {
   isLoading?: boolean
@@ -57,11 +58,11 @@ export const WithGameMonitor: FC<WithGameMonitorProps> = ({ children, isLoading 
     <WithNavBar width="90%">
       <WithRole requiredRole={Role.Monitor}>
         <WithGameTab>
-          <Group justify="space-between" align="flex-start">
-            <Stack>
+          <Group justify="space-between" align="flex-start" className={monitor.shell}>
+            <Stack className={monitor.navRail}>
               <Button
                 disabled={disabled}
-                w="10rem"
+                className={monitor.scoreboardButton}
                 classNames={{ inner: misc.justifyBetween }}
                 leftSection={<Icon path={mdiTableArrowDown} size={1} />}
                 onClick={onDownloadScoreboardSheet}
@@ -73,8 +74,9 @@ export const WithGameMonitor: FC<WithGameMonitorProps> = ({ children, isLoading 
                 value={activeTab}
                 onChange={(value) => value && navigate(`/games/${id}/monitor/${value}`)}
                 classNames={{
-                  root: misc.w10rem,
-                  list: misc.w10rem,
+                  root: monitor.tabsRoot,
+                  list: monitor.tabsList,
+                  tab: monitor.tab,
                 }}
               >
                 <Tabs.List>
@@ -86,7 +88,7 @@ export const WithGameMonitor: FC<WithGameMonitorProps> = ({ children, isLoading 
                 </Tabs.List>
               </Tabs>
             </Stack>
-            <Stack w="calc(100% - 11rem)" pos="relative">
+            <Stack pos="relative" className={monitor.content}>
               <LoadingOverlay visible={isLoading ?? false} overlayProps={DEFAULT_LOADING_OVERLAY} />
               {children}
             </Stack>

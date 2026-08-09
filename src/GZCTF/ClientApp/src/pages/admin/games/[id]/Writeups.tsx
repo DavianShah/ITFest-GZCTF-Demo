@@ -9,6 +9,7 @@ import { TeamWriteupCard } from '@Components/admin/TeamWriteupCard'
 import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api, { WriteupInfo } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const GameWriteups: FC = () => {
   const { id } = useParams()
@@ -57,20 +58,20 @@ const GameWriteups: FC = () => {
         </Button>
       }
     >
-      <Group wrap="nowrap" align="flex-start" justify="space-between">
+      <Group wrap="nowrap" align="flex-start" justify="space-between" className={adminClasses.writeupLayout}>
         {!filteredWriteups?.length || !selected ? (
-          <Center w="100%" mih="calc(100vh - 180px)">
+          <Center w="100%" mih="calc(100vh - 180px)" className={adminClasses.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('admin.content.games.writeups.empty.title')}</Title>
               <Text>{t('admin.content.games.writeups.empty.description')}</Text>
             </Stack>
           </Center>
         ) : (
-          <Stack pos="relative" mt="-3rem" w="calc(100% - 120px)">
+          <Stack pos="relative" mt="-3rem" w="calc(100% - 120px)" className={adminClasses.writeupViewer}>
             <PDFViewer url={selected?.url} height="calc(100vh - 110px)" />
           </Stack>
         )}
-        <Stack gap="sm" miw="15rem" maw="15rem" h="calc(100vh - 110px - 3rem)">
+        <Stack gap="sm" miw="15rem" maw="15rem" h="calc(100vh - 110px - 3rem)" className={adminClasses.writeupRail}>
           <Select
             data={divisionOptions}
             value={selectedDivision}

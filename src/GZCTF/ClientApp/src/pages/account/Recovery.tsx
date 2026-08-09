@@ -81,7 +81,7 @@ const Recovery: FC = () => {
   }
 
   return (
-    <AccountView onSubmit={onRecovery}>
+    <AccountView title={t('account.title.recovery')} onSubmit={onRecovery}>
       <TextInput
         required
         label={t('account.label.email')}

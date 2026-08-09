@@ -9,6 +9,7 @@ import { useParams } from 'react-router'
 import { showErrorMsg } from '@Utils/Shared'
 import { useEditChallenge } from '@Hooks/useEdit'
 import api from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export const FlagCreateModal: FC<ModalProps> = (props) => {
@@ -58,7 +59,7 @@ export const FlagCreateModal: FC<ModalProps> = (props) => {
 
   return (
     <Modal {...props}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Text size="sm">
           <Trans i18nKey="admin.content.games.challenges.flag.create" />
         </Text>
@@ -74,7 +75,7 @@ export const FlagCreateModal: FC<ModalProps> = (props) => {
             input: misc.ffmono,
           }}
         />
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onCreate}>
             {t('admin.button.challenges.flag.add.normal')}
           </Button>

@@ -3,14 +3,30 @@ import {
   ActionIcon,
   Avatar,
   Badge,
+  Button,
+  Card,
+  Checkbox,
+  CloseButton,
   Code,
+  Drawer,
+  Input,
+  InputWrapper,
   Loader,
+  LoadingOverlay,
   MantineThemeOverride,
   Menu,
   Modal,
+  Notification,
+  Pagination,
+  Paper,
   Popover,
+  Radio,
+  SegmentedControl,
+  Skeleton,
   Switch,
+  Table,
   Tabs,
+  Title,
   Tooltip,
   TooltipFloating,
   createTheme,
@@ -20,34 +36,47 @@ import { createStyles } from '@mantine/emotion'
 import { useLocalStorage, useMediaQuery } from '@mantine/hooks'
 import { useEffect, useState } from 'react'
 import { useConfig } from '@Hooks/useConfig'
-import tooltipClasses from '@Styles/Tooltip.module.css'
+import designSystemClasses from '@Styles/DesignSystem.module.css'
 
 const CustomTheme: MantineThemeOverride = {
   colors: {
     gray: [
-      '#EBEBEB',
-      '#CFCFCF',
-      '#B3B3B3',
-      '#969696',
-      '#7A7A7A',
-      '#5E5E5E',
-      '#414141',
-      '#252525',
-      '#202020',
-      '#141414',
+      '#F7F7F4',
+      '#E7E8E4',
+      '#D0D3CE',
+      '#B6BBB6',
+      '#969D98',
+      '#757D78',
+      '#555D58',
+      '#343A37',
+      '#242826',
+      '#1A1C1C',
     ],
     brand: [
-      '#E1FFF9',
-      '#CFFCF1',
-      '#A2F7E2',
-      '#72F1D2',
-      '#4BEDC4',
-      '#2AE5B5',
-      '#18CB9E',
-      '#00AA85',
-      '#007F6E',
-      '#005A4C',
+      '#EEF0FF',
+      '#DCE0FF',
+      '#BAC1FF',
+      '#949EFE',
+      '#737EEC',
+      '#5965D5',
+      '#424EBF',
+      '#3545B5',
+      '#29398F',
+      '#1F2B6D',
     ],
+    coral: [
+      '#FFF0F1',
+      '#FFDDE0',
+      '#FFB8BE',
+      '#FF8E97',
+      '#FF6975',
+      '#F83E4A',
+      '#EF3741',
+      '#DF252C',
+      '#B91D25',
+      '#86151B',
+    ],
+    sun: ['#FFFBE6', '#FFF5BF', '#FFED8A', '#FFE64A', '#FFD91F', '#F5C518', '#D9A900', '#AC8200', '#806100', '#594300'],
     alert: [
       '#FFB4B4',
       '#FFA0A0',
@@ -73,25 +102,42 @@ const CustomTheme: MantineThemeOverride = {
       '#B0B0B0',
     ],
     dark: [
-      '#d5d7d7',
-      '#acaeae',
-      '#8c8f8f',
-      '#666969',
-      '#4d4f4f',
-      '#343535',
-      '#2b2c2c',
-      '#1d1e1e',
-      '#0c0d0d',
-      '#010101',
+      '#F7F7F4',
+      '#E0E3DE',
+      '#B8BFBA',
+      '#8D9690',
+      '#666E69',
+      '#464D49',
+      '#303532',
+      '#222624',
+      '#171A18',
+      '#0F1110',
     ],
   },
   primaryColor: 'brand',
+  primaryShade: { light: 7, dark: 6 },
+  autoContrast: true,
   fontFamily:
     'Lexend, -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, sans-serif',
   fontFamilyMonospace:
     'JetBrains Mono, ui-monospace, SFMono-Regular, Monaco, Consolas, Courier New, monospace, sans-serif',
   headings: {
-    fontFamily: 'Lexend, sans-serif',
+    fontFamily: 'Anybody, Lexend, sans-serif',
+  },
+  defaultRadius: 'sm',
+  radius: {
+    xs: '0',
+    sm: '2px',
+    md: '4px',
+    lg: '6px',
+    xl: '8px',
+  },
+  shadows: {
+    xs: '1px 1px 0 #000000',
+    sm: '2px 2px 0 #000000',
+    md: '3px 3px 0 #000000',
+    lg: '4px 4px 0 #000000',
+    xl: '5px 5px 0 #000000',
   },
   breakpoints: {
     xs: '30em',
@@ -107,52 +153,179 @@ const CustomTheme: MantineThemeOverride = {
     w48: '4800px',
   },
   components: {
-    Loader: Loader.extend({
-      defaultProps: {
-        type: 'bars',
-      },
+    Title: Title.extend({
+      classNames: { root: designSystemClasses.title },
     }),
-    Switch: Switch.extend({
-      styles: {
-        body: {
-          alignItems: 'center',
-        },
-        labelWrapper: {
-          display: 'flex',
-        },
-      },
-    }),
-    Modal: Modal.extend({
-      defaultProps: {
-        centered: true,
-        styles: {
-          title: {
-            fontWeight: 'bold',
-          },
-        },
-      },
-    }),
-    Popover: Popover.extend({
-      defaultProps: {
-        withinPortal: true,
+    Button: Button.extend({
+      classNames: {
+        root: designSystemClasses.button,
+        label: designSystemClasses.controlLabel,
       },
     }),
     ActionIcon: ActionIcon.extend({
       defaultProps: {
         variant: 'transparent',
       },
+      classNames: { root: designSystemClasses.actionIcon },
+    }),
+    CloseButton: CloseButton.extend({
+      classNames: { root: designSystemClasses.closeButton },
+    }),
+    Input: Input.extend({
+      classNames: {
+        input: designSystemClasses.input,
+        section: designSystemClasses.inputSection,
+      },
+    }),
+    InputWrapper: InputWrapper.extend({
+      classNames: {
+        label: designSystemClasses.inputLabel,
+        description: designSystemClasses.inputDescription,
+        error: designSystemClasses.inputError,
+      },
+    }),
+    Card: Card.extend({
+      classNames: { root: designSystemClasses.surface },
+    }),
+    Paper: Paper.extend({
+      classNames: { root: designSystemClasses.surface },
+    }),
+    Loader: Loader.extend({
+      defaultProps: {
+        type: 'bars',
+      },
+      classNames: { root: designSystemClasses.loader },
+    }),
+    LoadingOverlay: LoadingOverlay.extend({
+      defaultProps: {
+        overlayProps: { backgroundOpacity: 0.72, blur: 0 },
+      },
+      classNames: {
+        overlay: designSystemClasses.loadingOverlay,
+        loader: designSystemClasses.loadingOverlayLoader,
+      },
+    }),
+    Skeleton: Skeleton.extend({
+      classNames: { root: designSystemClasses.skeleton },
+    }),
+    Switch: Switch.extend({
+      classNames: {
+        root: designSystemClasses.toggleRoot,
+        body: designSystemClasses.toggleBody,
+        labelWrapper: designSystemClasses.toggleLabelWrapper,
+        track: designSystemClasses.switchTrack,
+        thumb: designSystemClasses.switchThumb,
+        input: designSystemClasses.toggleInput,
+        label: designSystemClasses.toggleLabel,
+      },
+    }),
+    Checkbox: Checkbox.extend({
+      classNames: {
+        root: designSystemClasses.toggleRoot,
+        input: designSystemClasses.checkboxInput,
+        icon: designSystemClasses.checkboxIcon,
+        label: designSystemClasses.toggleLabel,
+      },
+    }),
+    Radio: Radio.extend({
+      classNames: {
+        root: designSystemClasses.toggleRoot,
+        radio: designSystemClasses.radioInput,
+        icon: designSystemClasses.radioIcon,
+        label: designSystemClasses.toggleLabel,
+      },
+    }),
+    Modal: Modal.extend({
+      defaultProps: {
+        centered: true,
+        transitionProps: { duration: 140, transition: 'fade-down' },
+      },
+      classNames: {
+        content: designSystemClasses.overlaySurface,
+        header: designSystemClasses.overlayHeader,
+        title: designSystemClasses.overlayTitle,
+        body: designSystemClasses.overlayBody,
+        overlay: designSystemClasses.overlay,
+        close: designSystemClasses.closeButton,
+      },
+    }),
+    Drawer: Drawer.extend({
+      defaultProps: {
+        transitionProps: { duration: 140, transition: 'slide-left' },
+      },
+      classNames: {
+        content: designSystemClasses.overlaySurface,
+        header: designSystemClasses.overlayHeader,
+        title: designSystemClasses.overlayTitle,
+        body: designSystemClasses.overlayBody,
+        overlay: designSystemClasses.overlay,
+        close: designSystemClasses.closeButton,
+      },
+    }),
+    Popover: Popover.extend({
+      defaultProps: {
+        withinPortal: true,
+      },
+      classNames: {
+        dropdown: designSystemClasses.floatingSurface,
+        arrow: designSystemClasses.floatingArrow,
+      },
     }),
     Badge: Badge.extend({
       defaultProps: {
         variant: 'outline',
       },
+      classNames: {
+        root: designSystemClasses.badge,
+        label: designSystemClasses.badgeLabel,
+      },
     }),
     Tabs: Tabs.extend({
-      styles: {
-        tab: {
-          padding: 'var(--mantine-spacing-xs)',
-          fontWeight: 500,
-        },
+      classNames: {
+        list: designSystemClasses.tabsList,
+        tab: designSystemClasses.tab,
+        tabLabel: designSystemClasses.controlLabel,
+      },
+    }),
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: {
+        transitionDuration: 120,
+      },
+      classNames: {
+        root: designSystemClasses.segmentedControl,
+        control: designSystemClasses.segmentControl,
+        indicator: designSystemClasses.segmentIndicator,
+        label: designSystemClasses.segmentLabel,
+      },
+    }),
+    Table: Table.extend({
+      defaultProps: {
+        highlightOnHover: true,
+        horizontalSpacing: 'xs',
+        verticalSpacing: 'xs',
+      },
+      classNames: {
+        table: designSystemClasses.table,
+        thead: designSystemClasses.tableHead,
+        tr: designSystemClasses.tableRow,
+        th: designSystemClasses.tableHeaderCell,
+        td: designSystemClasses.tableCell,
+        caption: designSystemClasses.tableCaption,
+      },
+    }),
+    Pagination: Pagination.extend({
+      classNames: {
+        control: designSystemClasses.paginationControl,
+        dots: designSystemClasses.paginationDots,
+      },
+    }),
+    Notification: Notification.extend({
+      classNames: {
+        root: designSystemClasses.notification,
+        icon: designSystemClasses.notificationIcon,
+        title: designSystemClasses.notificationTitle,
+        description: designSystemClasses.notificationDescription,
+        closeButton: designSystemClasses.closeButton,
       },
     }),
     Avatar: Avatar.extend({
@@ -161,10 +334,11 @@ const CustomTheme: MantineThemeOverride = {
       },
     }),
     Menu: Menu.extend({
-      styles: {
-        item: {
-          fontWeight: 500,
-        },
+      classNames: {
+        dropdown: designSystemClasses.floatingSurface,
+        item: designSystemClasses.menuItem,
+        label: designSystemClasses.menuLabel,
+        divider: designSystemClasses.menuDivider,
       },
     }),
     Code: Code.extend({
@@ -175,10 +349,16 @@ const CustomTheme: MantineThemeOverride = {
       },
     }),
     Tooltip: Tooltip.extend({
-      classNames: tooltipClasses,
+      classNames: {
+        tooltip: designSystemClasses.tooltip,
+        arrow: designSystemClasses.tooltipArrow,
+      },
     }),
     TooltipFloating: TooltipFloating.extend({
-      classNames: tooltipClasses,
+      classNames: {
+        tooltip: designSystemClasses.tooltip,
+        arrow: designSystemClasses.tooltipArrow,
+      },
     }),
   },
 }

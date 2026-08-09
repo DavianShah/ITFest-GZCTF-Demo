@@ -176,28 +176,24 @@
 
 .hoverCard {
   cursor: pointer;
+  box-shadow: var(--ht-shadow-sm);
   transition:
-    box-shadow 0.2s,
-    filter 0.2s,
-    transform 0.2s;
+    box-shadow var(--ht-motion-base) var(--ht-ease-out),
+    transform var(--ht-motion-base) var(--ht-ease-out);
 
   @mixin hover {
-    transform: translateY(-4px);
-
-    @mixin light {
-      filter: brightness(1.04) !important;
-      box-shadow: 0 0 12px var(--mantine-color-gray-2);
-    }
-
-    @mixin dark {
-      filter: brightness(1.2) !important;
-      box-shadow: 0 0 12px var(--mantine-color-gray-7);
-    }
+    transform: translateY(-2px);
+    box-shadow: var(--ht-shadow-lg);
   }
 
   &[data-no-move] {
     @mixin hover {
       transform: translateY(0);
     }
+  }
+
+  &:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--ht-shadow-xs);
   }
 }

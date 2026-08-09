@@ -1,0 +1,136 @@
+.root,
+.recentRoot {
+  position: relative;
+  overflow: hidden;
+  color: var(--ht-color-text);
+  border-color: var(--ht-color-border-strong);
+
+  &::before {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 100%;
+    background: var(--game-accent, var(--ht-color-primary));
+    content: '';
+    pointer-events: none;
+  }
+
+  &[data-status='coming'] {
+    --game-accent: var(--ht-status-warning);
+  }
+
+  &[data-status='ongoing'] {
+    --game-accent: var(--ht-status-live);
+  }
+
+  &[data-status='ended'] {
+    --game-accent: var(--ht-status-ended);
+  }
+}
+
+.poster {
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
+  background-color: var(--ht-color-bg);
+}
+
+.poster::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 35%;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--ht-color-ink) 70%, transparent));
+  content: '';
+  pointer-events: none;
+}
+
+.statusBadge {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--ht-shadow-xs);
+}
+
+.body {
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+}
+
+.chipRow {
+  gap: var(--mantine-spacing-xs);
+}
+
+.title {
+  color: var(--ht-color-text);
+  overflow-wrap: anywhere;
+}
+
+.schedule {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs);
+  background: var(--ht-color-bg);
+  border: 1px solid var(--ht-color-border);
+}
+
+.time {
+  color: var(--ht-color-text-muted);
+  font-family: var(--ht-font-technical);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 650;
+
+  &:last-child {
+    text-align: right;
+  }
+}
+
+.summary {
+  min-height: 3.9em;
+  color: var(--ht-color-text-muted);
+}
+
+.recentRoot {
+  padding-left: var(--mantine-spacing-xs);
+}
+
+.recentPoster {
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+  background: var(--ht-color-bg);
+}
+
+.recentStatus {
+  position: relative;
+  z-index: 2;
+}
+
+.recentTitleBand {
+  background: color-mix(in srgb, var(--ht-color-ink) 78%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--mantine-color-white) 45%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--mantine-color-white) 45%, transparent);
+}
+
+.recentTitle {
+  color: var(--mantine-color-white);
+  text-shadow: none;
+}
+
+.recentMeta {
+  gap: 2px;
+  padding-top: var(--mantine-spacing-sm);
+}
+
+.recentMetaRow {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--ht-color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .summary {
+    min-height: 0;
+  }
+}

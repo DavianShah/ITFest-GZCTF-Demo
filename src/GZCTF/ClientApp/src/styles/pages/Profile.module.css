@@ -1,0 +1,68 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding: var(--mantine-spacing-xl) 0;
+}
+
+.panel {
+  width: min(100%, 56rem);
+  padding: clamp(var(--mantine-spacing-md), 4vw, calc(var(--mantine-spacing-xl) * 1.5));
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-lg);
+}
+
+.header {
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-md);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.avatar {
+  cursor: pointer;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-sm);
+}
+
+.identityRow {
+  align-items: flex-end;
+}
+
+.fields {
+  gap: var(--mantine-spacing-md);
+}
+
+.actions {
+  padding-top: var(--mantine-spacing-md);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.dropzone {
+  background: var(--ht-color-bg);
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
+  border-radius: var(--ht-radius-sm);
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .page {
+    min-height: auto;
+    padding: var(--mantine-spacing-md) 0;
+  }
+
+  .panel {
+    padding: var(--mantine-spacing-md);
+  }
+
+  .header,
+  .identityRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

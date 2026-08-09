@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { GameInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface GameCreateModalProps extends ModalProps {
   onAddGame: (game: GameInfoModel) => void
@@ -59,7 +60,7 @@ export const GameCreateModal: FC<GameCreateModalProps> = (props) => {
 
   return (
     <Modal size="30%" title={t('admin.button.games.new')} {...modalProps}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <TextInput
           label={t('admin.content.games.info.title.label')}
           type="text"
@@ -96,7 +97,7 @@ export const GameCreateModal: FC<GameCreateModalProps> = (props) => {
           error={end < start}
           required
         />
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onCreate}>
             {t('admin.button.games.new')}
           </Button>

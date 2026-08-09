@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { useChallengeCategoryLabelMap } from '@Utils/Shared'
 import { ChallengeInfoModel, ChallengeCategory } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import classes from '@Styles/ChallengeEditCard.module.css'
 
 interface ChallengeEditCardProps {
@@ -48,7 +49,7 @@ export const ChallengeEditCard: FC<ChallengeEditCardProps> = ({ challenge, onTog
   const contentWidth = 'calc(100% - 12rem)'
 
   return (
-    <Card shadow="sm" p="sm">
+    <Card shadow="sm" p="sm" className={adminClasses.challengeCard}>
       <Group wrap="nowrap" justify="space-between" gap="xs">
         <Switch
           color={color}
@@ -59,7 +60,7 @@ export const ChallengeEditCard: FC<ChallengeEditCardProps> = ({ challenge, onTog
 
         <Icon path={data!.icon} color={theme.colors[data?.color ?? theme.primaryColor][5]} size={1.2} />
 
-        <Stack gap={0} maw={contentWidth} miw={contentWidth}>
+        <Stack gap={0} maw={contentWidth} miw={contentWidth} className={adminClasses.challengeIdentity}>
           <Text truncate fw="bold">
             {challenge.title}
           </Text>

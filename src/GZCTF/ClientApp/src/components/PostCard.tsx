@@ -1,15 +1,4 @@
-import {
-  ActionIcon,
-  Anchor,
-  Avatar,
-  Card,
-  Group,
-  Stack,
-  Text,
-  Title,
-  useMantineColorScheme,
-  useMantineTheme,
-} from '@mantine/core'
+import { ActionIcon, Anchor, Avatar, Card, Group, Stack, Text, Title } from '@mantine/core'
 import { mdiFormatQuoteOpen, mdiPencilOutline, mdiPinOffOutline, mdiPinOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
@@ -21,6 +10,7 @@ import { RequireRole } from '@Components/WithRole'
 import { useLanguage } from '@Utils/I18n'
 import { useUserRole } from '@Hooks/useUser'
 import { PostInfoModel, Role } from '@Api'
+import classes from '@Styles/PostCard.module.css'
 
 export interface PostCardProps {
   post: PostInfoModel
@@ -28,34 +18,28 @@ export interface PostCardProps {
 }
 
 export const PostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
-  const theme = useMantineTheme()
   const { role } = useUserRole()
   const { t } = useTranslation()
-  const { colorScheme } = useMantineColorScheme()
   const [disabled, setDisabled] = useState(false)
 
   const { locale } = useLanguage()
 
   return (
-    <Card shadow="sm" p="md">
-      <Group px="sm" py="xs" wrap="nowrap" justify="space-between" align="flex-start">
-        <Icon
-          path={mdiFormatQuoteOpen}
-          size={1.5}
-          color={theme.colors[theme.primaryColor][colorScheme === 'dark' ? 7 : 5]}
-        />
-        <Stack gap="xs" w="calc(100% - 3rem)">
+    <Card className={classes.root} data-pinned={post.isPinned || undefined} radius={0} p="md">
+      <Group className={classes.layout} wrap="nowrap" justify="space-between" align="flex-start">
+        <Icon className={classes.quote} path={mdiFormatQuoteOpen} size={1.5} />
+        <Stack className={classes.body} gap="xs" w="calc(100% - 3rem)">
           {RequireRole(Role.Admin, role) ? (
-            <Group justify="space-between" wrap="nowrap">
-              <Title order={3}>
+            <Group className={classes.header} justify="space-between" wrap="nowrap">
+              <Title order={3} className={classes.title}>
                 {post.isPinned && (
-                  <Text fw="bold" fz="h3" span c={theme.primaryColor}>
+                  <Text className={classes.pinned} fw="bold" span>
                     {t('post.content.pinned')}&nbsp;&nbsp;
                   </Text>
                 )}
                 {post.title}
               </Title>
-              <Group justify="right">
+              <Group className={classes.controls} justify="right">
                 {onTogglePinned && (
                   <ActionIcon disabled={disabled} onClick={() => onTogglePinned(post, setDisabled)}>
                     {post.isPinned ? <Icon path={mdiPinOffOutline} size={1} /> : <Icon path={mdiPinOutline} size={1} />}
@@ -67,31 +51,31 @@ export const PostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
               </Group>
             </Group>
           ) : (
-            <Title order={3}>
+            <Title order={3} className={classes.title}>
               {post.isPinned && (
-                <Text fw="bold" fz="h3" span c={theme.primaryColor}>
+                <Text className={classes.pinned} fw="bold" span>
                   {`${t('post.content.pinned')} `}
                 </Text>
               )}
               {post.title}
             </Title>
           )}
-          <Markdown source={post.summary} />
+          <Markdown className={classes.summary} source={post.summary} />
           {post.tags && (
-            <Group>
+            <Group className={classes.tags}>
               {post.tags.map((tag, idx) => (
-                <Text key={idx} size="sm" fw="bold" span c={theme.primaryColor}>
+                <Text key={idx} className={classes.tag} size="sm" fw="bold" span>
                   {`#${tag}`}
                 </Text>
               ))}
             </Group>
           )}
-          <Group pt="xs" w="100%" justify="space-between" m="auto" fs="normal">
-            <Group gap={5} justify="right">
+          <Group className={classes.footer} w="100%" justify="space-between" m="auto" fs="normal">
+            <Group className={classes.author} gap={5} justify="right" wrap="nowrap">
               <Avatar alt="avatar" src={post.authorAvatar} size="sm">
                 {post.authorName?.slice(0, 1) ?? 'A'}
               </Avatar>
-              <Text size="sm" fw="bold" c="dimmed">
+              <Text className={classes.metadata} size="sm" fw="bold">
                 {t('post.content.metadata', {
                   author: post.authorName ?? 'Anonym',
                   date: dayjs(post.time).locale(locale).format('LLL'),
@@ -100,7 +84,7 @@ export const PostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
             </Group>
             <Text ta="right">
               <Anchor component={Link} to={`/posts/${post.id}`}>
-                <Text span fw="bold" size="sm">
+                <Text className={classes.details} span fw="bold" size="sm">
                   {t('post.content.details')} &gt;&gt;&gt;
                 </Text>
               </Anchor>

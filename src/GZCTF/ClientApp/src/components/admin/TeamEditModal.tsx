@@ -20,6 +20,7 @@ import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { AdminTeamModel, TeamInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface TeamEditModalProps extends ModalProps {
   team: TeamInfoModel
@@ -68,7 +69,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
   return (
     <Modal {...modalProps}>
       {/* User Info */}
-      <Stack gap="md" m="auto" mt={15}>
+      <Stack gap="md" m="auto" mt={15} className={adminClasses.modalBody}>
         <Grid grow>
           <Grid.Col span={8}>
             <TextInput
@@ -108,7 +109,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
           <Text size="sm">{t('team.label.members')}</Text>
           {team.locked && <Icon path={mdiLockOutline} size={0.8} color={theme.colors.yellow[6]} />}
         </Group>
-        <ScrollArea h={165} offsetScrollbars>
+        <ScrollArea h={165} offsetScrollbars className={adminClasses.memberList}>
           <Stack gap="xs">
             {activeTeam.members?.map((user) => (
               <Group key={user.id} justify="space-between">
@@ -129,7 +130,7 @@ export const TeamEditModal: FC<TeamEditModalProps> = (props) => {
           </Stack>
         </ScrollArea>
 
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onChangeTeamInfo}>
             {t('admin.button.save')}
           </Button>

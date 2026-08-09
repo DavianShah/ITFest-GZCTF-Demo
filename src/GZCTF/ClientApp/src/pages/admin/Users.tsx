@@ -36,6 +36,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { useArrayResponse } from '@Hooks/useArrayResponse'
 import { useUser } from '@Hooks/useUser'
 import api, { Role, UserInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import tableClasses from '@Styles/Table.module.css'
 
 const ITEM_COUNT_PER_PAGE = 30
@@ -136,11 +137,11 @@ const Users: FC = () => {
         }),
 
         children: (
-          <Stack>
+          <Stack className={adminClasses.modalBody}>
             <Text>
               <Trans i18nKey="admin.content.users.reset.content" />
             </Text>
-            <Text fw="bold" ff="monospace">
+            <Text fw="bold" ff="monospace" className={adminClasses.passwordResult}>
               {res.data}
             </Text>
             <Button
@@ -207,7 +208,7 @@ const Users: FC = () => {
             rightSection={<Icon path={mdiAccountOutline} size={1} />}
           />
           <Group justify="right">
-            <Text fw="bold" size="sm">
+            <Text fw="bold" size="sm" className={adminClasses.stats}>
               <Trans
                 i18nKey="admin.content.users.stats"
                 values={{
@@ -231,9 +232,15 @@ const Users: FC = () => {
         </>
       }
     >
-      <Paper shadow="md" p="xs" w="100%">
-        <ScrollArea viewportRef={viewport} offsetScrollbars scrollbarSize={4} h="calc(100vh - 190px)">
-          <Table className={tableClasses.table}>
+      <Paper shadow="md" p="xs" w="100%" className={adminClasses.ledgerSurface}>
+        <ScrollArea
+          viewportRef={viewport}
+          offsetScrollbars
+          scrollbarSize={4}
+          h="calc(100vh - 190px)"
+          className={adminClasses.ledgerViewport}
+        >
+          <Table className={`${tableClasses.table} ${adminClasses.ledger}`}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th miw="1.8rem">{t('admin.label.users.active')}</Table.Th>
@@ -258,7 +265,7 @@ const Users: FC = () => {
                     </Table.Td>
                     <Table.Td>
                       <Group wrap="nowrap" justify="space-between" gap="xs">
-                        <Group wrap="nowrap" justify="left">
+                        <Group wrap="nowrap" justify="left" className={adminClasses.identity}>
                           <Avatar alt="avatar" src={user.avatar} radius="xl">
                             {user.userName?.slice(0, 1) ?? 'U'}
                           </Avatar>
@@ -288,7 +295,7 @@ const Users: FC = () => {
                       </Text>
                     </Table.Td>
                     <Table.Td align="right">
-                      <Group wrap="nowrap" gap="sm" justify="right">
+                      <Group wrap="nowrap" gap="sm" justify="right" className={adminClasses.rowActions}>
                         <ActionIcon
                           color="blue"
                           onClick={() => {

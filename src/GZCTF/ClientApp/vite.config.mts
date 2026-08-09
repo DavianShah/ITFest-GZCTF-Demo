@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
       banner(BANNER),
       webfontDownload(
         [
-          'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lexend:wght@100..900&display=swap',
+          'https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lexend:wght@100..900&display=swap',
         ],
         {
           injectAsStyleTag: false,

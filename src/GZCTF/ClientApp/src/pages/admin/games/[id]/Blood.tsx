@@ -19,6 +19,7 @@ import { useParams } from 'react-router'
 import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { BloodNotificationModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 type EmbedTemplate = Pick<
   BloodNotificationModel,
@@ -144,10 +145,12 @@ const BloodNotificationEdit: FC = () => {
       }
     >
       {settings && (
-        <Stack gap="lg">
-          <Card withBorder>
+        <Stack gap="lg" className={adminClasses.controlStack}>
+          <Card withBorder className={adminClasses.controlCard}>
             <Stack>
-              <Title order={3}>Discord Blood Alerts</Title>
+              <Title order={3} className={adminClasses.controlHeader}>
+                Discord Blood Alerts
+              </Title>
               <Switch
                 label="Enable blood notification"
                 checked={settings.enabled}
@@ -191,9 +194,11 @@ const BloodNotificationEdit: FC = () => {
             </Stack>
           </Card>
 
-          <Card withBorder>
+          <Card withBorder className={adminClasses.controlCard}>
             <Stack>
-              <Title order={4}>Embed customization</Title>
+              <Title order={4} className={adminClasses.controlHeader}>
+                Embed customization
+              </Title>
               <TextInput
                 required={settings.enabled}
                 label="Embed title template"
@@ -209,9 +214,7 @@ const BloodNotificationEdit: FC = () => {
                 label="Embed description template"
                 value={settings.embedDescriptionTemplate || settings.template}
                 disabled={disabled}
-                onChange={(event) =>
-                  setSettings({ ...settings, embedDescriptionTemplate: event.currentTarget.value })
-                }
+                onChange={(event) => setSettings({ ...settings, embedDescriptionTemplate: event.currentTarget.value })}
               />
               <TextInput
                 label="Embed color"
@@ -240,15 +243,16 @@ const BloodNotificationEdit: FC = () => {
               />
               <Text size="sm" c="dimmed">
                 Available placeholders: {'{emoji}'}, {'{blood}'}, {'{rank}'}, {'{team}'}, {'{challenge}'},{' '}
-                {'{category}'}, {'{score}'}, {'{game}'}, {'{time}'}, {'{submissionId}'}, {'{challengeId}'},{' '}
-                {'{gameId}'}
+                {'{category}'}, {'{score}'}, {'{game}'}, {'{time}'}, {'{submissionId}'}, {'{challengeId}'}, {'{gameId}'}
               </Text>
             </Stack>
           </Card>
 
-          <Card withBorder>
+          <Card withBorder className={adminClasses.controlCard}>
             <Stack>
-              <Title order={4}>Suggested templates</Title>
+              <Title order={4} className={adminClasses.controlHeader}>
+                Suggested templates
+              </Title>
               <SimpleGrid cols={3}>
                 {Object.entries(TEMPLATES).map(([name, template]) => (
                   <Button

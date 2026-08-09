@@ -1,9 +1,10 @@
-import { Button, Group, Pagination, Stack } from '@mantine/core'
+import { Button, Group, Pagination, Stack, Title } from '@mantine/core'
 import { mdiPlus } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { Empty } from '@Components/Empty'
 import { PostCard } from '@Components/PostCard'
 import { WithNavBar } from '@Components/WithNavbar'
 import { RequireRole } from '@Components/WithRole'
@@ -12,6 +13,7 @@ import { OnceSWRConfig } from '@Hooks/useConfig'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useUserRole } from '@Hooks/useUser'
 import api, { PostInfoModel, Role } from '@Api'
+import experience from '@Styles/Experience.module.css'
 import misc from '@Styles/Misc.module.css'
 
 const ITEMS_PER_PAGE = 10
@@ -56,8 +58,16 @@ const Posts: FC = () => {
 
   return (
     <WithNavBar isLoading={!posts} minWidth={0} withHeader stickyHeader>
-      <Stack justify="space-between" mih="calc(100vh - 78px)">
-        <Stack>
+      <Stack className={`${experience.page} ${experience.pageStack}`} justify="space-between" mih="calc(100vh - 78px)">
+        <Stack className={experience.list}>
+          <div className={experience.pageHeader}>
+            <Stack className={experience.headingGroup}>
+              <Title order={1} className={experience.pageTitle}>
+                {t('post.title.index')}
+              </Title>
+            </Stack>
+          </div>
+          {posts && posts.length === 0 && <Empty bordered />}
           {posts?.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map((post) => (
             <PostCard key={post.id} post={post} onTogglePinned={onTogglePinned} />
           ))}
@@ -70,7 +80,7 @@ const Posts: FC = () => {
           onChange={setPage}
           mb="xl"
         >
-          <Group gap={5} justify="flex-end">
+          <Group className={experience.pagination} gap={5} justify="flex-end">
             <Pagination.First />
             <Pagination.Previous />
             <Pagination.Items />

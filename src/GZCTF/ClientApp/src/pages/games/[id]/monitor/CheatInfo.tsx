@@ -19,6 +19,7 @@ import { useLocalStorage } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
 import { mdiCheck, mdiKeyAlert, mdiTarget } from '@mdi/js'
 import { Icon } from '@mdi/react'
+import cx from 'clsx'
 import dayjs from 'dayjs'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,6 +37,7 @@ import { useUserRole } from '@Hooks/useUser'
 import api, { CheatInfoModel, ParticipationEditModel, ParticipationStatus, Role } from '@Api'
 import classes from '@Styles/Accordion.module.css'
 import misc from '@Styles/Misc.module.css'
+import monitor from '@Styles/Monitor.module.css'
 
 enum CheatType {
   Submit = 'Submit',
@@ -151,11 +153,11 @@ const CheatSubmissionInfo: FC<CheatSubmissionInfoProps> = (props) => {
   const { locale } = useLanguage()
 
   return (
-    <Group justify="space-between" w="100%" gap={0}>
-      <Group justify="space-between" w="60%" pr="2rem">
+    <Group justify="space-between" w="100%" gap={0} className={monitor.evidenceRow}>
+      <Group justify="space-between" w="60%" pr="2rem" className={monitor.evidenceLead}>
         <Group justify="left">
           <Icon path={type.iconPath} size={1} color={theme.colors[type.color][6]} />
-          <Badge size="sm" color="indigo">
+          <Badge size="sm" className={monitor.technicalBadge}>
             {dayjs(submissionInfo.time).locale(locale).format('SL HH:mm:ss')}
           </Badge>
           <Text lineClamp={1} fw="bold">
@@ -166,7 +168,7 @@ const CheatSubmissionInfo: FC<CheatSubmissionInfoProps> = (props) => {
           {submissionInfo.user}
         </Text>
       </Group>
-      <Stack gap={0} w="40%">
+      <Stack gap={0} w="40%" className={monitor.evidenceDetail}>
         <Text fw="bold" size="xs" lineClamp={1}>
           {submissionInfo.challenge}
         </Text>
@@ -195,7 +197,7 @@ const CheatInfoItem: FC<CheatInfoItemProps> = (props) => {
     <Accordion.Item value={cheatTeamInfo.participateId!.toString()}>
       <Box display="flex" className={misc.alignCenter}>
         <Accordion.Control>
-          <Group justify="space-between">
+          <Group justify="space-between" className={monitor.cheatTeamHeader}>
             <Group justify="left">
               <Avatar alt="avatar" src={cheatTeamInfo.avatar}>
                 {!cheatTeamInfo.name ? 'T' : cheatTeamInfo.name.slice(0, 1)}
@@ -216,9 +218,11 @@ const CheatInfoItem: FC<CheatInfoItemProps> = (props) => {
                 </Text>
               </Stack>
             </Group>
-            <Group w="12rem" gap={0} justify="space-between" wrap="nowrap">
+            <Group w="12rem" gap={0} justify="space-between" wrap="nowrap" className={monitor.statusZone}>
               <Box w="6rem" ta="center">
-                <Badge color={part.color}>{part.title}</Badge>
+                <Badge color={part.color} className={monitor.statusBadge}>
+                  {part.title}
+                </Badge>
               </Box>
               {RequireRole(Role.Admin, userRole) && (
                 <ParticipationStatusControl
@@ -231,6 +235,7 @@ const CheatInfoItem: FC<CheatInfoItemProps> = (props) => {
                   setParticipation={setParticipation}
                   m={`0 ${theme.spacing.xl}`}
                   miw={theme.spacing.xl}
+                  className={monitor.adminActions}
                 />
               )}
             </Group>
@@ -263,17 +268,28 @@ const CheatInfoTeamView: FC<CheatInfoTeamViewProps> = (props) => {
   const { t } = useTranslation()
 
   return (
-    <ScrollArea offsetScrollbars h="calc(100vh - 180px)">
+    <ScrollArea offsetScrollbars h="calc(100vh - 180px)" className={monitor.cheatScroll}>
       <Stack gap="xs" w="100%">
         {!cheatTeamInfo || cheatTeamInfo?.size === 0 ? (
-          <Center h="calc(100vh - 200px)">
+          <Center h="calc(100vh - 200px)" className={monitor.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('game.content.no_cheat.title')}</Title>
               <Text>{t('game.content.no_cheat.comment')}</Text>
             </Stack>
           </Center>
         ) : (
-          <Accordion multiple variant="contained" chevronPosition="left" classNames={classes} className={classes.root}>
+          <Accordion
+            multiple
+            variant="contained"
+            chevronPosition="left"
+            classNames={{
+              item: cx(classes.item, monitor.cheatAccordionItem),
+              label: classes.label,
+              control: cx(classes.control, monitor.cheatAccordionControl),
+              panel: monitor.cheatPanel,
+            }}
+            className={cx(classes.root, monitor.cheatAccordion)}
+          >
             {[...cheatTeamInfo.values()]
               .sort((a, b) => (b.lastSubmitTime?.unix() ?? 0) - (a.lastSubmitTime?.unix() ?? 0))
               .map((cheatInfo) => (
@@ -306,7 +322,7 @@ const CheatInfoTableView: FC<CheatInfoTableViewProps> = (props) => {
     .map((item, i) => (
       <Table.Tr key={`${item.submission?.time}@${i}`}>
         <Table.Td ff="monospace">
-          <Badge size="sm" color="indigo">
+          <Badge size="sm" className={monitor.technicalBadge}>
             {dayjs(item.submission?.time).locale(locale).format('SL HH:mm:ss')}
           </Badge>
         </Table.Td>
@@ -338,9 +354,9 @@ const CheatInfoTableView: FC<CheatInfoTableViewProps> = (props) => {
     ))
 
   return (
-    <Paper shadow="md" p="md">
+    <Paper shadow="md" p="md" className={monitor.dataSurface}>
       <ScrollArea offsetScrollbars h="calc(100vh - 200px)">
-        <Table className={classes.table}>
+        <Table className={cx(classes.table, monitor.cheatTable)}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th w="8rem">{t('common.label.time')}</Table.Th>
@@ -409,7 +425,7 @@ const CheatInfo: FC = () => {
 
   return (
     <WithGameMonitor isLoading={!cheatInfo}>
-      <Group justify="space-between" w="100%">
+      <Group justify="space-between" w="100%" className={monitor.toolbar}>
         <Switch
           label={SwitchLabel(t('game.content.team_view.label'), t('game.content.team_view.description'))}
           checked={teamView}

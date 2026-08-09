@@ -13,6 +13,7 @@ import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { showErrorMsg } from '@Utils/Shared'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api, { GameNotice } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const GameNoticeEdit: FC = () => {
   const { id } = useParams()
@@ -70,19 +71,19 @@ const GameNoticeEdit: FC = () => {
         </Button>
       }
     >
-      <ScrollArea pos="relative" h="calc(100vh - 180px)" offsetScrollbars>
+      <ScrollArea pos="relative" h="calc(100vh - 180px)" offsetScrollbars className={adminClasses.noticeList}>
         {!gameNotices || gameNotices?.length === 0 ? (
-          <Center h="calc(100vh - 200px)">
+          <Center h="calc(100vh - 200px)" className={adminClasses.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('admin.content.games.notices.empty.title')}</Title>
               <Text>{t('admin.content.games.notices.empty.description')}</Text>
             </Stack>
           </Center>
         ) : (
-          <Stack gap="lg" align="center" m="2%">
+          <Stack gap="sm" align="center" m="1%">
             {gameNotices.map((gameNotice) => (
               <GameNoticeEditCard
-                w="95%"
+                w="100%"
                 key={gameNotice.id}
                 gameNotice={gameNotice}
                 onDelete={() => {

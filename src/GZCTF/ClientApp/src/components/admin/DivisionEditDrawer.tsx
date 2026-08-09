@@ -23,6 +23,7 @@ import { PERMISSION_DEFINITIONS, permissionMaskToArray } from '@Utils/Permission
 import { randomInviteCode, showErrorMsg } from '@Utils/Shared'
 import { ChallengeInfoModel, Division, DivisionCreateModel, GamePermission } from '@Api'
 import api from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface DivisionEditDrawerProps extends DrawerProps {
   gameId: number
@@ -233,7 +234,7 @@ export const DivisionEditDrawer: FC<DivisionEditDrawerProps> = ({
       onClose={() => !loading && onClose?.()}
       overlayProps={overlayProps}
     >
-      <Stack gap="sm">
+      <Stack gap="sm" className={adminClasses.drawerBody}>
         <Group gap="sm" grow>
           <TextInput
             label={t('admin.content.games.divisions.form.name.label')}
@@ -263,7 +264,13 @@ export const DivisionEditDrawer: FC<DivisionEditDrawerProps> = ({
           label={t('admin.content.games.divisions.form.default_permissions.label')}
           description={t('admin.content.games.divisions.form.default_permissions.description')}
         >
-          <PermissionSelector pt="md" value={defaultPermissions} onChange={setDefaultPermissions} disabled={loading} />
+          <PermissionSelector
+            pt="md"
+            value={defaultPermissions}
+            onChange={setDefaultPermissions}
+            disabled={loading}
+            className={adminClasses.permissionPanel}
+          />
         </Input.Wrapper>
 
         <MultiSelect
@@ -279,7 +286,7 @@ export const DivisionEditDrawer: FC<DivisionEditDrawerProps> = ({
         />
 
         {sortedSelected.length > 0 && (
-          <ScrollArea type="auto" offsetScrollbars h={300}>
+          <ScrollArea type="auto" offsetScrollbars h={300} className={adminClasses.permissionPanel}>
             <Accordion chevronPosition="left" variant="filled">
               {sortedSelected.map((value) => {
                 const id = Number(value)
@@ -313,6 +320,7 @@ export const DivisionEditDrawer: FC<DivisionEditDrawerProps> = ({
                         value={challengePermissions[id] ?? defaultPermissions}
                         onChange={(permissions) => handleOverrideChange(id, permissions)}
                         disabled={loading}
+                        className={adminClasses.permissionPanel}
                       />
                     </Accordion.Panel>
                   </Accordion.Item>
@@ -322,7 +330,7 @@ export const DivisionEditDrawer: FC<DivisionEditDrawerProps> = ({
           </ScrollArea>
         )}
 
-        <Group justify="flex-end">
+        <Group justify="flex-end" className={adminClasses.modalActions}>
           <Button variant="default" disabled={loading} onClick={onClose}>
             {t('common.modal.cancel')}
           </Button>

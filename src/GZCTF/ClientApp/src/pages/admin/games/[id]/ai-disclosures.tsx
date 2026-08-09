@@ -1,25 +1,14 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Center,
-  Group,
-  ScrollArea,
-  Stack,
-  Table,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core'
+import { Badge, Button, Card, Center, Group, ScrollArea, Stack, Table, Text, TextInput, Title } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { mdiDownload, mdiRefresh } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
-import api, { AiUsageDisclosureModel, AnswerResult } from '@Api'
 import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { handleAxiosError } from '@Utils/ApiHelper'
+import api, { AiUsageDisclosureModel, AnswerResult } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const getSafeDisclosureUrl = (value: string) => {
   try {
@@ -70,8 +59,10 @@ const AiDisclosures: FC = () => {
     if (!normalizedQuery) return items ?? []
 
     return (items ?? []).filter((item) =>
-      [item.team, item.user, item.challenge, item.answer, item.aiUsageDisclosure]
-        .some((value) => value.toLocaleLowerCase().includes(normalizedQuery)))
+      [item.team, item.user, item.challenge, item.answer, item.aiUsageDisclosure].some((value) =>
+        value.toLocaleLowerCase().includes(normalizedQuery)
+      )
+    )
   }, [items, query])
 
   return (
@@ -88,9 +79,9 @@ const AiDisclosures: FC = () => {
         </Button>
       }
     >
-      <Card withBorder>
+      <Card withBorder className={adminClasses.surface}>
         <Stack gap="md">
-          <Group justify="space-between" align="flex-end">
+          <Group justify="space-between" align="flex-end" className={adminClasses.sectionHeading}>
             <div>
               <Title order={3}>AI Usage Disclosures</Title>
               <Text c="dimmed" size="sm">
@@ -108,14 +99,20 @@ const AiDisclosures: FC = () => {
           </Group>
 
           {!filteredItems.length ? (
-            <Center mih="12rem">
+            <Center mih="12rem" className={adminClasses.emptyState}>
               <Text c="dimmed">
                 {items?.length ? 'No disclosure matches the search.' : 'No AI disclosures have been submitted.'}
               </Text>
             </Center>
           ) : (
-            <ScrollArea type="auto">
-              <Table striped highlightOnHover miw="72rem" verticalSpacing="sm">
+            <ScrollArea type="auto" className={adminClasses.ledgerViewport}>
+              <Table
+                striped
+                highlightOnHover
+                miw="72rem"
+                verticalSpacing="sm"
+                className={`${adminClasses.ledger} ${adminClasses.disclosureTable}`}
+              >
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Time</Table.Th>
@@ -133,13 +130,17 @@ const AiDisclosures: FC = () => {
                     return (
                       <Table.Tr key={item.submissionId}>
                         <Table.Td>
-                          <Text size="sm" ff="monospace">
+                          <Text size="sm" ff="monospace" className={adminClasses.technical}>
                             {dayjs(item.submitTimeUtc).format('YYYY-MM-DD HH:mm:ss')}
                           </Text>
                         </Table.Td>
                         <Table.Td>
-                          <Text fw={600} size="sm">{item.team || '-'}</Text>
-                          <Text c="dimmed" size="xs">{item.user || '-'}</Text>
+                          <Text fw={600} size="sm">
+                            {item.team || '-'}
+                          </Text>
+                          <Text c="dimmed" size="xs">
+                            {item.user || '-'}
+                          </Text>
                         </Table.Td>
                         <Table.Td>{item.challenge || '-'}</Table.Td>
                         <Table.Td>
@@ -148,7 +149,14 @@ const AiDisclosures: FC = () => {
                           </Badge>
                         </Table.Td>
                         <Table.Td>
-                          <Text ff="monospace" size="sm" maw="18rem" truncate="end" title={item.answer}>
+                          <Text
+                            ff="monospace"
+                            size="sm"
+                            maw="18rem"
+                            truncate="end"
+                            title={item.answer}
+                            className={adminClasses.technical}
+                          >
                             {item.answer}
                           </Text>
                         </Table.Td>
@@ -161,6 +169,7 @@ const AiDisclosures: FC = () => {
                               rel="noopener noreferrer"
                               c="blue"
                               size="sm"
+                              className={adminClasses.technicalAction}
                               style={{ overflowWrap: 'anywhere' }}
                             >
                               {item.aiUsageDisclosure}
@@ -193,7 +202,9 @@ const AiDisclosures: FC = () => {
                               )}
                             </Stack>
                           ) : (
-                            <Text c="dimmed" size="sm">Not uploaded</Text>
+                            <Text c="dimmed" size="sm">
+                              Not uploaded
+                            </Text>
                           )}
                         </Table.Td>
                       </Table.Tr>

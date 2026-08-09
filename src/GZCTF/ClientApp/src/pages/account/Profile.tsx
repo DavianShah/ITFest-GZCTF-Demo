@@ -30,7 +30,9 @@ import { useIsMobile } from '@Utils/ThemeOverride'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useUser } from '@Hooks/useUser'
 import api, { ProfileUpdateModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 import misc from '@Styles/Misc.module.css'
+import classes from '@Styles/Profile.module.css'
 
 const Profile: FC = () => {
   const [dropzoneOpened, setDropzoneOpened] = useState(false)
@@ -149,10 +151,12 @@ const Profile: FC = () => {
 
   const context = (
     <>
-      <Title order={2}>{t('account.title.profile')}</Title>
+      <Group className={classes.header}>
+        <Title order={2}>{t('account.title.profile')}</Title>
+      </Group>
       <Divider mt="xs" mb="md" />
-      <Stack gap="md" m="auto">
-        <Group wrap="nowrap">
+      <Stack className={classes.fields} m="auto">
+        <Group className={classes.identityRow} wrap="nowrap">
           <TextInput
             label={t('account.label.username')}
             type="text"
@@ -162,7 +166,14 @@ const Profile: FC = () => {
             onChange={(event) => setProfile({ ...profile, userName: event.target.value })}
           />
           <Center>
-            <Avatar alt="avatar" radius={40} size={80} src={user?.avatar} onClick={() => setDropzoneOpened(true)}>
+            <Avatar
+              className={classes.avatar}
+              alt="avatar"
+              radius={40}
+              size={80}
+              src={user?.avatar}
+              onClick={() => setDropzoneOpened(true)}
+            >
               {user?.userName?.slice(0, 1) ?? 'U'}
             </Avatar>
           </Center>
@@ -211,7 +222,7 @@ const Profile: FC = () => {
           maxRows={4}
           onChange={(event) => setProfile({ ...profile, bio: event.target.value })}
         />
-        <Box m="auto" w="100%">
+        <Box className={classes.actions} m="auto" w="100%">
           <Grid grow>
             <Grid.Col span={4}>
               <Button fullWidth variant="outline" disabled={disabled} onClick={() => setMailEditOpened(true)}>
@@ -237,12 +248,12 @@ const Profile: FC = () => {
   return (
     <WithNavBar minWidth={0}>
       {isMobile ? (
-        <Box mt="md" p="sm">
+        <Box className={`${classes.page} ${classes.panel}`} mt="md">
           {context}
         </Box>
       ) : (
-        <Center h="100vh">
-          <Paper w="55%" maw={600} shadow="sm" p="5%">
+        <Center className={classes.page}>
+          <Paper className={classes.panel} radius={0}>
             {context}
           </Paper>
         </Center>
@@ -255,7 +266,7 @@ const Profile: FC = () => {
       />
 
       <Modal opened={mailEditOpened} onClose={() => setMailEditOpened(false)} title={t('account.button.update_email')}>
-        <Stack>
+        <Stack className={experience.modalStack}>
           <Text>
             <Trans i18nKey="account.content.profile.update_email_note"></Trans>
           </Text>
@@ -268,7 +279,7 @@ const Profile: FC = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
-          <Group justify="right">
+          <Group className={experience.modalActions} justify="right">
             <Button
               variant="default"
               onClick={() => {
@@ -287,6 +298,7 @@ const Profile: FC = () => {
 
       <Modal opened={dropzoneOpened} onClose={() => setDropzoneOpened(false)} withCloseButton={false}>
         <Dropzone
+          className={classes.dropzone}
           onDrop={(files) => setAvatarFile(files[0])}
           onReject={() => {
             showNotification({

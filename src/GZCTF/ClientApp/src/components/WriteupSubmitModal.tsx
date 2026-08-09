@@ -27,6 +27,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { HunamizeSize } from '@Utils/Shared'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api from '@Api'
+import competition from '@Styles/Competition.module.css'
 import misc from '@Styles/Misc.module.css'
 import uploadClasses from '@Styles/Upload.module.css'
 
@@ -91,7 +92,7 @@ export const WriteupSubmitModal: FC<WriteupSubmitModalProps> = ({ gameId, writeu
       title={
         <Group w="100%" justify="space-between">
           <Title order={4}>{t('game.content.writeup.title')}</Title>
-          <Group gap={4}>
+          <Group gap={4} className={competition.writeupStatus}>
             <Icon path={data?.submitted ? mdiCheck : mdiExclamationThick} size={0.9} color={noteColor} />
             <Text fw={600} size="md" c={noteColor}>
               {data?.submitted ? t('game.content.writeup.submitted') : t('game.content.writeup.unsubmitted')}
@@ -103,12 +104,13 @@ export const WriteupSubmitModal: FC<WriteupSubmitModalProps> = ({ gameId, writeu
       classNames={{
         header: misc.m0,
         title: cx(misc.w100, misc.m0),
+        body: competition.writeupBody,
       }}
     >
-      <Stack gap="xs" mt={0}>
+      <Stack mt={0} className={competition.writeupStack}>
         <Divider />
         <Title order={5}>{t('game.content.writeup.instructions.title')}</Title>
-        <List classNames={{ itemWrapper: misc.listItemWrapper }}>
+        <List className={competition.writeupInstructions} classNames={{ itemWrapper: misc.listItemWrapper }}>
           <List.Item>
             <Text>
               <Trans
@@ -144,7 +146,7 @@ export const WriteupSubmitModal: FC<WriteupSubmitModalProps> = ({ gameId, writeu
           </>
         )}
         <Title order={5}>{t('game.content.writeup.current')}</Title>
-        <Card>
+        <Card className={competition.writeupFile}>
           {data && data.submitted ? (
             <Group>
               <Icon path={mdiFileDocumentOutline} size={1.5} />

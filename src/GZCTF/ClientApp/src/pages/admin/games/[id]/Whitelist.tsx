@@ -1,28 +1,7 @@
-import {
-  ActionIcon,
-  Autocomplete,
-  Badge,
-  Button,
-  Group,
-  Modal,
-  Stack,
-  Table,
-  Text,
-  TextInput,
-  Title,
-  Tooltip,
-} from '@mantine/core'
-import { useInputState } from '@mantine/hooks'
+import { ActionIcon, Badge, Button, Group, Modal, Stack, Table, Text, TextInput, Title, Tooltip } from '@mantine/core'
 import { modals } from '@mantine/modals'
-import { notifications, showNotification } from '@mantine/notifications'
-import {
-  mdiCheck,
-  mdiClose,
-  mdiDeleteOutline,
-  mdiMagnify,
-  mdiPlus,
-  mdiShieldCheckOutline,
-} from '@mdi/js'
+import { showNotification } from '@mantine/notifications'
+import { mdiCheck, mdiClose, mdiDeleteOutline, mdiMagnify, mdiPlus, mdiShieldCheckOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -30,6 +9,7 @@ import { useParams } from 'react-router'
 import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { TeamWithDetailedUserInfo, WhitelistSource, WhitelistTeamModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const sourceColors: Record<WhitelistSource, string> = {
   [WhitelistSource.BulkOnboarding]: 'blue',
@@ -147,13 +127,13 @@ const WhitelistPage: FC = () => {
         </Button>
       }
     >
-      <Stack>
+      <Stack className={adminClasses.section}>
         {whitelist.length === 0 ? (
-          <Text c="dimmed" ta="center" py="xl">
+          <Text c="dimmed" ta="center" py="xl" className={adminClasses.emptyState}>
             No teams are currently whitelisted for this game.
           </Text>
         ) : (
-          <Table>
+          <Table className={adminClasses.ledger}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Team</Table.Th>
@@ -209,7 +189,7 @@ const WhitelistPage: FC = () => {
         title="Add Teams to Whitelist"
         size="lg"
       >
-        <Stack>
+        <Stack className={adminClasses.modalBody}>
           <Group wrap="nowrap">
             <TextInput
               placeholder="Search team by name..."
@@ -226,7 +206,7 @@ const WhitelistPage: FC = () => {
           </Group>
 
           {searchResults.length > 0 && (
-            <Table>
+            <Table className={adminClasses.ledger}>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Team Name</Table.Th>
@@ -238,9 +218,7 @@ const WhitelistPage: FC = () => {
                 {searchResults.map((team) => (
                   <Table.Tr key={team.id}>
                     <Table.Td>{team.name}</Table.Td>
-                    <Table.Td>
-                      {team.members?.find((m) => m.userId === team.captainId)?.userName ?? '-'}
-                    </Table.Td>
+                    <Table.Td>{team.members?.find((m) => m.userId === team.captainId)?.userName ?? '-'}</Table.Td>
                     <Table.Td>
                       <Button
                         size="xs"
@@ -273,7 +251,7 @@ const WhitelistPage: FC = () => {
           {selectedTeams.length > 0 && (
             <>
               <Title order={5}>Selected Teams ({selectedTeams.length})</Title>
-              <Group gap="xs">
+              <Group gap="xs" className={adminClasses.selectionArea}>
                 {selectedTeams.map((team) => (
                   <Badge
                     key={team.id}

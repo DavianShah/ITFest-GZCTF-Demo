@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Box, Card, Group, Stack, Text, Title, useMantineTheme } from '@mantine/core'
+import { ActionIcon, Avatar, Box, Card, Group, Stack, Text, Title } from '@mantine/core'
 import { mdiPencilOutline, mdiPinOffOutline, mdiPinOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
@@ -10,6 +10,7 @@ import { PostCardProps } from '@Components/PostCard'
 import { RequireRole } from '@Components/WithRole'
 import { useUserRole } from '@Hooks/useUser'
 import { Role } from '@Api'
+import classes from '@Styles/PostCard.module.css'
 
 export const MobilePostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
   const { role } = useUserRole()
@@ -17,25 +18,28 @@ export const MobilePostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
 
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const theme = useMantineTheme()
-
   return (
-    <Card shadow="sm" p="sm">
+    <Card
+      className={`${classes.root} ${classes.mobileRoot}`}
+      data-pinned={post.isPinned || undefined}
+      radius={0}
+      p="sm"
+    >
       <Stack gap="xs">
-        <Box onClick={() => navigate(`/posts/${post.id}`)}>
-          <Title order={3} pb={4}>
-            <Text fw="bold" fz="h3" span c={theme.primaryColor}>
+        <Box className={classes.mobileTarget} onClick={() => navigate(`/posts/${post.id}`)}>
+          <Title order={3} className={classes.title} pb={4}>
+            <Text className={classes.pinned} fw="bold" span>
               {post.isPinned ? `${t('post.content.pinned')} ` : '>>> '}
             </Text>
             {post.title}
           </Title>
-          <Markdown source={post.summary} />
+          <Markdown className={classes.summary} source={post.summary} />
         </Box>
         <Group justify="space-between">
           {post.tags && (
-            <Group justify="left">
+            <Group className={classes.tags} justify="left">
               {post.tags.map((tag, idx) => (
-                <Text key={idx} size="sm" fw="bold" span c={theme.primaryColor}>
+                <Text key={idx} className={classes.tag} size="sm" fw="bold" span>
                   {`#${tag}`}
                 </Text>
               ))}
@@ -54,11 +58,11 @@ export const MobilePostCard: FC<PostCardProps> = ({ post, onTogglePinned }) => {
             </Group>
           )}
         </Group>
-        <Group gap={5} justify="left">
+        <Group className={classes.footer} gap={5} justify="left" wrap="nowrap">
           <Avatar alt="avatar" src={post.authorAvatar} size="sm">
             {post.authorName?.slice(0, 1) ?? 'A'}
           </Avatar>
-          <Text fw={500} size="sm">
+          <Text className={classes.metadata} fw={500} size="sm">
             {t('post.content.metadata', {
               author: post.authorName ?? 'Anonym',
               date: dayjs(post.time).format('lll'),

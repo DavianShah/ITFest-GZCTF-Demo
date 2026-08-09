@@ -1,4 +1,4 @@
-import { Avatar, Card, Center, Group, Stack, Text, Title, Tooltip } from '@mantine/core'
+import { Avatar, Badge, Card, Center, Group, Stack, Text, Title, Tooltip } from '@mantine/core'
 import { mdiLockOutline, mdiCrown } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import { FC } from 'react'
@@ -23,10 +23,10 @@ export const TeamCard: FC<TeamCardProps> = (props) => {
   return (
     <Card
       shadow="md"
-      radius="lg"
+      radius={0}
       onClick={onEdit}
-      className={isMobile ? teamCardClasses.cardMobile : teamCardClasses.card}
-      classNames={{ root: misc.hoverCard }}
+      data-role={isCaptain ? 'captain' : 'member'}
+      className={`${misc.hoverCard} ${isMobile ? teamCardClasses.cardMobile : teamCardClasses.card}`}
     >
       <Group className={isMobile ? teamCardClasses.contentGroupMobile : teamCardClasses.contentGroup}>
         <Avatar alt="avatar" size="xl" radius="xl" src={team.avatar}>
@@ -37,7 +37,12 @@ export const TeamCard: FC<TeamCardProps> = (props) => {
             <Title order={2} lineClamp={1}>
               {team.name}
             </Title>
-            {isCaptain && <Icon path={mdiCrown} size={1} className={teamCardClasses.captainIcon} />}
+            <Group gap="xs" wrap="nowrap">
+              <Badge color={isCaptain ? 'yellow' : undefined} variant="outline">
+                {t(isCaptain ? 'team.content.role.captain' : 'team.content.role.member')}
+              </Badge>
+              {isCaptain && <Icon path={mdiCrown} size={1} className={teamCardClasses.captainIcon} />}
+            </Group>
           </Group>
           <Text size="sm" c="dimmed" lineClamp={1}>
             {team.bio || t('team.placeholder.bio')}

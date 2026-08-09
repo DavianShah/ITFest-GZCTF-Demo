@@ -81,8 +81,8 @@ export const ChallengePanel: FC = () => {
   // skeleton for loading
   if (!challenges) {
     return (
-      <>
-        <Stack miw="10rem" maw="10rem">
+      <div className={classes.workspace}>
+        <Stack className={classes.sidebar}>
           {Array(9)
             .fill(null)
             .map((_v, i) => (
@@ -92,14 +92,7 @@ export const ChallengePanel: FC = () => {
               </Group>
             ))}
         </Stack>
-        <SimpleGrid
-          p="xs"
-          pt={0}
-          spacing="sm"
-          pos="relative"
-          w="calc(100% - 9rem)"
-          cols={{ base: 3, w18: 4, w24: 6, w30: 8, w36: 10, w42: 12, w48: 14 }}
-        >
+        <SimpleGrid spacing="sm" pos="relative" cols={{ base: 1, xs: 2, lg: 3 }} className={classes.cardGrid}>
           {Array(13)
             .fill(null)
             .map((_v, i) => (
@@ -124,13 +117,13 @@ export const ChallengePanel: FC = () => {
               </Card>
             ))}
         </SimpleGrid>
-      </>
+      </div>
     )
   }
 
   if (allChallenges.length === 0) {
     return (
-      <Center h="calc(100vh - 100px)" w="100%">
+      <Center w="100%" className={classes.fullEmpty}>
         <Empty
           bordered
           description={t('game.content.no_challenge')}
@@ -144,126 +137,115 @@ export const ChallengePanel: FC = () => {
 
   return (
     <>
-      <Stack miw="10.5rem">
-        {game?.writeupRequired && (
-          <>
-            <Button
-              px="xs"
-              justify="space-between"
-              leftSection={<Icon path={mdiFileUploadOutline} size={1} />}
-              onClick={() => setWriteupSubmitOpened(true)}
-            >
-              {t('game.button.submit_writeup')}
-            </Button>
-            <Divider />
-          </>
-        )}
-        <Switch
-          w="10.5rem"
-          checked={hideSolved}
-          onChange={(e) => setHideSolved(e.target.checked)}
-          classNames={{ body: classes.switch }}
-          label={
-            <Text fz="md" fw="bold" ta="right">
-              {t('game.button.hide_solved')}
-            </Text>
-          }
-        />
-        <Tabs
-          orientation="vertical"
-          variant="pills"
-          value={activeTab}
-          onChange={(value) => setActiveTab(value as ChallengeCategory)}
-          classNames={{
-            root: classes.tabRoot,
-            list: classes.tabList,
-            tabLabel: classes.tabLabel,
-            tab: classes.tab,
-          }}
-        >
-          <Tabs.List>
-            <Tabs.Tab value={'All'} leftSection={<Icon path={mdiPuzzle} size={1} />}>
-              <Group justify="space-between" wrap="nowrap" gap={2}>
-                <Text fz="sm" fw="bold">
-                  All
-                </Text>
-                <Text fz="sm" fw="bold">
-                  {allChallenges.length}
-                </Text>
-              </Group>
-            </Tabs.Tab>
-            {categories.map((tab) => {
-              const data = challengeCategoryLabelMap.get(tab as ChallengeCategory)!
-              return (
-                <Tabs.Tab key={tab} value={tab} leftSection={<Icon path={data?.icon} size={1} />} color={data?.color}>
-                  <Group justify="space-between" wrap="nowrap" gap={2}>
-                    <Text fz="sm" fw="bold">
-                      {data?.name}
-                    </Text>
-                    <Text fz="sm" fw="bold">
-                      {challenges && challenges[tab].length}
-                    </Text>
-                  </Group>
-                </Tabs.Tab>
-              )
-            })}
-          </Tabs.List>
-        </Tabs>
-      </Stack>
-      <ScrollArea
-        h="calc(100vh - 6.67rem)"
-        pos="relative"
-        offsetScrollbars
-        scrollbarSize={4}
-        classNames={{ root: classes.scrollArea }}
-      >
-        {/* if rank is 0, and have no division, means scoreboard not ready yet */}
-        {!teamInfo.rank?.divisionId && !teamInfo?.rank?.rank ? (
-          <Center h="calc(100vh - 10rem)">
-            <Stack gap={0}>
-              <Title order={2}>{t('game.content.scoreboard_not_ready.title')}</Title>
-              <Text>{t('game.content.scoreboard_not_ready.comment')}</Text>
-            </Stack>
-          </Center>
-        ) : currentChallenges && currentChallenges.length ? (
-          <SimpleGrid
-            p="xs"
-            w="100%"
-            pt={0}
-            spacing="sm"
-            cols={{ base: 3, w18: 4, w24: 6, w30: 8, w36: 10, w42: 12, w48: 14 }}
+      <div className={classes.workspace}>
+        <Stack className={classes.sidebar}>
+          {game?.writeupRequired && (
+            <>
+              <Button
+                px="xs"
+                justify="space-between"
+                leftSection={<Icon path={mdiFileUploadOutline} size={1} />}
+                onClick={() => setWriteupSubmitOpened(true)}
+              >
+                {t('game.button.submit_writeup')}
+              </Button>
+              <Divider />
+            </>
+          )}
+          <Switch
+            checked={hideSolved}
+            onChange={(e) => setHideSolved(e.target.checked)}
+            classNames={{ body: classes.switch }}
+            label={
+              <Text fz="md" fw="bold" ta="right">
+                {t('game.button.hide_solved')}
+              </Text>
+            }
+          />
+          <Tabs
+            orientation="vertical"
+            variant="pills"
+            value={activeTab}
+            onChange={(value) => setActiveTab(value as ChallengeCategory)}
+            classNames={{
+              root: classes.tabRoot,
+              list: classes.tabList,
+              tabLabel: classes.tabLabel,
+              tab: classes.tab,
+            }}
           >
-            {currentChallenges?.map((chal) => {
-              const status = teamInfo?.rank?.solvedChallenges?.find((c) => c.id === chal.id)?.type
-              const solved = status !== SubmissionType.Unaccepted && status !== undefined
+            <Tabs.List>
+              <Tabs.Tab value={'All'} leftSection={<Icon path={mdiPuzzle} size={1} />}>
+                <Group justify="space-between" wrap="nowrap" gap={2}>
+                  <Text fz="sm" fw="bold">
+                    All
+                  </Text>
+                  <Text fz="sm" fw="bold">
+                    {allChallenges.length}
+                  </Text>
+                </Group>
+              </Tabs.Tab>
+              {categories.map((tab) => {
+                const data = challengeCategoryLabelMap.get(tab as ChallengeCategory)!
+                return (
+                  <Tabs.Tab key={tab} value={tab} leftSection={<Icon path={data?.icon} size={1} />} color={data?.color}>
+                    <Group justify="space-between" wrap="nowrap" gap={2}>
+                      <Text fz="sm" fw="bold">
+                        {data?.name}
+                      </Text>
+                      <Text fz="sm" fw="bold">
+                        {challenges && challenges[tab].length}
+                      </Text>
+                    </Group>
+                  </Tabs.Tab>
+                )
+              })}
+            </Tabs.List>
+          </Tabs>
+        </Stack>
+        <ScrollArea pos="relative" offsetScrollbars scrollbarSize={4} classNames={{ root: classes.scrollArea }}>
+          {/* if rank is 0, and have no division, means scoreboard not ready yet */}
+          {!teamInfo.rank?.divisionId && !teamInfo?.rank?.rank ? (
+            <Center className={classes.panelEmpty}>
+              <Stack gap={0}>
+                <Title order={2}>{t('game.content.scoreboard_not_ready.title')}</Title>
+                <Text>{t('game.content.scoreboard_not_ready.comment')}</Text>
+              </Stack>
+            </Center>
+          ) : currentChallenges && currentChallenges.length ? (
+            <SimpleGrid spacing="sm" cols={{ base: 1, xs: 2, lg: 3 }} className={classes.cardGrid}>
+              {currentChallenges?.map((chal) => {
+                const status = teamInfo?.rank?.solvedChallenges?.find((c) => c.id === chal.id)?.type
+                const solved = status !== SubmissionType.Unaccepted && status !== undefined
 
-              return (
-                <ChallengeCard
-                  key={chal.id}
-                  challenge={chal}
-                  iconMap={iconMap}
-                  colorMap={colorMap}
-                  onClick={() => {
-                    setChallenge(chal)
-                    setDetailOpened(true)
-                    // update hash after modal opened, so don't trigger useEffect
-                    window.location.hash = `#${chal.id}-${encodeURIComponent(chal.title?.replace(/ /g, '-') ?? '')}`
-                  }}
-                  solved={solved}
-                  teamId={teamInfo?.rank?.id}
-                />
-              )
-            })}
-          </SimpleGrid>
-        ) : (
-          <Center h="calc(100vh - 10rem)">
-            <Stack gap={0}>
-              <Title order={2}>{t('game.content.all_solved.title')}</Title>
-              <Text>{t('game.content.all_solved.comment')}</Text>
-            </Stack>
-          </Center>
-        )}
-      </ScrollArea>
+                return (
+                  <ChallengeCard
+                    key={chal.id}
+                    challenge={chal}
+                    iconMap={iconMap}
+                    colorMap={colorMap}
+                    onClick={() => {
+                      setChallenge(chal)
+                      setDetailOpened(true)
+                      // update hash after modal opened, so don't trigger useEffect
+                      window.location.hash = `#${chal.id}-${encodeURIComponent(chal.title?.replace(/ /g, '-') ?? '')}`
+                    }}
+                    solved={solved}
+                    teamId={teamInfo?.rank?.id}
+                  />
+                )
+              })}
+            </SimpleGrid>
+          ) : (
+            <Center className={classes.panelEmpty}>
+              <Stack gap={0}>
+                <Title order={2}>{t('game.content.all_solved.title')}</Title>
+                <Text>{t('game.content.all_solved.comment')}</Text>
+              </Stack>
+            </Center>
+          )}
+        </ScrollArea>
+      </div>
       {game?.writeupRequired && (
         <WriteupSubmitModal
           opened={writeupSubmitOpened}

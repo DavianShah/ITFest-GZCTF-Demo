@@ -13,6 +13,7 @@ import { useLanguage } from '@Utils/I18n'
 import { NoticTypeIconMap } from '@Utils/Shared'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api, { GameNotice, NoticeType } from '@Api'
+import competition from '@Styles/Competition.module.css'
 import misc from '@Styles/Misc.module.css'
 import typoClasses from '@Styles/Typography.module.css'
 
@@ -154,7 +155,7 @@ export const GameNoticePanel: FC = () => {
   )
 
   return (
-    <Card shadow="sm" w="100%">
+    <Card shadow="sm" w="100%" className={competition.noticePanel}>
       <Stack gap="xs">
         <SegmentedControl
           value={filter}
@@ -163,6 +164,7 @@ export const GameNoticePanel: FC = () => {
           bg="transparent"
           fw={500}
           onChange={(value) => setFilter(value as NoticeFilter)}
+          className={competition.noticeFilter}
           data={[
             { value: NoticeFilter.All, label: t('game.label.notice_type.all') },
             { value: NoticeFilter.Game, label: t('game.label.notice_type.game') },
@@ -172,7 +174,12 @@ export const GameNoticePanel: FC = () => {
         />
         {filteredNotices.length ? (
           <ScrollArea offsetScrollbars scrollbarSize={0} h={PANEL_HEIGHT}>
-            <List size="sm" spacing={3} classNames={{ itemWrapper: misc.alignNormal }}>
+            <List
+              size="sm"
+              spacing={3}
+              className={competition.noticeList}
+              classNames={{ itemWrapper: misc.alignNormal }}
+            >
               {filteredNotices.map((notice) => (
                 <List.Item key={notice.id} icon={<Icon {...iconMap.get(notice.type)!} />}>
                   <Stack gap={1}>

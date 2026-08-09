@@ -8,6 +8,7 @@ import { ScrollingText } from '@Components/ScrollingText'
 import { PermissionDot } from '@Components/admin/PermissionSelector'
 import { PERMISSION_DEFINITIONS, permissionMaskToArray } from '@Utils/Permission'
 import { Division } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 export interface DivisionCardProps extends CardProps {
   division: Division
@@ -50,7 +51,7 @@ export const DivisionCard: FC<DivisionCardProps> = ({
   return (
     <Card withBorder shadow="sm" padding="md" {...cardProps}>
       <Stack gap="xs">
-        <Group justify="space-between" align="flex-start">
+        <Group justify="space-between" align="flex-start" className={adminClasses.sectionHeading}>
           <Group gap="sm">
             <Icon path={mdiTagOutline} size={0.8} />
             <Title order={4} lineClamp={1}>
@@ -71,7 +72,7 @@ export const DivisionCard: FC<DivisionCardProps> = ({
         </Group>
 
         {division.inviteCode && (
-          <Group gap="sm" align="center" wrap="wrap">
+          <Group gap="sm" align="center" wrap="wrap" className={adminClasses.divisionMetadata}>
             <Text size="sm">{t('admin.content.games.divisions.form.invite_code.label')}</Text>
             <Text ff="monospace" fw="bold" fz="sm">
               {division.inviteCode}
@@ -84,7 +85,7 @@ export const DivisionCard: FC<DivisionCardProps> = ({
           </Group>
         )}
 
-        <Group gap="sm" align="center">
+        <Group gap="sm" align="center" className={adminClasses.divisionMetadata}>
           <Text size="sm">{t('admin.content.games.divisions.default_permission_label')}</Text>
           {renderPermissionDots(division.defaultPermissions, true)}
         </Group>

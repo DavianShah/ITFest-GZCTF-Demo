@@ -14,6 +14,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { ChallengeCategoryItem, ChallengeCategoryList, useChallengeCategoryLabelMap } from '@Utils/Shared'
 import { useEditChallenges } from '@Hooks/useEdit'
 import api, { ChallengeInfoModel, ChallengeCategory } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const GameChallengeEdit: FC = () => {
   const { id } = useParams()
@@ -109,7 +110,7 @@ const GameChallengeEdit: FC = () => {
               return { value: cate, label: data?.name, ...data } as ComboboxItem
             })}
           />
-          <Group justify="right">
+          <Group justify="right" className={adminClasses.toolbarActions}>
             <Button leftSection={<Icon path={mdiRefresh} size={1} />} disabled={disabled} onClick={onFlushScoreboard}>
               {t('admin.button.challenges.flush_scoreboard')}
             </Button>
@@ -123,16 +124,27 @@ const GameChallengeEdit: FC = () => {
         </>
       }
     >
-      <ScrollArea h="calc(100vh - 180px)" pos="relative" offsetScrollbars type="auto">
+      <ScrollArea
+        h="calc(100vh - 180px)"
+        pos="relative"
+        offsetScrollbars
+        type="auto"
+        className={adminClasses.noticeList}
+      >
         {!filteredChallenges || filteredChallenges.length === 0 ? (
-          <Center h="calc(100vh - 200px)">
+          <Center h="calc(100vh - 200px)" className={adminClasses.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('admin.content.games.challenges.empty.title')}</Title>
               <Text>{t('admin.content.games.challenges.empty.description')}</Text>
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid pr={6} cols={{ base: 2, w18: 3, w24: 4, w30: 5, w36: 6, w42: 7, w48: 8 }} spacing="sm">
+          <SimpleGrid
+            pr={6}
+            cols={{ base: 2, w18: 3, w24: 4, w30: 5, w36: 6, w42: 7, w48: 8 }}
+            spacing="sm"
+            className={adminClasses.categoryGrid}
+          >
             {filteredChallenges &&
               filteredChallenges.map((challenge) => (
                 <ChallengeEditCard key={challenge.id} challenge={challenge} onToggle={onToggle} />

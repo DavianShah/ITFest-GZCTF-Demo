@@ -72,7 +72,7 @@ const Countdown: FC<CountdownProps> = (props) => {
   }, [countdown, config.renewalWindow, timeoutExecuted, onTimeout])
 
   return (
-    <Text span fw="bold">
+    <Text span fw="bold" className={classes.countdown}>
       {countdown.asSeconds() > 0 ? countdown.format('HH:mm:ss') : '00:00:00'}
     </Text>
   )
@@ -182,8 +182,8 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
         {t('challenge.content.instance.test.no_container')}
       </Text>
     ) : (
-      <Group justify="space-between" wrap="nowrap">
-        <Stack align="left" gap={0}>
+      <Group justify="space-between" wrap="nowrap" className={classes.emptyState}>
+        <Stack align="left" gap={0} className={classes.emptyCopy}>
           <Text size="sm" fw="bold">
             {t('challenge.content.instance.no_container.message')}
           </Text>
@@ -194,7 +194,7 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
           </Text>
         </Stack>
 
-        <Button onClick={onCreate} disabled={disabled} loading={disabled}>
+        <Button onClick={onCreate} disabled={disabled} loading={disabled} className={classes.createButton}>
           {t('challenge.button.instance.create')}
         </Button>
       </Group>
@@ -202,8 +202,9 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
   }
 
   return (
-    <Stack gap="sm" w="100%">
+    <Stack gap="sm" w="100%" className={classes.root}>
       <TextInput
+        className={classes.entryField}
         label={
           <Text size="sm" fw="bold">
             {t('challenge.content.instance.entry.label')}
@@ -231,9 +232,9 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
         }
         value={entry}
         readOnly
-        classNames={{ input: misc.ffmono }}
+        classNames={{ input: `${misc.ffmono} ${classes.entryInput}` }}
         rightSection={
-          <Group gap={2}>
+          <Group gap={2} className={classes.entryActions}>
             <Divider orientation="vertical" pr={4} />
             {isWsrxUsable && (
               <Tooltip
@@ -274,7 +275,7 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
         rightSectionWidth={isWsrxUsable ? '6.5rem' : '5rem'}
       />
       {!isPreview && (
-        <Group justify="space-between" wrap="nowrap">
+        <Group justify="space-between" wrap="nowrap" className={classes.lifecycle}>
           <Stack align="left" gap={0}>
             <Text size="sm" fw={600}>
               {t('challenge.content.instance.actions.count_down')}
@@ -289,7 +290,7 @@ export const InstanceEntry: FC<InstanceEntryProps> = (props) => {
               {t('challenge.content.instance.actions.note', { min: config.renewalWindow })}
             </Text>
           </Stack>
-          <Group justify="right" wrap="nowrap" gap="xs">
+          <Group justify="right" wrap="nowrap" gap="xs" className={classes.lifecycleActions}>
             <Button color="orange" onClick={onExtend} disabled={!canExtend || disabled}>
               {t('challenge.button.instance.extend')}
             </Button>

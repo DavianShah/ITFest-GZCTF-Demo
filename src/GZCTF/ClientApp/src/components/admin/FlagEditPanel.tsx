@@ -7,6 +7,7 @@ import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDisplayInputStyles } from '@Utils/ThemeOverride'
 import { Attachment, FlagInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface FlagCardProps {
   flag: FlagInfoModel
@@ -22,7 +23,7 @@ const FlagCard: FC<FlagCardProps> = ({ flag, onDelete, unifiedAttachment }) => {
   const { t } = useTranslation()
 
   return (
-    <Card p="sm">
+    <Card p="sm" className={adminClasses.flagCard}>
       <Group wrap="nowrap" justify="space-between" gap={3}>
         <Stack align="flex-start" gap={0} w="100%">
           <Input
@@ -62,7 +63,11 @@ interface FlagEditPanelProps {
 export const FlagEditPanel: FC<FlagEditPanelProps> = ({ flags, onDelete, unifiedAttachment }) => {
   return (
     <Stack>
-      <SimpleGrid spacing="sm" cols={{ base: 2, w18: 3, w24: 4, w30: 5, w36: 6, w42: 7, w48: 8 }}>
+      <SimpleGrid
+        spacing="sm"
+        cols={{ base: 2, w18: 3, w24: 4, w30: 5, w36: 6, w42: 7, w48: 8 }}
+        className={adminClasses.flagGrid}
+      >
         {flags &&
           flags.map((flag, i) => (
             <FlagCard key={i} flag={flag} onDelete={() => onDelete(flag)} unifiedAttachment={unifiedAttachment} />

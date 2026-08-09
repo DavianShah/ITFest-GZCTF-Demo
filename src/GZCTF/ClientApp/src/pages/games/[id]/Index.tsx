@@ -32,6 +32,7 @@ import { usePageTitle } from '@Hooks/usePageTitle'
 import { useTeams, useUser } from '@Hooks/useUser'
 import api, { GameJoinModel, ParticipationStatus } from '@Api'
 import classes from '@Styles/Banner.module.css'
+import experience from '@Styles/Experience.module.css'
 
 const GetAlert = (status: ParticipationStatus, team: string) => {
   const { t } = useTranslation()
@@ -247,8 +248,8 @@ const GameDetail: FC = () => {
                 <Trans i18nKey="game.content.joined_status" values={{ count: game?.teamCount ?? 0 }} />
               </Text>
             </Stack>
-            <Group justify="space-between">
-              <Stack gap={0}>
+            <Group className={experience.metadataStrip} justify="space-between">
+              <Stack className={experience.metadataItem} gap={0}>
                 <Text size="sm" className={classes.date}>
                   {t('game.content.start_time')}
                 </Text>
@@ -256,7 +257,7 @@ const GameDetail: FC = () => {
                   {startTime.locale(locale).format('LLL')}
                 </Text>
               </Stack>
-              <Stack gap={0}>
+              <Stack className={experience.metadataItem} gap={0}>
                 <Text size="sm" className={classes.date}>
                   {t('game.content.end_time')}
                 </Text>
@@ -266,7 +267,7 @@ const GameDetail: FC = () => {
               </Stack>
             </Group>
             <GameProgress percentage={progress} />
-            <Group>{ControlButtons}</Group>
+            <Group className={experience.actionBar}>{ControlButtons}</Group>
           </Stack>
           <BackgroundImage className={classes.banner} src={game?.poster ?? ''} radius="sm">
             <Center h="100%">
@@ -275,8 +276,8 @@ const GameDetail: FC = () => {
           </BackgroundImage>
         </Group>
       </div>
-      <Container className={classes.content}>
-        <Stack gap="xs" pb={100}>
+      <Container className={`${classes.content} ${experience.contentSurface}`}>
+        <Stack className={experience.contentStack} pb={100}>
           {GetAlert(status, game?.teamName ?? '')}
           {teamRequire && (
             <Alert

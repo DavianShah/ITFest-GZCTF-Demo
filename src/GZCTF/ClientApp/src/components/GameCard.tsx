@@ -18,6 +18,7 @@ import { Link } from 'react-router'
 import { useLanguage } from '@Utils/I18n'
 import { getGameStatus, toLimitTag } from '@Hooks/useGame'
 import { BasicGameInfoModel } from '@Api'
+import classes from '@Styles/GameCard.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export enum GameStatus {
@@ -49,25 +50,32 @@ export const GameCard: FC<GameCardProps> = ({ game, ...others }) => {
   const color = GameColorMap.get(status)
 
   return (
-    <Card {...others} shadow="sm" component={Link} to={`/games/${game.id}`} classNames={{ root: misc.hoverCard }}>
+    <Card
+      {...others}
+      component={Link}
+      to={`/games/${game.id}`}
+      className={`${misc.hoverCard} ${classes.root}`}
+      data-status={status}
+      radius={0}
+    >
       <Card.Section>
-        <BackgroundImage src={poster ?? ''} h="12rem" w="100%" pos="relative">
+        <BackgroundImage className={classes.poster} src={poster ?? ''} h="12rem" w="100%" pos="relative">
           {!poster && (
             <Center h="100%">
               <Icon path={mdiFlagOutline} size={4} color={theme.colors.gray[5]} />
             </Center>
           )}
           <Center pos="absolute" top={8} right={8}>
-            <Badge color={color} size="sm" variant="filled">
+            <Badge className={classes.statusBadge} color={color} size="sm" variant="filled">
               {status}
             </Badge>
           </Center>
         </BackgroundImage>
       </Card.Section>
-      <Stack gap="sm" pt="sm">
+      <Stack className={classes.body}>
         <Group gap={0} justify="space-between" align="flex-start">
           <Stack gap={2} flex={1}>
-            <Group wrap="nowrap" gap="xs">
+            <Group className={classes.chipRow} wrap="nowrap">
               <Badge size="xs" color={color}>
                 {toLimitTag(t, limit)}
               </Badge>
@@ -77,21 +85,21 @@ export const GameCard: FC<GameCardProps> = ({ game, ...others }) => {
                 })}
               </Badge>
             </Group>
-            <Title order={3} ta="left" lineClamp={2}>
+            <Title className={classes.title} order={3} ta="left" lineClamp={2}>
               {title}
             </Title>
-            <Group mt={4} wrap="nowrap" gap={3}>
-              <Badge size="xs" color={color}>
+            <Group className={classes.schedule} mt={4} wrap="nowrap">
+              <Badge className={classes.time} size="xs" color={color}>
                 {startTime.locale(locale).format('L LTS')}
               </Badge>
               <Icon path={mdiChevronTripleRight} size={1} />
-              <Badge size="xs" color={color}>
+              <Badge className={classes.time} size="xs" color={color}>
                 {endTime.locale(locale).format('L LTS')}
               </Badge>
             </Group>
           </Stack>
         </Group>
-        <Text fw={500} size="sm" lineClamp={3}>
+        <Text className={classes.summary} fw={500} size="sm" lineClamp={3}>
           {summary}
         </Text>
       </Stack>

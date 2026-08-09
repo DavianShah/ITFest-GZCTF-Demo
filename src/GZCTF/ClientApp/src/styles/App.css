@@ -1,17 +1,93 @@
-/*
- * Base styles for the application
- */
+:root {
+  /* Brand constants are accents; interactive structure follows Mantine's active palette. */
+  --ht-color-brand-indigo: #3545b5;
+  --ht-color-coral: #ef3741;
+  --ht-color-yellow: #ffe64a;
+  --ht-color-ink: #1a1c1c;
+  --ht-color-primary: var(--mantine-primary-color-filled);
+  --ht-color-primary-hover: var(--mantine-primary-color-filled-hover);
+  --ht-color-on-primary: var(--mantine-primary-color-contrast);
+  --ht-color-bg: var(--mantine-color-dark-9);
+  --ht-color-surface: var(--mantine-color-dark-7);
+  --ht-color-surface-raised: var(--mantine-color-dark-6);
+  --ht-color-text: var(--mantine-color-dark-0);
+  --ht-color-text-muted: var(--mantine-color-dark-2);
+  --ht-color-border: var(--mantine-color-dark-3);
+  --ht-color-border-strong: var(--mantine-color-dark-1);
+
+  /* Semantic foundations only; explicitly authored Mantine colors remain authoritative. */
+  --ht-status-success: var(--mantine-color-green-6);
+  --ht-status-warning: var(--mantine-color-yellow-5);
+  --ht-status-danger: var(--mantine-color-red-6);
+  --ht-status-info: var(--mantine-color-blue-6);
+  --ht-status-solved: var(--ht-status-success);
+  --ht-status-unsolved: var(--mantine-color-gray-6);
+  --ht-status-live: var(--ht-color-coral);
+  --ht-status-ended: var(--mantine-color-gray-6);
+  --ht-status-practice: var(--mantine-color-cyan-6);
+  --ht-status-pending: var(--ht-status-warning);
+  --ht-status-accepted: var(--ht-status-success);
+  --ht-status-rejected: var(--ht-status-danger);
+  --ht-status-suspended: var(--mantine-color-orange-6);
+  --ht-status-expired: var(--mantine-color-gray-6);
+  --ht-status-locked: var(--mantine-color-gray-7);
+  --ht-status-admin: var(--mantine-color-grape-6);
+  --ht-status-monitor: var(--mantine-color-cyan-6);
+  --ht-status-captain: var(--ht-color-yellow);
+  --ht-status-member: var(--mantine-color-blue-6);
+
+  --ht-font-display: Anybody, Lexend, sans-serif;
+  --ht-font-interface: var(--mantine-font-family);
+  --ht-font-technical: var(--mantine-font-family-monospace);
+  --ht-border-width: 2px;
+  --ht-radius-sm: 2px;
+  --ht-radius-md: 4px;
+  --ht-shadow-xs: 1px 1px 0 #000;
+  --ht-shadow-sm: 2px 2px 0 #000;
+  --ht-shadow-md: 3px 3px 0 #000;
+  --ht-shadow-lg: 4px 4px 0 #000;
+  --ht-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ht-color-primary) 35%, transparent);
+  --ht-space-control-x: var(--mantine-spacing-md);
+  --ht-space-control-y: var(--mantine-spacing-xs);
+  --ht-motion-fast: 100ms;
+  --ht-motion-base: 140ms;
+  --ht-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root[data-mantine-color-scheme='light'] {
+  --ht-color-bg: var(--mantine-color-gray-0);
+  --ht-color-surface: var(--mantine-color-white);
+  --ht-color-surface-raised: var(--mantine-color-gray-1);
+  --ht-color-text: var(--ht-color-ink);
+  --ht-color-text-muted: var(--mantine-color-gray-7);
+  --ht-color-border: var(--ht-color-ink);
+  --ht-color-border-strong: var(--ht-color-ink);
+}
 
 body {
   padding: 0;
   margin: 0;
-
-  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-gray-7));
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  background-color: var(--ht-color-bg);
+  color: var(--ht-color-text);
+  font-family: var(--ht-font-interface);
 
   @media print {
-    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-gray-7));
+    background-color: var(--mantine-color-white);
   }
+}
+
+::selection {
+  background: var(--ht-color-yellow);
+  color: var(--ht-color-ink);
+}
+
+:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+  outline: var(--ht-border-width) solid var(--ht-color-primary);
+  outline-offset: 2px;
+}
+
+:where(code, pre, kbd, samp, [data-technical]) {
+  font-family: var(--ht-font-technical);
 }
 
 ::-webkit-scrollbar {
@@ -20,8 +96,8 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--mantine-color-dark-3);
-  border-radius: 3px;
+  background: var(--ht-color-border);
+  border-radius: var(--ht-radius-sm);
 }
 
 ::-webkit-scrollbar-track {
@@ -30,4 +106,15 @@ body {
 
 ::-webkit-scrollbar-corner {
   background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

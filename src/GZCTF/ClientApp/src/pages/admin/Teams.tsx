@@ -35,6 +35,7 @@ import { TeamEditModal } from '@Components/admin/TeamEditModal'
 import { showErrorMsg } from '@Utils/Shared'
 import { useArrayResponse } from '@Hooks/useArrayResponse'
 import api, { TeamInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 import tableClasses from '@Styles/Table.module.css'
 
@@ -169,7 +170,7 @@ const Teams: FC = () => {
             rightSection={<Icon path={mdiAccountGroupOutline} size={1} />}
           />
           <Group justify="right">
-            <Text fw="bold" size="sm">
+            <Text fw="bold" size="sm" className={adminClasses.stats}>
               <Trans
                 i18nKey="admin.content.teams.stats"
                 values={{
@@ -193,9 +194,15 @@ const Teams: FC = () => {
         </>
       }
     >
-      <Paper shadow="md" p="md" w="100%">
-        <ScrollArea viewportRef={viewport} offsetScrollbars scrollbarSize={4} h="calc(100vh - 190px)">
-          <Table className={tableClasses.table}>
+      <Paper shadow="md" p="md" w="100%" className={adminClasses.ledgerSurface}>
+        <ScrollArea
+          viewportRef={viewport}
+          offsetScrollbars
+          scrollbarSize={4}
+          h="calc(100vh - 190px)"
+          className={adminClasses.ledgerViewport}
+        >
+          <Table className={cx(tableClasses.table, adminClasses.ledger)}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th w="35vw" miw="400px">
@@ -215,7 +222,7 @@ const Teams: FC = () => {
                     <Table.Tr key={team.id}>
                       <Table.Td>
                         <Group justify="space-between" gap={0} wrap="nowrap">
-                          <Group justify="left" wrap="nowrap" w="calc(100% - 7rem)">
+                          <Group justify="left" wrap="nowrap" w="calc(100% - 7rem)" className={adminClasses.identity}>
                             <Avatar alt="avatar" src={team.avatar} radius="xl">
                               {team.name?.slice(0, 1)}
                             </Avatar>
@@ -271,7 +278,7 @@ const Teams: FC = () => {
                         </Text>
                       </Table.Td>
                       <Table.Td align="right">
-                        <Group wrap="nowrap" gap="sm" justify="right">
+                        <Group wrap="nowrap" gap="sm" justify="right" className={adminClasses.rowActions}>
                           <ActionIcon
                             color="blue"
                             onClick={() => {

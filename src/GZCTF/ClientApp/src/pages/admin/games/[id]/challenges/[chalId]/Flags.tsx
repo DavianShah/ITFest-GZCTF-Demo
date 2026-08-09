@@ -35,6 +35,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { useDisplayInputStyles } from '@Utils/ThemeOverride'
 import { useEditChallenge } from '@Hooks/useEdit'
 import api, { ChallengeType, FileType, FlagInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 import uploadClasses from '@Styles/Upload.module.css'
 
@@ -189,8 +190,8 @@ const OneAttachmentWithFlags: FC<FlagEditProps> = ({ onDelete }) => {
   const willGenerate = <>&nbsp;{t('admin.content.games.challenges.flag.instructions.will_generate')}&nbsp;</>
 
   return (
-    <Stack>
-      <Group justify="space-between" wrap="nowrap" mt="md">
+    <Stack className={adminClasses.attachmentSection}>
+      <Group justify="space-between" wrap="nowrap" mt="md" className={adminClasses.sectionHeading}>
         <Title order={2}>{t('admin.content.games.challenges.attachment.title')}</Title>
         {type !== FileType.Remote ? (
           <FileButton onChange={onUpload}>
@@ -273,7 +274,7 @@ const OneAttachmentWithFlags: FC<FlagEditProps> = ({ onDelete }) => {
           />
         )}
       </Group>
-      <Group justify="space-between" mt="md">
+      <Group justify="space-between" mt="md" className={adminClasses.sectionHeading}>
         <Title order={2}>{t('admin.content.games.challenges.flag.title')}</Title>
         {challenge?.type === ChallengeType.DynamicContainer ? (
           <Button disabled={disabled} onClick={onChangeFlagTemplate}>
@@ -362,11 +363,11 @@ const OneAttachmentWithFlags: FC<FlagEditProps> = ({ onDelete }) => {
           </Stack>
         </Stack>
       ) : (
-        <ScrollArea h="calc(100vh - 32rem)" pos="relative">
+        <ScrollArea h="calc(100vh - 32rem)" pos="relative" className={adminClasses.flagGrid}>
           {!challenge?.flags.length && (
             <>
               <Overlay opacity={0.3} color={colorScheme === 'dark' ? 'black' : 'white'} />
-              <Center h="calc(100vh - 32rem)">
+              <Center h="calc(100vh - 32rem)" className={adminClasses.emptyState}>
                 <Stack gap={0}>
                   <Title order={2}>{t('admin.content.games.challenges.flag.empty.title')}</Title>
                   <Text>{t('admin.content.games.challenges.flag.empty.description')}</Text>
@@ -398,8 +399,8 @@ const FlagsWithAttachments: FC<FlagEditProps> = ({ onDelete }) => {
   const { t } = useTranslation()
 
   return (
-    <Stack>
-      <Group justify="space-between" mt="md">
+    <Stack className={adminClasses.attachmentSection}>
+      <Group justify="space-between" mt="md" className={adminClasses.sectionHeading}>
         <Title order={2}>{t('admin.content.games.challenges.flag.title')}</Title>
         <Group justify="right">
           <Button onClick={() => setRemoteAttachmentModalOpened(true)}>
@@ -411,11 +412,11 @@ const FlagsWithAttachments: FC<FlagEditProps> = ({ onDelete }) => {
         </Group>
       </Group>
       <Divider />
-      <ScrollArea h="calc(100vh - 25rem)" pos="relative">
+      <ScrollArea h="calc(100vh - 25rem)" pos="relative" className={adminClasses.flagGrid}>
         {!challenge?.flags.length && (
           <>
             <Overlay opacity={0.3} color={colorScheme === 'dark' ? 'black' : 'white'} />
-            <Center h="calc(100vh - 25rem)">
+            <Center h="calc(100vh - 25rem)" className={adminClasses.emptyState}>
               <Stack gap={0}>
                 <Title order={2}>{t('admin.content.games.challenges.flag.empty.title')}</Title>
                 <Text>{t('admin.content.games.challenges.flag.empty.description')}</Text>
@@ -494,7 +495,7 @@ const GameChallengeEdit: FC = () => {
           <Title lineClamp={1} className={misc.wordBreakAll}>
             # {challenge?.title}
           </Title>
-          <Group wrap="nowrap" justify="right">
+          <Group wrap="nowrap" justify="right" className={adminClasses.rowActions}>
             <Button
               component={Link}
               leftSection={<Icon path={mdiPuzzleEditOutline} size={1} />}

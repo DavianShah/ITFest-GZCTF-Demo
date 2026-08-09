@@ -1,7 +1,8 @@
 .box[data-border] {
   border-style: dashed;
-  border-color: gray;
-  border-width: thick;
-  border-radius: 1rem;
-  padding: 1rem;
+  border-color: var(--ht-color-border);
+  border-width: var(--ht-border-width);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-color-surface);
+  padding: var(--mantine-spacing-lg);
 }

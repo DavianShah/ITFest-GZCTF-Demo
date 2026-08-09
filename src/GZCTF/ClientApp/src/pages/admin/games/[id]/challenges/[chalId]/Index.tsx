@@ -48,6 +48,7 @@ import {
 import { useEditChallenge, useEditChallenges } from '@Hooks/useEdit'
 import { useGame } from '@Hooks/useGame'
 import api, { ChallengeCategory, ChallengeType, ChallengeUpdateModel, GameMode, NetworkMode } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 const DurationInput: FC<{
@@ -243,10 +244,11 @@ const GameChallengeEdit: FC = () => {
           <Title lineClamp={1} className={misc.wordBreakAll}>
             # {challengeInfo?.title}
           </Title>
-          <Group wrap="nowrap" justify="right">
+          <Group wrap="nowrap" justify="right" className={adminClasses.rowActions}>
             <Button
               disabled={disabled}
               color="red"
+              className={adminClasses.dangerAction}
               leftSection={<Icon path={mdiDeleteOutline} size={1} />}
               variant="outline"
               onClick={() =>
@@ -298,8 +300,8 @@ const GameChallengeEdit: FC = () => {
         </>
       }
     >
-      <Stack>
-        <Grid columns={3}>
+      <Stack className={adminClasses.editorPage}>
+        <Grid columns={3} className={`${adminClasses.formSection} ${adminClasses.editorGrid}`}>
           <Grid.Col span={1}>
             <TextInput
               label={t('admin.content.games.challenges.title')}
@@ -323,6 +325,7 @@ const GameChallengeEdit: FC = () => {
               value={type}
               disabled={disabled}
               readOnly
+              className={adminClasses.immutableField}
               renderOption={ChallengeTypeItem}
               data={Object.entries(ChallengeType).map((type) => {
                 const data = challengeTypeLabelMap.get(type[1])
@@ -431,7 +434,9 @@ const GameChallengeEdit: FC = () => {
               />
               {game?.mode === GameMode.Speedrun && (challengeInfo?.hints?.length ?? 0) > 0 && (
                 <Stack gap="xs">
-                  <Text size="sm" fw={500}>Speedrun hint release times</Text>
+                  <Text size="sm" fw={500}>
+                    Speedrun hint release times
+                  </Text>
                   <Text size="xs" c="dimmed">
                     Hints remain editable above. Time 00:00 releases a hint when the round starts.
                   </Text>
@@ -524,14 +529,16 @@ const GameChallengeEdit: FC = () => {
                   'Require Solver Upload',
                   'Jika aktif, peserta wajib mengupload file solver pada setiap submission Jeopardy. Matikan untuk challenge seperti OSINT yang tidak memerlukannya.'
                 )}
-                onChange={(e) => setChallengeInfo({
-                  ...challengeInfo,
-                  requireSolverUpload: e.target.checked,
-                })}
+                onChange={(e) =>
+                  setChallengeInfo({
+                    ...challengeInfo,
+                    requireSolverUpload: e.target.checked,
+                  })
+                }
               />
             </Stack>
           </Grid.Col>
-          <Grid.Col span={1}>
+          <Grid.Col span={1} className={adminClasses.scorePanel}>
             <ScoreFunc
               currentAcceptCount={currentAcceptCount}
               originalScore={challengeInfo.originalScore ?? 500}
@@ -542,6 +549,7 @@ const GameChallengeEdit: FC = () => {
         </Grid>
         {type === ChallengeType.DynamicAttachment && (
           <TextInput
+            className={adminClasses.formSection}
             label={t('admin.content.games.challenges.attachment_name.label')}
             description={t('admin.content.games.challenges.attachment_name.description')}
             disabled={disabled}
@@ -550,7 +558,10 @@ const GameChallengeEdit: FC = () => {
           />
         )}
         {(type === ChallengeType.StaticContainer || type === ChallengeType.DynamicContainer) && (
-          <Grid columns={12}>
+          <Grid
+            columns={12}
+            className={`${adminClasses.formSection} ${adminClasses.testContainerArea} ${adminClasses.editorGrid}`}
+          >
             <Grid.Col span={8}>
               <Group justify="space-between" align="flex-end">
                 <TextInput

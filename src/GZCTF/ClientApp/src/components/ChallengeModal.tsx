@@ -61,10 +61,10 @@ const ChallengeDeadlineNotice: FC<ChallengeDeadlineNoticeProps> = ({ deadline, o
   const countdownText = `${Math.floor(duration.asHours())}:${duration.format('mm:ss')}`
 
   return (
-    <Group gap="xs" justify="space-between" wrap="nowrap">
+    <Group gap="xs" justify="space-between" wrap="nowrap" className={classes.deadlineNotice}>
       <Text fw="bold" size="sm">
         {t('challenge.content.deadline.remaining')}&nbsp;
-        <Text span ff="monospace" fw="bold" size="sm" c="brand">
+        <Text span ff="monospace" fw="bold" size="sm" className={classes.countdown}>
           {countdownText}
         </Text>
       </Text>
@@ -153,15 +153,15 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
     challenge?.type === ChallengeType.StaticContainer || challenge?.type === ChallengeType.DynamicContainer
 
   const title = (
-    <Stack gap="xs">
-      <Group wrap="nowrap" w="100%" justify="space-between" gap="sm">
-        <Group wrap="nowrap" gap="sm" w="calc(100% - 6.75rem)">
+    <Stack gap="xs" className={classes.heading}>
+      <Group wrap="nowrap" w="100%" justify="space-between" gap="sm" className={classes.headingRow}>
+        <Group wrap="nowrap" gap="sm" className={classes.titleContext}>
           {cateData && <Icon path={cateData.icon} size={1.2} color={theme.colors[cateData.color][5]} />}
-          <Title order={4} lineClamp={1}>
+          <Title order={4} lineClamp={1} className={classes.challengeTitle}>
             {challenge?.title ?? ''}
           </Title>
         </Group>
-        <Text miw="6rem" fw="bold" ff="monospace" ta="right">
+        <Text fw="bold" ff="monospace" ta="right" className={classes.challengeScore}>
           {challenge?.score ?? 0} pts
         </Text>
       </Group>
@@ -170,16 +170,25 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
   )
 
   const content = (
-    <ScrollAreaAutosize mah="52vh" maw="100%" scrollbars="y" scrollbarSize={6} type="scroll">
+    <ScrollAreaAutosize
+      mah="52vh"
+      maw="100%"
+      scrollbars="y"
+      scrollbarSize={6}
+      type="scroll"
+      className={classes.description}
+    >
       {challenge?.content === undefined ? (
         <ContentPlaceholder />
       ) : (
         <>
-          <Markdown source={challenge.content ?? ''} />
+          <div className={classes.markdown}>
+            <Markdown source={challenge.content ?? ''} />
+          </div>
           {challenge.hints && challenge.hints.length > 0 && (
-            <Stack gap={2} pt="sm">
+            <Stack gap="xs" pt="sm" className={classes.hints}>
               {challenge.hints.map((hint) => (
-                <Group key={hint} gap="xs" align="flex-start" wrap="nowrap">
+                <Group key={hint} gap="xs" align="flex-start" wrap="nowrap" className={classes.hint}>
                   <Icon path={mdiLightbulbOnOutline} size={0.8} color={theme.colors.yellow[5]} />
                   <InlineMarkdown key={hint} size="sm" maw="calc(100% - 2rem)" source={hint} />
                 </Group>
@@ -202,7 +211,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
   const local = link && link.startsWith('/assets')
 
   const attachment = withAttachment && (
-    <Group gap="xs" justify="flex-start" align="center" wrap="nowrap">
+    <Group gap="xs" justify="flex-start" align="center" wrap="nowrap" className={classes.attachment}>
       <Text fw="bold" size="sm">
         {t('challenge.button.download.attachment')}
       </Text>
@@ -215,6 +224,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
         rel="noreferrer"
         leftSection={<Icon path={local ? mdiPackageVariantClosed : mdiOpenInNew} size={0.8} />}
         maw="20rem"
+        className={classes.attachmentAction}
         onClick={
           onDownload &&
           ((e: any) => {
@@ -231,14 +241,16 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
   const withInstance = isContainer && challenge?.context
 
   const instance = withInstance && (
-    <InstanceEntry
-      label={`${challenge.title} @ ${gameTitle}`}
-      context={challenge.context!}
-      onCreate={onCreate}
-      onExtend={onExtend}
-      onDestroy={onDestroy}
-      disabled={disabled}
-    />
+    <div className={classes.instanceSection}>
+      <InstanceEntry
+        label={`${challenge.title} @ ${gameTitle}`}
+        context={challenge.context!}
+        onCreate={onCreate}
+        onExtend={onExtend}
+        onDestroy={onDestroy}
+        disabled={disabled}
+      />
+    </div>
   )
 
   const attemptsInfo = useMemo(() => {
@@ -285,6 +297,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
       )}
       <Divider label={attemptsInfo} my={attemptsInfo ? '-0.4rem' : undefined} />
       <form
+        className={classes.submissionForm}
         onSubmit={(e) => {
           e.preventDefault()
           if (!solved && canSubmitDespiteDeadline) {
@@ -292,13 +305,14 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
           }
         }}
       >
-        <Stack gap="sm">
+        <Stack gap="sm" className={classes.submissionFields}>
           <TextInput
             label="Flag"
             placeholder={placeholder}
             value={inputValue}
             disabled={inputDisabled}
             onChange={setFlag}
+            className={classes.flagField}
             classNames={{ input: misc.ffmono }}
           />
           {requireAiUsageDisclosure && (
@@ -314,6 +328,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
               maxRows={3}
               autosize
               w="100%"
+              className={classes.submissionField}
               onChange={(event) => setAiUsageDisclosure?.(event.currentTarget.value)}
             />
           )}
@@ -332,11 +347,12 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
               disabled={inputDisabled}
               clearable
               required={challenge?.requireSolverUpload}
+              className={classes.submissionField}
               onChange={(file) => setSolverFile?.(file)}
             />
           )}
           <Group justify="flex-end">
-            <Button miw="6rem" type="submit" disabled={inputDisabled}>
+            <Button miw="6rem" type="submit" disabled={inputDisabled} className={classes.submitButton}>
               {t('challenge.button.submit_flag')}
             </Button>
           </Group>
@@ -347,7 +363,7 @@ export const ChallengeModal: FC<ChallengeModalProps> = (props) => {
 
   return (
     <Modal.Root
-      size="42vw"
+      size="52rem"
       {...modalProps}
       onClose={() => {
         setFlag('')

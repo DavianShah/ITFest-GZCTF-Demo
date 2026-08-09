@@ -42,6 +42,7 @@ import { getInputNumber, randomInviteCode, showErrorMsg, tryGetErrorMsg } from '
 import { IMAGE_MIME_TYPES } from '@Utils/Shared'
 import { useAdminGame } from '@Hooks/useGame'
 import api, { GameInfoModel, GameMode } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 dayjs.extend(localizedFormat)
@@ -190,6 +191,7 @@ const GameInfoEdit: FC = () => {
           <Button
             disabled={disabled}
             color="red"
+            className={adminClasses.dangerAction}
             leftSection={<Icon path={mdiDeleteOutline} size={1} />}
             variant="outline"
             onClick={() =>
@@ -224,7 +226,7 @@ const GameInfoEdit: FC = () => {
         </>
       }
     >
-      <SimpleGrid cols={4}>
+      <SimpleGrid cols={4} className={`${adminClasses.formSection} ${adminClasses.formGrid}`}>
         <TextInput
           label={t('admin.content.games.info.title.label')}
           description={t('admin.content.games.info.title.description')}
@@ -319,10 +321,7 @@ const GameInfoEdit: FC = () => {
           disabled={disabled}
           checked={game?.whitelistOnly ?? false}
           classNames={{ root: misc.switchVerticalMiddle }}
-          label={SwitchLabel(
-            'Whitelist Only',
-            'Only explicitly whitelisted teams may join this game.'
-          )}
+          label={SwitchLabel('Whitelist Only', 'Only explicitly whitelisted teams may join this game.')}
           onChange={(e) => game && setGame({ ...game, whitelistOnly: e.target.checked })}
         />
         <Switch
@@ -354,10 +353,11 @@ const GameInfoEdit: FC = () => {
                 min={0}
                 value={Math.floor((game.speedrunDefaultRoundDurationSeconds ?? 1800) / 60)}
                 onChange={(value) =>
-                  game && setGame({
+                  game &&
+                  setGame({
                     ...game,
                     speedrunDefaultRoundDurationSeconds:
-                      getInputNumber(value) * 60 + (game.speedrunDefaultRoundDurationSeconds ?? 1800) % 60,
+                      getInputNumber(value) * 60 + ((game.speedrunDefaultRoundDurationSeconds ?? 1800) % 60),
                   })
                 }
               />
@@ -367,7 +367,8 @@ const GameInfoEdit: FC = () => {
                 max={59}
                 value={(game.speedrunDefaultRoundDurationSeconds ?? 1800) % 60}
                 onChange={(value) =>
-                  game && setGame({
+                  game &&
+                  setGame({
                     ...game,
                     speedrunDefaultRoundDurationSeconds:
                       Math.floor((game.speedrunDefaultRoundDurationSeconds ?? 1800) / 60) * 60 + getInputNumber(value),
@@ -381,10 +382,10 @@ const GameInfoEdit: FC = () => {
                 min={0}
                 value={Math.floor((game.speedrunOvertimeSeconds ?? 300) / 60)}
                 onChange={(value) =>
-                  game && setGame({
+                  game &&
+                  setGame({
                     ...game,
-                    speedrunOvertimeSeconds:
-                      getInputNumber(value) * 60 + (game.speedrunOvertimeSeconds ?? 300) % 60,
+                    speedrunOvertimeSeconds: getInputNumber(value) * 60 + ((game.speedrunOvertimeSeconds ?? 300) % 60),
                   })
                 }
               />
@@ -394,7 +395,8 @@ const GameInfoEdit: FC = () => {
                 max={59}
                 value={(game.speedrunOvertimeSeconds ?? 300) % 60}
                 onChange={(value) =>
-                  game && setGame({
+                  game &&
+                  setGame({
                     ...game,
                     speedrunOvertimeSeconds:
                       Math.floor((game.speedrunOvertimeSeconds ?? 300) / 60) * 60 + getInputNumber(value),
@@ -405,7 +407,7 @@ const GameInfoEdit: FC = () => {
           </>
         )}
       </SimpleGrid>
-      <Group grow justify="space-between">
+      <Group grow justify="space-between" className={adminClasses.formSection}>
         <Textarea
           label={t('admin.content.games.info.summary.label')}
           description={t('admin.content.games.info.summary.description')}
@@ -452,7 +454,7 @@ const GameInfoEdit: FC = () => {
           />
         </Stack>
       </Group>
-      <Grid grow>
+      <Grid grow className={adminClasses.formSection}>
         <Grid.Col span={8}>
           <Textarea
             label={
@@ -488,7 +490,7 @@ const GameInfoEdit: FC = () => {
               accept={IMAGE_MIME_TYPES}
               disabled={disabled}
               data-poster={game?.poster || undefined}
-              classNames={{ root: misc.gamePoster }}
+              classNames={{ root: `${misc.gamePoster} ${adminClasses.posterDropzone}` }}
             >
               <Center className={misc.noPointerEvents}>
                 {game?.poster ? (

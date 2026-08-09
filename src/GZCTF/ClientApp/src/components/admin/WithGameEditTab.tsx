@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, Link, useNavigate, useParams } from 'react-router'
 import { AdminPage } from '@Components/admin/AdminPage'
 import { DEFAULT_LOADING_OVERLAY } from '@Utils/Shared'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export interface GameEditTabProps extends React.PropsWithChildren {
@@ -77,39 +78,54 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
           <Button
             w="12rem"
             component={Link}
+            className={adminClasses.backButton}
             classNames={{ inner: misc.justifyBetween }}
             leftSection={<Icon path={mdiKeyboardBackspace} size={1} />}
             to={backUrl ?? '/admin/games'}
           >
             {t('admin.button.back')}
           </Button>
-          <Group wrap="nowrap" justify={contentPos ?? 'space-between'} w="calc(100% - 13rem)">
+          <Group
+            wrap="nowrap"
+            justify={contentPos ?? 'space-between'}
+            w="calc(100% - 13rem)"
+            className={adminClasses.gameToolbarActions}
+          >
             {head}
           </Group>
         </>
       }
     >
-      <Group wrap="nowrap" justify="space-between" align="flex-start" w="100%" pb="xl">
+      <Group
+        wrap="nowrap"
+        justify="space-between"
+        align="flex-start"
+        w="100%"
+        pb="xl"
+        className={adminClasses.gameLayout}
+      >
         <Tabs
           w="12rem"
           orientation="vertical"
           value={activeTab}
           onChange={(value) => value && navigate(`/admin/games/${id}/${value}`)}
+          className={adminClasses.gameNav}
         >
-          <Tabs.List w="12rem">
+          <Tabs.List w="100%" className={adminClasses.gameTabsList}>
             {pages.map((page) => (
               <Tabs.Tab
                 key={page.path}
                 w="100%"
                 leftSection={<Icon path={page.icon} size={1} />}
                 value={page.path}
+                className={adminClasses.gameTab}
               >
                 {page.title}
               </Tabs.Tab>
             ))}
           </Tabs.List>
         </Tabs>
-        <Stack w="calc(100% - 13rem)" pos="relative">
+        <Stack w="calc(100% - 13rem)" pos="relative" className={adminClasses.workspace}>
           <LoadingOverlay visible={isLoading ?? false} overlayProps={DEFAULT_LOADING_OVERLAY} />
           {children}
         </Stack>

@@ -116,7 +116,7 @@ const Login: FC = () => {
   }
 
   return (
-    <AccountView onSubmit={onLogin}>
+    <AccountView title={t('account.title.login')} onSubmit={onLogin}>
       <TextInput
         required
         label={t('account.label.username_or_email')}

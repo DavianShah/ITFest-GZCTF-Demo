@@ -9,7 +9,7 @@ import { MobileScoreboardItemModal } from '@Components/mobile/ScoreboardItemModa
 import { BloodBonus, useBonusLabels } from '@Utils/Shared'
 import { useGameScoreboard } from '@Hooks/useGame'
 import { ScoreboardItem } from '@Api'
-import misc from '@Styles/Misc.module.css'
+import competition from '@Styles/Competition.module.css'
 import classes from '@Styles/ScoreboardTable.module.css'
 
 const RANK_WIDTH = 50
@@ -27,24 +27,18 @@ const TableRow: FC<{
   }, [solved])
 
   return (
-    <Table.Tr>
+    <Table.Tr className={classes.row}>
       <Table.Td className={cx(classes.mono, classes.left)}>{item.rank || '-'}</Table.Td>
       <Table.Td className={cx(classes.left, classes.teamCell)}>
         <Group justify="left" gap={5} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-          <Avatar
-            alt="avatar"
-            src={item.avatar}
-            radius="xl"
-            size={30}
-            color={theme.primaryColor}
-            className={misc.cPointer}
-          >
+          <Avatar alt="avatar" src={item.avatar} radius="xl" size={30} color={theme.primaryColor}>
             {item.name?.slice(0, 1) ?? 'T'}
           </Avatar>
           <ScrollingText
             text={item.name || ''}
             size="sm"
             onClick={onOpenDetail}
+            className={classes.mobileTeamTrigger}
             style={{ width: '100%', minWidth: 0 }}
           />
         </Group>
@@ -113,8 +107,8 @@ export const MobileScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivi
   const bloodData = useBonusLabels(bloodBonus)
 
   return (
-    <Paper shadow="xs" p="sm">
-      <Stack gap="xs">
+    <Paper shadow="xs" p="sm" className={cx(classes.surface, competition.scoreboardSurface)}>
+      <Stack gap="xs" className={classes.stack}>
         {divisionOptions.length > 0 && (
           <Select
             defaultValue="all"
@@ -131,16 +125,7 @@ export const MobileScoreboardTable: FC<ScoreboardProps> = ({ divisionId, setDivi
             }}
           />
         )}
-        <Box
-          pos="relative"
-          maw="100%"
-          style={{
-            overflow: 'scroll',
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-          }}
-        >
+        <Box pos="relative" maw="100%" className={classes.mobileScroller}>
           <Table className={classes.table}>
             <colgroup>
               <col style={{ width: RANK_WIDTH }} />

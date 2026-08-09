@@ -31,6 +31,7 @@ import { getInputNumber, showErrorMsg } from '@Utils/Shared'
 import { IMAGE_MIME_TYPES } from '@Utils/Shared'
 import { OnceSWRConfig, useCaptchaConfig, useConfig } from '@Hooks/useConfig'
 import api, { AccountPolicy, ConfigEditModel, ContainerPolicy, GlobalConfig } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 const Configs: FC = () => {
@@ -99,7 +100,7 @@ const Configs: FC = () => {
   return (
     <AdminPage isLoading={!configs}>
       <Button
-        className={misc.fixedButton}
+        className={`${misc.fixedButton} ${adminClasses.persistentAction}`}
         __vars={{
           '--fixed-right': 'calc(0.05 * (100vw - 70px - 2rem) + 1rem)',
         }}
@@ -124,11 +125,13 @@ const Configs: FC = () => {
       >
         {t('admin.button.save')}
       </Button>
-      <Stack w="100%" gap="md">
-        <Stack gap="sm">
-          <Title order={2}>{t('admin.content.settings.platform.title')}</Title>
+      <Stack w="100%" gap="md" className={adminClasses.configStack}>
+        <Stack gap="sm" className={adminClasses.configSection}>
+          <Title order={2} className={adminClasses.configTitle}>
+            {t('admin.content.settings.platform.title')}
+          </Title>
           <Divider />
-          <Grid columns={4} align="center">
+          <Grid columns={4} align="center" className={adminClasses.configGrid}>
             <Grid.Col span={1}>
               <TextInput
                 label={t('admin.content.settings.platform.name.label')}
@@ -257,10 +260,12 @@ const Configs: FC = () => {
             </Grid.Col>
           </Grid>
         </Stack>
-        <Stack gap="sm">
-          <Title order={2}>{t('admin.content.settings.account.title')}</Title>
+        <Stack gap="sm" className={adminClasses.configSection}>
+          <Title order={2} className={adminClasses.configTitle}>
+            {t('admin.content.settings.account.title')}
+          </Title>
           <Divider />
-          <SimpleGrid cols={4}>
+          <SimpleGrid cols={4} className={adminClasses.configGrid}>
             <Switch
               checked={accountPolicy?.allowRegister ?? true}
               disabled={disabled}
@@ -328,10 +333,12 @@ const Configs: FC = () => {
             }}
           />
         </Stack>
-        <Stack gap="sm">
-          <Title order={2}>{t('admin.content.settings.container.title')}</Title>
+        <Stack gap="sm" className={adminClasses.configSection}>
+          <Title order={2} className={adminClasses.configTitle}>
+            {t('admin.content.settings.container.title')}
+          </Title>
           <Divider />
-          <SimpleGrid cols={4} className={misc.alignCenter}>
+          <SimpleGrid cols={4} className={`${misc.alignCenter} ${adminClasses.configGrid}`}>
             <NumberInput
               label={t('admin.content.settings.container.default_lifetime.label')}
               description={t('admin.content.settings.container.default_lifetime.description')}

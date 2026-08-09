@@ -38,6 +38,7 @@ import { useLanguage } from '@Utils/I18n'
 import { useDisplayInputStyles } from '@Utils/ThemeOverride'
 import { useGame } from '@Hooks/useGame'
 import api, { AnswerResult, Submission } from '@Api'
+import monitor from '@Styles/Monitor.module.css'
 import tableClasses from '@Styles/Table.module.css'
 
 const ITEM_COUNT_PER_PAGE = 50
@@ -177,11 +178,11 @@ const Submissions: FC = () => {
         key={`${item.time}@${i}`}
         className={cx({ [tableClasses.fade]: i === 0 && activePage === 1 && filteredSubs.length > 0 })}
       >
-        <Table.Td>
+        <Table.Td className={monitor.resultCell}>
           <Icon {...iconMap.get(item.status ?? AnswerResult.FlagSubmitted)!} />
         </Table.Td>
         <Table.Td ff="monospace">
-          <Badge size="sm" color="indigo" fullWidth>
+          <Badge size="sm" fullWidth className={monitor.technicalBadge}>
             {dayjs(item.time).locale(locale).format('SL HH:mm:ss')}
           </Badge>
         </Table.Td>
@@ -206,14 +207,19 @@ const Submissions: FC = () => {
               href={disclosureUrl}
               target="_blank"
               rel="noopener noreferrer"
-              c="blue"
               size="sm"
               lineClamp={2}
+              className={monitor.disclosureLink}
             >
               {item.aiUsageDisclosure}
             </Text>
           ) : (
-            <Text size="sm" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }} lineClamp={3}>
+            <Text
+              size="sm"
+              style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+              lineClamp={3}
+              className={monitor.disclosureText}
+            >
               {item.aiUsageDisclosure ?? '-'}
             </Text>
           )}
@@ -232,11 +238,12 @@ const Submissions: FC = () => {
 
   return (
     <WithGameMonitor isLoading={!submissions}>
-      <Group justify="space-between" w="100%">
+      <Group justify="space-between" w="100%" className={monitor.toolbar}>
         <SegmentedControl
           color={theme.primaryColor}
           value={type}
           bg="transparent"
+          className={monitor.resultFilter}
           onChange={(value) => {
             setType(value as AnswerResult | 'All')
             setPage(1)
@@ -254,7 +261,7 @@ const Submissions: FC = () => {
               .filter((role) => role.value !== AnswerResult.FlagSubmitted),
           ]}
         />
-        <Group justify="right">
+        <Group justify="right" className={monitor.toolbarActions}>
           <Tooltip label={t('game.button.download.submissionsheet')} position="left">
             <ActionIcon disabled={disabled} size="lg" onClick={onDownloadSubmissionSheet}>
               <Icon path={mdiDownload} size={1} />
@@ -275,9 +282,9 @@ const Submissions: FC = () => {
           </ActionIcon>
         </Group>
       </Group>
-      <Paper shadow="md" p="md">
+      <Paper shadow="md" p="md" className={monitor.dataSurface}>
         <ScrollArea viewportRef={viewport} offsetScrollbars h="calc(100vh - 200px)">
-          <Table className={tableClasses.table}>
+          <Table className={cx(tableClasses.table, monitor.submissionTable)}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th w="0.6rem">

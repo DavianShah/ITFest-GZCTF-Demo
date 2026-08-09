@@ -44,6 +44,7 @@ import { useParticipationStatusMap } from '@Utils/Shared'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api, { ParticipationEditModel, ParticipationInfoModel, ParticipationStatus, ProfileUserInfoModel } from '@Api'
 import classes from '@Styles/Accordion.module.css'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 import reviewClasses from '@Styles/Review.module.css'
 
@@ -65,7 +66,7 @@ const MemberItem: FC<MemberItemProps> = (props) => {
   const { t } = useTranslation()
 
   return (
-    <Group wrap="nowrap" gap="xl" justify="space-between">
+    <Group wrap="nowrap" gap="xl" justify="space-between" className={adminClasses.reviewMember}>
       <Group wrap="nowrap" w="calc(100% - 16rem)" miw="500px">
         <Avatar alt="avatar" src={user.avatar}>
           {user.userName?.slice(0, 1) ?? 'U'}
@@ -105,7 +106,7 @@ const MemberItem: FC<MemberItemProps> = (props) => {
           </Grid.Col>
         </Grid>
       </Group>
-      <Group wrap="nowrap" justify="right">
+      <Group wrap="nowrap" justify="right" className={adminClasses.reviewStatusRail}>
         {isCaptain && (
           <Group gap={0}>
             <Icon path={mdiStar} color={theme.colors.yellow[4]} size={0.9} />
@@ -140,7 +141,7 @@ const ParticipationItem: FC<ParticipationItemProps> = (props) => {
   const { t } = useTranslation()
 
   return (
-    <Accordion.Item value={participation.id!.toString()}>
+    <Accordion.Item value={participation.id!.toString()} className={adminClasses.reviewItem}>
       <Box className={misc.alignCenter} display="flex">
         <Accordion.Control>
           <Group justify="space-between" wrap="nowrap">
@@ -159,7 +160,7 @@ const ParticipationItem: FC<ParticipationItemProps> = (props) => {
                 </Text>
               </Box>
             </Group>
-            <Group wrap="nowrap" justify="space-between" w="35%" miw="370px">
+            <Group wrap="nowrap" justify="space-between" w="35%" miw="370px" className={adminClasses.reviewStatusRail}>
               <Box w="10em">
                 {hasDivisions && participation.status !== ParticipationStatus.Rejected && (
                   <Group gap={0} wrap="nowrap">
@@ -373,16 +374,21 @@ const GameTeamReview: FC = () => {
         </Group>
       }
     >
-      <ScrollArea type="never" pos="relative" h="calc(100vh - 250px)">
+      <ScrollArea type="never" pos="relative" h="calc(100vh - 250px)" className={adminClasses.noticeList}>
         {participations && participations.length === 0 ? (
-          <Center h="calc(100vh - 200px)">
+          <Center h="calc(100vh - 200px)" className={adminClasses.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('admin.content.games.review.empty.title')}</Title>
               <Text>{t('admin.content.games.review.empty.description')}</Text>
             </Stack>
           </Center>
         ) : (
-          <Accordion variant="contained" chevronPosition="left" classNames={classes} className={classes.root}>
+          <Accordion
+            variant="contained"
+            chevronPosition="left"
+            classNames={classes}
+            className={cx(classes.root, adminClasses.reviewAccordion)}
+          >
             {pagedParticipations?.map((participation) => (
               <ParticipationItem
                 key={participation.id}

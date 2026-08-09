@@ -8,6 +8,7 @@ import { useParams } from 'react-router'
 import { showErrorMsg } from '@Utils/Shared'
 import { useEditChallenge } from '@Hooks/useEdit'
 import api, { FileType, FlagCreateModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export const AttachmentRemoteEditModal: FC<ModalProps> = (props) => {
@@ -62,7 +63,7 @@ export const AttachmentRemoteEditModal: FC<ModalProps> = (props) => {
 
   return (
     <Modal {...props}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Text>
           {t('admin.content.games.challenges.attachment.instruction.remote.content')}
           <br />

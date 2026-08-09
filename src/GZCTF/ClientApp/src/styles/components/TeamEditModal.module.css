@@ -1,14 +1,62 @@
 .teamMember {
   transition: background-color 0.2s;
   cursor: pointer;
-  border-radius: var(--mantine-radius-md);
+  border: 1px solid var(--ht-color-border);
+  border-radius: var(--ht-radius-sm);
 
   &:hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    background-color: color-mix(in srgb, var(--ht-color-primary) 8%, var(--ht-color-surface));
   }
 }
 
 .captainGroup {
-  border-radius: var(--mantine-radius-md);
-  background-color: light-dark(var(--mantine-color-yellow-0), var(--mantine-color-dark-6));
+  border: 1px solid var(--ht-color-border);
+  border-left: 5px solid var(--ht-color-yellow);
+  border-radius: var(--ht-radius-sm);
+  background-color: color-mix(in srgb, var(--ht-color-yellow) 10%, var(--ht-color-surface));
+}
+
+.modalStack {
+  gap: var(--mantine-spacing-md);
+
+  &[data-role='captain'] {
+    --team-accent: var(--ht-color-yellow);
+  }
+
+  &[data-role='member'] {
+    --team-accent: var(--ht-color-primary);
+  }
+}
+
+.identitySection {
+  padding: var(--mantine-spacing-sm);
+  background: var(--ht-color-bg);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-top: 6px solid var(--team-accent);
+}
+
+.teamAvatar {
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-xs);
+}
+
+.modalStack[data-role='captain'] .teamAvatar {
+  cursor: pointer;
+}
+
+.sectionTitle {
+  padding-bottom: var(--mantine-spacing-xs);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+  font-family: var(--ht-font-display);
+}
+
+.memberList {
+  padding: var(--mantine-spacing-xs);
+  background: var(--ht-color-bg);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.actions {
+  padding-top: var(--mantine-spacing-md);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
 }

@@ -26,6 +26,7 @@ import { useParams } from 'react-router'
 import { showErrorMsg } from '@Utils/Shared'
 import { useEditChallenge } from '@Hooks/useEdit'
 import api, { FileType } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import uploadClasses from '@Styles/Upload.module.css'
 
 export const AttachmentUploadModal: FC<ModalProps> = (props) => {
@@ -101,7 +102,7 @@ export const AttachmentUploadModal: FC<ModalProps> = (props) => {
 
   return (
     <Modal {...props}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Text size="sm">
           {t('admin.content.games.challenges.attachment.instruction.dynamic.content')}
           <br />
@@ -114,7 +115,7 @@ export const AttachmentUploadModal: FC<ModalProps> = (props) => {
           </Text>
           <br />
         </Text>
-        <ScrollArea offsetScrollbars h="40vh" pos="relative">
+        <ScrollArea offsetScrollbars h="40vh" pos="relative" className={adminClasses.uploadList}>
           {files.length === 0 ? (
             <>
               <Overlay opacity={0.3} color={colorScheme === 'dark' ? 'black' : 'white'} />
@@ -128,7 +129,7 @@ export const AttachmentUploadModal: FC<ModalProps> = (props) => {
           ) : (
             <Stack gap="xs">
               {files.map((file) => (
-                <Card key={file.name} p={4}>
+                <Card key={file.name} p={4} className={adminClasses.flagCard}>
                   <Group justify="space-between">
                     <Text lineClamp={1} ff="monospace">
                       {file.name}
@@ -142,7 +143,7 @@ export const AttachmentUploadModal: FC<ModalProps> = (props) => {
             </Stack>
           )}
         </ScrollArea>
-        <Group grow>
+        <Group grow className={adminClasses.modalActions}>
           <FileButton multiple onChange={setFiles}>
             {(props) => (
               <Button {...props} disabled={disabled}>

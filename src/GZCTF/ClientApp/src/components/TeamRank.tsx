@@ -22,6 +22,7 @@ import { useNavigate, useParams } from 'react-router'
 import { ErrorCodes } from '@Utils/Shared'
 import { useIsMobile } from '@Utils/ThemeOverride'
 import { useGameTeamInfo } from '@Hooks/useGame'
+import competition from '@Styles/Competition.module.css'
 import misc from '@Styles/Misc.module.css'
 
 export const TeamRank: FC<CardProps> = (props) => {
@@ -60,7 +61,7 @@ export const TeamRank: FC<CardProps> = (props) => {
   const rank = teamInfo?.rank
 
   const item = (label: string, value?: null | string | number) => (
-    <Stack gap={2}>
+    <Stack gap={2} className={competition.rankMetric}>
       <Skeleton visible={!rank}>
         <Text ff="monospace" fw="bold">
           {value ?? '0'}
@@ -73,9 +74,9 @@ export const TeamRank: FC<CardProps> = (props) => {
   )
 
   return (
-    <Card {...props} shadow="sm">
+    <Card {...props} shadow="sm" className={cx(competition.teamRank, props.className)}>
       <Stack gap="xs">
-        <Group gap="sm" wrap="nowrap">
+        <Group gap="sm" wrap="nowrap" className={competition.rankIdentity}>
           <Avatar alt="avatar" size={50} radius="md" src={rank?.avatar}>
             {rank?.name?.slice(0, 1) ?? 'T'}
           </Avatar>
@@ -92,13 +93,13 @@ export const TeamRank: FC<CardProps> = (props) => {
             </Stack>
           </Skeleton>
         </Group>
-        <Group grow ta="center">
+        <Group grow ta="center" className={competition.rankMetrics}>
           {item(t('game.label.score_table.rank_total'), rank?.rank || '-')}
           {division && item(t('game.label.score_table.rank_division'), rank?.divisionRank)}
           {item(t('game.label.score_table.score'), rank?.score)}
           {item(t('game.label.score_table.solved_count'), rank?.solvedCount)}
         </Group>
-        <Progress value={solved * 100} />
+        <Progress value={solved * 100} className={competition.rankProgress} />
         {!isMobile && (
           <PasswordInput
             value={teamInfo?.teamToken}
@@ -113,6 +114,7 @@ export const TeamRank: FC<CardProps> = (props) => {
                 icon: <Icon path={mdiCheck} size={1} />,
               })
             }}
+            className={competition.teamToken}
             classNames={{ innerInput: cx(misc.cCopy, misc.ffmono) }}
           />
         )}

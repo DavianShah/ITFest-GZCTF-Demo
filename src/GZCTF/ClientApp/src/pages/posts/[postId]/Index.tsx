@@ -25,6 +25,7 @@ import { usePageTitle } from '@Hooks/usePageTitle'
 import { useUserRole } from '@Hooks/useUser'
 import api, { Role } from '@Api'
 import classes from '@Styles/Banner.module.css'
+import experience from '@Styles/Experience.module.css'
 import misc from '@Styles/Misc.module.css'
 
 const Post: FC = () => {
@@ -79,7 +80,7 @@ const Post: FC = () => {
       <Container className={classes.content}>
         <Markdown source={post?.content ?? ''} />
         {post?.tags && post.tags.length > 0 && (
-          <Group justify="right">
+          <Group className={experience.tagGroup} justify="right">
             {post.tags.map((tag, idx) => (
               <Text key={idx} fw="bold" span c={theme.primaryColor}>
                 {`#${tag}`}
@@ -87,7 +88,7 @@ const Post: FC = () => {
             ))}
           </Group>
         )}
-        <Group gap={5} my="lg" justify="right">
+        <Group className={experience.articleMeta} gap={5} my="lg" justify="right">
           <Avatar alt="avatar" src={post?.authorAvatar} size="sm">
             {post?.authorName?.slice(0, 1) ?? 'A'}
           </Avatar>

@@ -578,7 +578,7 @@ export const HunamizeSize = (size: number) => {
 
 export const DEFAULT_LOADING_OVERLAY: OverlayProps = {
   backgroundOpacity: 0.5,
-  blur: 8,
+  blur: 0,
 }
 
 export const IMAGE_MIME_TYPES = ['image/png', 'image/gif', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic']
@@ -632,10 +632,7 @@ export const formatDurationSeconds = (seconds: number) => {
 
 export const parseDurationSeconds = (value: string): number | null => {
   const parts = value.trim().split(':').map(Number)
-  if (
-    (parts.length !== 2 && parts.length !== 3) ||
-    parts.some((part) => !Number.isInteger(part) || part < 0)
-  )
+  if ((parts.length !== 2 && parts.length !== 3) || parts.some((part) => !Number.isInteger(part) || part < 0))
     return null
 
   const [hours, minutes, seconds] = parts.length === 3 ? parts : [0, parts[0], parts[1]]

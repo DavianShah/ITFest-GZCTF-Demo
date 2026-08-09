@@ -2,6 +2,7 @@ import { ModalProps, Modal, Stack, Select, Button } from '@mantine/core'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Division, ParticipationEditModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface ParticipationDivisionEditModalProps extends ModalProps {
   participateId: number
@@ -44,7 +45,7 @@ export const ParticipationDivisionEditModal: FC<ParticipationDivisionEditModalPr
 
   return (
     <Modal {...modalProps}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Select
           label={t('game.content.join.division.label')}
           data={options}

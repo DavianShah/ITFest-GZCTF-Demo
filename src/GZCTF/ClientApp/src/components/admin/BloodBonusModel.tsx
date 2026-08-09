@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 import { BloodBonus } from '@Utils/Shared'
 import { OnceSWRConfig } from '@Hooks/useConfig'
 import api, { SubmissionType } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const toNumber = (value: string | number) => {
   if (typeof value === 'string') {
@@ -52,7 +53,7 @@ export const BloodBonusModel: FC<ModalProps> = (props) => {
 
   return (
     <Modal {...props}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Text>{t('admin.content.games.challenges.bonus.description')}</Text>
         <NumberInput
           label={t('admin.content.games.challenges.bonus.first_blood')}
@@ -90,7 +91,7 @@ export const BloodBonusModel: FC<ModalProps> = (props) => {
           value={thirdBloodBonus / 10}
           onChange={(value) => setThirdBloodBonus(Math.floor(toNumber(value) * 10))}
         />
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onUpdate}>
             {t('admin.button.save')}
           </Button>

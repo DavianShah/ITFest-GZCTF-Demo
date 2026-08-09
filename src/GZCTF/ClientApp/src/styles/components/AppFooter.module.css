@@ -16,5 +16,7 @@
     padding: var(--mantine-spacing-xl);
   }
 
-  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
+  background-color: var(--ht-color-surface);
+  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: 0 -8px 0 color-mix(in srgb, var(--ht-color-primary) 12%, transparent);
 }

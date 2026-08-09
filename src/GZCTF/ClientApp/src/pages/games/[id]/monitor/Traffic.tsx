@@ -28,6 +28,7 @@ import { useLanguage } from '@Utils/I18n'
 import { showErrorMsg } from '@Utils/Shared'
 import { HunamizeSize } from '@Utils/Shared'
 import api, { FileRecord } from '@Api'
+import monitor from '@Styles/Monitor.module.css'
 
 const SWROptions = {
   refreshInterval: 0,
@@ -145,17 +146,17 @@ const Traffic: FC = () => {
   return (
     <WithGameMonitor isLoading={!challengeTraffic}>
       {!challengeTraffic || challengeTraffic?.length === 0 ? (
-        <Center h="calc(100vh - 140px)">
+        <Center h="calc(100vh - 140px)" className={monitor.emptyState}>
           <Stack gap={0}>
             <Title order={2}>{t('game.content.no_traffic.title')}</Title>
             <Text>{t('game.content.no_traffic.comment')}</Text>
           </Stack>
         </Center>
       ) : (
-        <Paper shadow="md" p="md">
-          <Grid gap={0} h="calc(100vh - 142px)">
-            <Grid.Col span={3} style={innerStyle}>
-              <Group h={headerHeight} pb="3px" px="xs">
+        <Paper shadow="md" p="md" className={monitor.trafficSurface}>
+          <Grid gap={0} h="calc(100vh - 142px)" className={monitor.trafficGrid}>
+            <Grid.Col span={3} style={innerStyle} className={monitor.trafficColumn}>
+              <Group h={headerHeight} pb="3px" px="xs" className={monitor.trafficHeader}>
                 <Text size="md" fw="bold">
                   {t('common.label.challenge')}
                 </Text>
@@ -167,10 +168,11 @@ const Traffic: FC = () => {
                 selectedId={challengeId}
                 onSelect={setChallengeId}
                 h={scrollHeight}
+                className={monitor.trafficSelect}
               />
             </Grid.Col>
-            <Grid.Col span={3} style={innerStyle}>
-              <Group h={headerHeight} pb="3px" px="xs">
+            <Grid.Col span={3} style={innerStyle} className={monitor.trafficColumn}>
+              <Group h={headerHeight} pb="3px" px="xs" className={monitor.trafficHeader}>
                 <Text size="md" fw="bold">
                   {t('common.label.team')}
                 </Text>
@@ -182,20 +184,29 @@ const Traffic: FC = () => {
                 selectedId={participationId}
                 onSelect={setParticipationId}
                 h={scrollHeight}
+                className={monitor.trafficSelect}
               />
             </Grid.Col>
-            <Grid.Col span={6}>
-              <Group h={headerHeight} pb="3px" px="xs" justify="space-between" wrap="nowrap">
+            <Grid.Col span={6} className={monitor.trafficColumn}>
+              <Group
+                h={headerHeight}
+                pb="3px"
+                px="xs"
+                justify="space-between"
+                wrap="nowrap"
+                className={monitor.trafficHeader}
+              >
                 <Text size="md" fw="bold">
                   {t('game.label.traffic')}
                   <Text span px="md" fw="bold" size="sm" c="dimmed">
                     {HunamizeSize(totalFileSize ?? 0)}
                   </Text>
                 </Text>
-                <Group justify="right" gap="sm" wrap="nowrap">
+                <Group justify="right" gap="sm" wrap="nowrap" className={monitor.toolbarActions}>
                   <Tooltip label={t('game.button.delete.all_traffic')} position="left">
                     <ActionIcon
                       size="md"
+                      color="red"
                       onClick={() =>
                         modals.openConfirmModal({
                           title: t('game.button.delete.all_traffic'),
@@ -221,6 +232,7 @@ const Traffic: FC = () => {
                 itemComponentProps={{ onDownload, onDelete, disabled, t, locale }}
                 items={orderedFileRecords}
                 h={scrollHeight}
+                className={monitor.trafficSelect}
               />
             </Grid.Col>
           </Grid>

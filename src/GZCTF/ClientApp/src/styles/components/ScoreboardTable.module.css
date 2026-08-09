@@ -1,7 +1,47 @@
+.surface {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stack {
+  min-width: 0;
+}
+
+.toolbar {
+  align-items: end;
+  padding: var(--mantine-spacing-xs);
+  background: var(--ht-color-bg);
+  border: 1px solid var(--ht-color-border);
+}
+
+.searchInput {
+  min-width: 0;
+}
+
+.tableRegion {
+  min-width: 0;
+  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
+}
+
+.scroller,
+.mobileScroller {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.mobileScroller {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .table {
   table-layout: fixed;
   width: auto;
   min-width: 100%;
+  border-color: var(--ht-color-border-strong);
 
   & thead tr th,
   & tbody tr td {
@@ -13,16 +53,26 @@
 }
 
 .thead {
+  position: sticky;
+  top: 0;
   z-index: 5;
 }
 
 .left {
   position: sticky;
-  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  z-index: 2;
+  background-color: var(--ht-color-surface);
+  border-right: 1px solid var(--ht-color-border);
+}
+
+.thead .left {
+  z-index: 7;
+  background-color: var(--ht-color-surface-raised);
 }
 
 .header {
-  font-weight: bold;
+  font-weight: 750;
+  letter-spacing: 0.025em;
 }
 
 .mono {
@@ -37,13 +87,13 @@
 }
 
 .legend {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 12px;
-  padding-left: 0;
-  float: left;
-  z-index: 20;
+  position: relative;
+  padding: var(--mantine-spacing-sm) 0;
+  z-index: 1;
+}
+
+.legendItems {
+  flex-wrap: wrap;
 }
 
 .text {
@@ -58,6 +108,39 @@
   }
 }
 
+.teamTrigger,
+.mobileTeamTrigger {
+  border: 1px solid transparent;
+  border-radius: var(--ht-radius-sm);
+
+  &:focus-visible {
+    border-color: var(--ht-color-primary);
+  }
+}
+
+.teamTrigger {
+  padding: 2px;
+
+  @mixin hover {
+    background: color-mix(in srgb, var(--ht-color-primary) 10%, transparent);
+    border-color: var(--ht-color-border);
+  }
+}
+
+.mobileTeamTrigger {
+  cursor: pointer;
+}
+
+.row {
+  transition: background-color var(--ht-motion-fast) var(--ht-ease-out);
+}
+
+.paginationBar {
+  gap: var(--mantine-spacing-md);
+  padding-top: var(--mantine-spacing-sm);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
+}
+
 .wrapper {
   width: 100%;
   height: var(--mantine-line-height-sm);
@@ -68,4 +151,19 @@
   font-weight: 600;
   line-height: var(--mantine-line-height-sm);
   height: var(--mantine-line-height-sm);
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .toolbar {
+    padding: var(--mantine-spacing-xs) 0;
+  }
+
+  .tableRegion {
+    min-height: 0;
+  }
+
+  .paginationBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

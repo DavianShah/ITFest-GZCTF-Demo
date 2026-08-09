@@ -13,6 +13,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { useEditChallenges } from '@Hooks/useEdit'
 import { useAdminDivisions } from '@Hooks/useGame'
 import api, { Division } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import classes from '@Styles/Divisions.module.css'
 
 const GameDivisionManagement: FC = () => {
@@ -114,9 +115,9 @@ const GameDivisionManagement: FC = () => {
         </Button>
       }
     >
-      <ScrollArea h="calc(100vh - 180px)" offsetScrollbars type="auto">
+      <ScrollArea h="calc(100vh - 180px)" offsetScrollbars type="auto" className={adminClasses.noticeList}>
         {sortedDivisions.length === 0 ? (
-          <Center h="calc(100vh - 200px)">
+          <Center h="calc(100vh - 200px)" className={adminClasses.emptyState}>
             <Stack gap={0}>
               <Title order={2}>{t('admin.content.games.divisions.empty.title')}</Title>
               <Text>{t('admin.content.games.divisions.empty.description')}</Text>
@@ -135,7 +136,7 @@ const GameDivisionManagement: FC = () => {
                 }}
                 onDelete={handleDeleteDivision}
                 onCopyInviteCode={handleCopyInviteCode}
-                className={classes.masonryItem}
+                className={`${classes.masonryItem} ${adminClasses.divisionCard}`}
               />
             ))}
           </Box>

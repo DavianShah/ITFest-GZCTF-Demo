@@ -6,6 +6,7 @@ import { FC } from 'react'
 import { InlineMarkdown } from '@Components/MarkdownRenderer'
 import { useLanguage } from '@Utils/I18n'
 import { GameNotice } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface GameNoticeEditCardProps extends CardProps {
   gameNotice: GameNotice
@@ -17,7 +18,7 @@ export const GameNoticeEditCard: FC<GameNoticeEditCardProps> = ({ gameNotice, on
   const { locale } = useLanguage()
 
   return (
-    <Card {...props} shadow="sm" p="sm">
+    <Card {...props} shadow="sm" p="sm" className={adminClasses.noticeCard}>
       <Group justify="space-between" wrap="nowrap">
         <Stack gap={1}>
           <InlineMarkdown source={gameNotice.values.at(-1) || ''} />
@@ -25,7 +26,7 @@ export const GameNoticeEditCard: FC<GameNoticeEditCardProps> = ({ gameNotice, on
             {dayjs(gameNotice.time).locale(locale).format('#SLL LTS')}
           </Text>
         </Stack>
-        <Group justify="right" wrap="nowrap">
+        <Group justify="right" wrap="nowrap" className={adminClasses.rowActions}>
           <ActionIcon onClick={onEdit}>
             <Icon path={mdiPencilOutline} size={1} />
           </ActionIcon>

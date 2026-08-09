@@ -35,6 +35,7 @@ import { showErrorMsg } from '@Utils/Shared'
 import { useArrayResponse } from '@Hooks/useArrayResponse'
 import { getGameStatus } from '@Hooks/useGame'
 import api, { GameInfoModel } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 import tableClasses from '@Styles/Table.module.css'
 import uploadClasses from '@Styles/Upload.module.css'
@@ -140,7 +141,7 @@ const Games: FC = () => {
       headProps={{ justify: 'apart' }}
       head={
         <>
-          <Group gap="md" wrap="nowrap">
+          <Group gap="md" wrap="nowrap" className={adminClasses.toolbarActions}>
             <Button leftSection={<Icon path={mdiPlus} size={1} />} onClick={() => setCreateOpened(true)}>
               {t('admin.button.games.new')}
             </Button>
@@ -169,8 +170,8 @@ const Games: FC = () => {
               )}
             </FileButton>
           </Group>
-          <Group w="calc(100% - 9rem)" justify="right">
-            <Text fw="bold" size="sm">
+          <Group w="calc(100% - 9rem)" justify="right" className={adminClasses.toolbarGroup}>
+            <Text fw="bold" size="sm" className={adminClasses.stats}>
               <Trans
                 i18nKey="admin.content.games.stats"
                 values={{
@@ -194,9 +195,9 @@ const Games: FC = () => {
         </>
       }
     >
-      <Paper shadow="md" p="md" w="100%">
-        <ScrollArea offsetScrollbars h="calc(100vh - 190px)">
-          <Table className={tableClasses.table}>
+      <Paper shadow="md" p="md" w="100%" className={adminClasses.ledgerSurface}>
+        <ScrollArea offsetScrollbars h="calc(100vh - 190px)" className={adminClasses.ledgerViewport}>
+          <Table className={`${tableClasses.table} ${adminClasses.ledger}`}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th miw="1.8rem">{t('admin.label.games.hide')}</Table.Th>
@@ -223,7 +224,7 @@ const Games: FC = () => {
                             wrap="nowrap"
                             justify="left"
                             onClick={() => navigate(`/games/${game.id}`)}
-                            className={misc.cPointer}
+                            className={`${misc.cPointer} ${adminClasses.identity}`}
                           >
                             <Avatar alt="avatar" src={game.poster} radius={0}>
                               {game.title?.slice(0, 1)}
@@ -236,7 +237,7 @@ const Games: FC = () => {
                         </Group>
                       </Table.Td>
                       <Table.Td>
-                        <Group wrap="nowrap" gap="xs">
+                        <Group wrap="nowrap" gap="xs" className={adminClasses.technicalGroup}>
                           <Badge size="sm" color={color} variant="dot">
                             {dayjs(startTime).format('YYYY-MM-DD HH:mm')}
                           </Badge>
@@ -252,7 +253,7 @@ const Games: FC = () => {
                         </Text>
                       </Table.Td>
                       <Table.Td>
-                        <Group justify="right">
+                        <Group justify="right" className={adminClasses.rowActions}>
                           <ActionIcon component={Link} to={`/admin/games/${game.id}/info`}>
                             <Icon path={mdiPencilOutline} size={1} />
                           </ActionIcon>

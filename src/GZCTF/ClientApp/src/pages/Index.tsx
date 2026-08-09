@@ -4,6 +4,7 @@ import { mdiFlagCheckered } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Empty } from '@Components/Empty'
 import { PostCard } from '@Components/PostCard'
 import { RecentGame } from '@Components/RecentGame'
 import { WithNavBar } from '@Components/WithNavbar'
@@ -14,6 +15,7 @@ import { useIsMobile } from '@Utils/ThemeOverride'
 import { useRecentGames } from '@Hooks/useGame'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import api, { PostInfoModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 import classes from '@Styles/Index.module.css'
 
 const Home: FC = () => {
@@ -63,18 +65,19 @@ const Home: FC = () => {
 
   return (
     <WithNavBar minWidth={0} withFooter withHeader stickyHeader>
-      <Stack justify="flex-start">
+      <Stack className={`${experience.page} ${experience.pageStack}`} justify="flex-start">
         {isMobile && showGames && showGames.length > 0 && <RecentGameCarousel games={showGames} />}
         <Stack align="center">
           <Group wrap="nowrap" gap={4} justify="space-between" align="flex-start" w="100%">
-            <Stack className={classes.posts}>
+            <Stack className={`${classes.posts} ${experience.list}`}>
+              {posts && posts.length === 0 && <Empty bordered />}
               {isMobile
                 ? posts?.map((post) => <MobilePostCard key={post.id} post={post} onTogglePinned={onTogglePinned} />)
                 : posts?.map((post) => <PostCard key={post.id} post={post} onTogglePinned={onTogglePinned} />)}
             </Stack>
             {!isMobile && (
               <nav className={classes.wrapper}>
-                <div className={classes.inner}>
+                <div className={`${classes.inner} ${experience.section}`}>
                   <Stack>
                     <Group wrap="nowrap">
                       <Icon path={mdiFlagCheckered} size={1.5} color={theme.colors[theme.primaryColor][4]} />

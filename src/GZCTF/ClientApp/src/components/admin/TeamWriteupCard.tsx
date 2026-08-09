@@ -12,12 +12,14 @@ import {
 } from '@mantine/core'
 import { mdiDownload } from '@mdi/js'
 import { Icon } from '@mdi/react'
+import cx from 'clsx'
 import dayjs from 'dayjs'
 import { FC } from 'react'
 import { Link } from 'react-router'
 import { ScrollingText } from '@Components/ScrollingText'
 import { useLanguage } from '@Utils/I18n'
 import { WriteupInfo } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import misc from '@Styles/Misc.module.css'
 
 interface TeamWriteupCardProps extends CardProps {
@@ -38,7 +40,11 @@ export const TeamWriteupCard: FC<TeamWriteupCardProps> = ({ writeup, selected, d
       {...props}
       p="sm"
       shadow="sm"
-      classNames={{ root: misc.hoverCard }}
+      classNames={{
+        root: cx(misc.hoverCard, adminClasses.writeupCard, {
+          [adminClasses.selectedWriteup]: selected,
+        }),
+      }}
       bd={`2px solid ${borderColor}`}
       data-no-move
     >

@@ -9,6 +9,7 @@ import { ScoreTimeLine } from '@Components/charts/ScoreTimeLine'
 import { MobileScoreboardTable } from '@Components/mobile/ScoreboardTable'
 import { useIsMobile } from '@Utils/ThemeOverride'
 import { useGameTeamInfo } from '@Hooks/useGame'
+import competition from '@Styles/Competition.module.css'
 
 const Scoreboard: FC = () => {
   const { id } = useParams()
@@ -22,7 +23,7 @@ const Scoreboard: FC = () => {
   return (
     <WithNavBar width="90%" minWidth={0}>
       {isMobile ? (
-        <Stack pt="md">
+        <Stack pt="md" className={competition.scoreboardStack}>
           {teamInfo && !error && <TeamRank />}
           {isVertical ? (
             <MobileScoreboardTable divisionId={divisionId} setDivisionId={setDivisionId} />
@@ -32,8 +33,10 @@ const Scoreboard: FC = () => {
         </Stack>
       ) : (
         <WithGameTab>
-          <Stack pb="2rem">
-            <ScoreTimeLine divisionId={divisionId} />
+          <Stack pb="2rem" className={competition.scoreboardStack}>
+            <div className={competition.timelineSurface}>
+              <ScoreTimeLine divisionId={divisionId} />
+            </div>
             <ScoreboardTable divisionId={divisionId} setDivisionId={setDivisionId} />
           </Stack>
         </WithGameTab>

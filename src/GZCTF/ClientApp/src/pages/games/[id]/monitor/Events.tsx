@@ -41,6 +41,7 @@ import { useLanguage } from '@Utils/I18n'
 import { useDisplayInputStyles } from '@Utils/ThemeOverride'
 import { useGame } from '@Hooks/useGame'
 import api, { AnswerResult, EventType, GameEvent } from '@Api'
+import monitor from '@Styles/Monitor.module.css'
 import tableClasses from '@Styles/Table.module.css'
 
 const ITEM_COUNT_PER_PAGE = 30
@@ -227,7 +228,7 @@ const Events: FC = () => {
 
   return (
     <WithGameMonitor isLoading={!events}>
-      <Group justify="space-between" w="100%">
+      <Group justify="space-between" w="100%" className={monitor.toolbar}>
         <Switch
           label={SwitchLabel(
             t('game.content.hide_container_events.label'),
@@ -236,7 +237,7 @@ const Events: FC = () => {
           checked={hideContainerEvents}
           onChange={(e) => setHideContainerEvents(e.currentTarget.checked)}
         />
-        <Group justify="right">
+        <Group justify="right" className={monitor.toolbarActions}>
           <ActionIcon size="lg" disabled={activePage <= 1} onClick={() => setPage(1)}>
             <Icon path={mdiReplay} size={1} />
           </ActionIcon>
@@ -252,18 +253,20 @@ const Events: FC = () => {
           </ActionIcon>
         </Group>
       </Group>
-      <ScrollArea viewportRef={viewport} offsetScrollbars h="calc(100vh - 160px)">
-        <Stack gap="xs" pr={10} w="100%">
+      <ScrollArea viewportRef={viewport} offsetScrollbars h="calc(100vh - 160px)" className={monitor.eventViewport}>
+        <Stack gap="xs" pr={10} w="100%" className={monitor.eventList}>
           {[...(activePage === 1 ? filteredEvents : []), ...(events ?? [])]?.map((event, i) => (
             <Card
               shadow="sm"
               p="xs"
               key={`${event.time}@${i}`}
-              className={cx({ [tableClasses.fade]: i === 0 && activePage === 1 && filteredEvents.length > 0 })}
+              className={cx(monitor.eventRow, {
+                [tableClasses.fade]: i === 0 && activePage === 1 && filteredEvents.length > 0,
+              })}
             >
               <Group wrap="nowrap" align="flex-start" justify="right" gap="sm" w="100%">
                 <Icon {...iconMap.get(event.type)!} />
-                <Stack gap={2} w="100%">
+                <Stack gap={2} w="100%" className={monitor.eventMessage}>
                   <Input
                     variant="unstyled"
                     value={formatEvent(t, event)}
@@ -271,12 +274,12 @@ const Events: FC = () => {
                     size="md"
                     classNames={inputClasses}
                   />
-                  <Group wrap="nowrap" justify="space-between">
+                  <Group wrap="nowrap" justify="space-between" className={monitor.eventMeta}>
                     <Group gap="sm" wrap="nowrap">
                       <IconBadge path={mdiAccountOutline} content={event.user} />
                       <IconBadge path={mdiAccountGroupOutline} content={event.team} />
                     </Group>
-                    <Text size="xs" fw={500} c="dimmed">
+                    <Text size="xs" fw={500} c="dimmed" className={monitor.technical}>
                       {dayjs(event.time).locale(locale).format('SL LTS')}
                     </Text>
                   </Group>

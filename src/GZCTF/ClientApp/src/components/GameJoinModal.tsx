@@ -9,6 +9,7 @@ import { OnceSWRConfig } from '@Hooks/useConfig'
 import { useGame } from '@Hooks/useGame'
 import { useTeams } from '@Hooks/useUser'
 import api, { GameJoinModel } from '@Api'
+import experience from '@Styles/Experience.module.css'
 
 interface GameJoinModalProps extends ModalProps {
   onSubmitJoin: (info: GameJoinModel) => Promise<void>
@@ -144,7 +145,7 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
 
   return (
     <Modal {...modalProps}>
-      <Stack>
+      <Stack className={experience.modalStack}>
         <Select
           required
           label={t('game.content.join.team.label')}
@@ -184,6 +185,7 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
         )}
         {shouldRequireInviteCode && (
           <TextInput
+            classNames={{ input: experience.technicalInput }}
             required
             label={t('game.content.join.invite_code.label')}
             description={t('game.content.join.invite_code.description')}

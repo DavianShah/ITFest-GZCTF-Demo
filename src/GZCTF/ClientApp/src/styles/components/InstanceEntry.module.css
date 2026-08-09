@@ -1,3 +1,74 @@
 .icon[data-proxied] {
   color: light-dark(var(--mantine-color-green-5), var(--mantine-color-green-7));
 }
+
+.root,
+.emptyState {
+  min-width: 0;
+  padding: var(--mantine-spacing-sm);
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-xs);
+}
+
+.emptyCopy {
+  min-width: 0;
+}
+
+.createButton {
+  flex-shrink: 0;
+}
+
+.entryField,
+.entryInput {
+  min-width: 0;
+}
+
+.entryInput,
+.countdown {
+  font-family: var(--ht-font-technical);
+}
+
+.entryInput {
+  letter-spacing: -0.02em;
+}
+
+.entryActions {
+  flex-wrap: nowrap;
+}
+
+.lifecycle {
+  padding-top: var(--mantine-spacing-sm);
+  border-top: 1px solid var(--ht-color-border);
+}
+
+.lifecycleActions {
+  flex-shrink: 0;
+}
+
+.countdown {
+  margin-left: 0.4em;
+  color: var(--ht-color-primary);
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .emptyState,
+  .lifecycle {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .createButton {
+    width: 100%;
+  }
+
+  .lifecycleActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+
+    & > * {
+      width: 100%;
+    }
+  }
+}

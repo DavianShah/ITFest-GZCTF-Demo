@@ -8,9 +8,13 @@
 }
 
 .container {
-  height: calc(100vh - 16px);
+  min-height: calc(100vh - 16px);
   gap: var(--mantine-spacing-xl);
   padding: var(--mantine-spacing-xl);
+  background:
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 18%, transparent) 1px, transparent 1px);
+  background-size: 36px 36px;
 
   .scrollContainer {
     position: relative;
@@ -62,6 +66,12 @@
   }
 
   .contentStack {
+    width: min(100%, 44rem);
+    padding: var(--mantine-spacing-lg);
+    background: var(--ht-color-surface);
+    border: var(--ht-border-width) solid var(--ht-color-border);
+    box-shadow: var(--ht-shadow-sm);
+
     min-width: 100%;
     max-width: 100%;
   }
@@ -104,6 +114,29 @@
     display: block;
     margin-top: var(--mantine-spacing-xs);
   }
+}
+
+.mainIcon {
+  filter: drop-shadow(5px 5px 0 color-mix(in srgb, var(--ht-color-primary) 28%, transparent));
+}
+
+.mainTitle {
+  color: var(--ht-color-text);
+}
+
+.slogan {
+  color: var(--ht-color-text-muted);
+  font-family: var(--ht-font-technical);
+}
+
+.resourceLink,
+.contributorLink,
+.licenseLink {
+  font-family: var(--ht-font-technical);
+}
+
+.versionBadge {
+  border: 1px solid var(--ht-color-border-strong);
 }
 
 @keyframes blink {

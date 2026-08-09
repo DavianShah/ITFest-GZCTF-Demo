@@ -22,6 +22,7 @@ import { handleAxiosError } from '@Utils/ApiHelper'
 import { useLanguage } from '@Utils/I18n'
 import { TaskStatusColorMap } from '@Utils/Shared'
 import api, { LogMessageModel, TaskStatus } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 import tableClasses from '@Styles/Table.module.css'
 
 const ITEM_COUNT_PER_PAGE = 50
@@ -173,11 +174,11 @@ const Logs: FC = () => {
               label: role[0],
             }))}
           />
-          <Group justify="right">
+          <Group justify="right" className={adminClasses.toolbarActions}>
             <ActionIcon size="lg" disabled={activePage <= 1} onClick={() => setPage(activePage - 1)}>
               <Icon path={mdiArrowLeftBold} size={1} />
             </ActionIcon>
-            <Text fw="bold" size="sm">
+            <Text fw="bold" size="sm" className={adminClasses.stats}>
               {activePage}
             </Text>
             <ActionIcon
@@ -191,9 +192,15 @@ const Logs: FC = () => {
         </>
       }
     >
-      <Paper shadow="md" p="md" w="100%">
-        <ScrollArea viewportRef={viewport} offsetScrollbars scrollbarSize={4} h="calc(100vh - 190px)">
-          <Table className={cx(tableClasses.table, tableClasses.fixed)}>
+      <Paper shadow="md" p="md" w="100%" className={adminClasses.ledgerSurface}>
+        <ScrollArea
+          viewportRef={viewport}
+          offsetScrollbars
+          scrollbarSize={4}
+          h="calc(100vh - 190px)"
+          className={adminClasses.ledgerViewport}
+        >
+          <Table className={cx(tableClasses.table, tableClasses.fixed, adminClasses.ledger)}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th w="7rem">{t('common.label.time')}</Table.Th>

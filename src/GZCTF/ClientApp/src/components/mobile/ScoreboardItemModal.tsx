@@ -70,7 +70,12 @@ export const MobileScoreboardItemModal: FC<ScoreboardItemModalProps> = React.mem
   return (
     <Modal
       {...modalProps}
-      classNames={{ header: modalClasses.header, title: modalClasses.titleBar }}
+      classNames={{
+        content: modalClasses.content,
+        header: modalClasses.header,
+        title: modalClasses.titleBar,
+        body: modalClasses.body,
+      }}
       title={
         <Group justify="left" gap="md" wrap="nowrap" w="100%" className={modalClasses.titleGroup}>
           <Avatar alt="avatar" src={item?.avatar} size={50} radius="md" className={modalClasses.avatar}>
@@ -99,47 +104,47 @@ export const MobileScoreboardItemModal: FC<ScoreboardItemModalProps> = React.mem
         </Group>
       }
     >
-      <Stack align="center" gap="xs">
-        <Stack w="60%" miw="20rem">
-          <Center h="14rem">
+      <Stack align="center" gap="xs" className={modalClasses.modalStack}>
+        <Stack className={modalClasses.overview}>
+          <Center h="14rem" className={modalClasses.charts}>
             <LoadingOverlay visible={!indicator || !values} />
             {item && indicator && values && (
               <TeamRadarMap indicator={indicator} value={values} name={item?.name ?? ''} />
             )}
           </Center>
-          <Group grow ta="center">
-            <Stack gap={1}>
+          <Group grow ta="center" className={modalClasses.metrics}>
+            <Stack gap={1} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.rank || '-'}
               </Text>
               <Text size="xs">{t('game.label.score_table.rank_total')}</Text>
             </Stack>
             {item?.divisionId && (
-              <Stack gap={1}>
+              <Stack gap={1} className={modalClasses.metric}>
                 <Text fw="bold" size="sm" ff="monospace">
                   {item?.divisionRank || '-'}
                 </Text>
                 <Text size="xs">{t('game.label.score_table.rank_division')}</Text>
               </Stack>
             )}
-            <Stack gap={1}>
+            <Stack gap={1} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.score}
               </Text>
               <Text size="xs">{t('game.label.score_table.score')}</Text>
             </Stack>
-            <Stack gap={1}>
+            <Stack gap={1} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.solvedCount}
               </Text>
               <Text size="xs">{t('game.label.score_table.solved_count')}</Text>
             </Stack>
           </Group>
-          <Progress value={solved * 100} size="sm" />
+          <Progress value={solved * 100} size="sm" className={modalClasses.progress} />
         </Stack>
         {item?.solvedCount && item?.solvedCount > 0 ? (
-          <ScrollArea scrollbarSize={6} h="12rem" w="100%">
-            <Table className={tableClasses.table} fz="sm">
+          <ScrollArea scrollbarSize={6} h="12rem" w="100%" className={modalClasses.history}>
+            <Table className={`${tableClasses.table} ${modalClasses.historyTable}`} fz="sm">
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>{t('common.label.challenge')}</Table.Th>
@@ -166,7 +171,7 @@ export const MobileScoreboardItemModal: FC<ScoreboardItemModalProps> = React.mem
             </Table>
           </ScrollArea>
         ) : (
-          <Text py="1rem" fw="bold">
+          <Text py="1rem" fw="bold" className={modalClasses.emptyHistory}>
             {t('game.placeholder.no_solved')}
           </Text>
         )}

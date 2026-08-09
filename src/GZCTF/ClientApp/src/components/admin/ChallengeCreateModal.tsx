@@ -15,6 +15,7 @@ import {
   useChallengeTypeLabelMap,
 } from '@Utils/Shared'
 import api, { ChallengeInfoModel, ChallengeCategory, ChallengeType } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface ChallengeCreateModalProps extends ModalProps {
   onAddChallenge: (game: ChallengeInfoModel) => void
@@ -62,7 +63,7 @@ export const ChallengeCreateModal: FC<ChallengeCreateModalProps> = (props) => {
 
   return (
     <Modal {...modalProps}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <TextInput
           label={t('admin.content.games.challenges.title')}
           type="text"
@@ -96,9 +97,11 @@ export const ChallengeCreateModal: FC<ChallengeCreateModalProps> = (props) => {
             return { value: type[1], label: data?.name, ...data } as ComboboxItem
           })}
         />
-        <Button fullWidth disabled={disabled} onClick={onCreate}>
-          {t('admin.button.challenges.new')}
-        </Button>
+        <Stack className={adminClasses.modalActions}>
+          <Button fullWidth disabled={disabled} onClick={onCreate}>
+            {t('admin.button.challenges.new')}
+          </Button>
+        </Stack>
       </Stack>
     </Modal>
   )

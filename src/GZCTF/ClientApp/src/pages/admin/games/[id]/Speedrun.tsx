@@ -17,9 +17,10 @@ import { notifications } from '@mantine/notifications'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
-import api, { GameMode, SpeedrunSettingsModel, SpeedrunRoundStatus } from '@Api'
 import { handleAxiosError } from '@Utils/ApiHelper'
 import { formatDurationSeconds, getInputNumber, parseDurationSeconds } from '@Utils/Shared'
+import api, { GameMode, SpeedrunSettingsModel, SpeedrunRoundStatus } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 const Speedrun: FC = () => {
   const { id } = useParams()
@@ -32,15 +33,10 @@ const Speedrun: FC = () => {
   const [busy, setBusy] = useState(false)
 
   const refresh = useCallback(async () => {
-    const [game, speedrun] = await Promise.all([
-      api.edit.editGetGame(gameId),
-      api.edit.editGetSpeedrunSettings(gameId),
-    ])
+    const [game, speedrun] = await Promise.all([api.edit.editGetGame(gameId), api.edit.editGetSpeedrunSettings(gameId)])
     setMode(game.data.mode)
     setSettings((current) =>
-      current
-        ? { ...current, state: speedrun.data.state, categories: speedrun.data.categories }
-        : speedrun.data
+      current ? { ...current, state: speedrun.data.state, categories: speedrun.data.categories } : speedrun.data
     )
   }, [gameId])
 
@@ -88,32 +84,55 @@ const Speedrun: FC = () => {
   return (
     <WithGameEditTab isLoading={!settings}>
       {mode !== GameMode.Speedrun ? (
-        <Alert color="yellow" title="Speedrun mode is disabled">
+        <Alert color="yellow" title="Speedrun mode is disabled" className={adminClasses.intro}>
           Enable Speedrun mode in Information settings first.
         </Alert>
       ) : (
-        <Stack>
-          <Alert color="blue" title="Normal scoreboard and blood scoring remain active">
+        <Stack className={adminClasses.controlStack}>
+          <Alert color="blue" title="Normal scoreboard and blood scoring remain active" className={adminClasses.intro}>
             Speedrun uses the normal Jeopardy scoreboard and blood scoring. This mode only controls category visibility,
             round timing, and overtime.
           </Alert>
-          <Card withBorder>
+          <Card withBorder className={`${adminClasses.controlCard} ${adminClasses.roundPanel}`}>
             <Stack>
-              <Group justify="space-between">
+              <Group justify="space-between" className={adminClasses.controlHeader}>
                 <Title order={3}>Current round</Title>
                 <Badge color={round?.status === SpeedrunRoundStatus.Overtime ? 'red' : 'blue'}>
                   {round?.status ?? 'Waiting'}
                 </Badge>
               </Group>
-              <Text size="xl" fw={700}>{round?.category ?? 'Waiting for next spin'}</Text>
-              <Text>
-                {activeRound ? `Time left: ${timeLeft > 0 ? formatDurationSeconds(timeLeft) : 'Ending...'}` : 'No active countdown.'}
+              <Text size="xl" fw={700}>
+                {round?.category ?? 'Waiting for next spin'}
               </Text>
-              <Group>
-                <Button disabled={busy || !!round} onClick={() => run(() => api.edit.editSpinSpeedrun(gameId))}>Spin wheel</Button>
-                <Button disabled={busy || round?.status !== SpeedrunRoundStatus.Ready} onClick={() => run(() => api.edit.editStartSpeedrunRound(gameId, round!.id!))}>Start selected round</Button>
-                <Button color="red" disabled={busy || !round} onClick={() => run(() => api.edit.editEndSpeedrunRound(gameId, round!.id!))}>End round</Button>
-                <Button variant="light" disabled={busy || !activeRound} onClick={() => run(() => api.edit.editExtendSpeedrunRound(gameId, round!.id!, 300))}>Extend +5</Button>
+              <Text className={adminClasses.timerReadout}>
+                {activeRound
+                  ? `Time left: ${timeLeft > 0 ? formatDurationSeconds(timeLeft) : 'Ending...'}`
+                  : 'No active countdown.'}
+              </Text>
+              <Group className={adminClasses.controlActions}>
+                <Button disabled={busy || !!round} onClick={() => run(() => api.edit.editSpinSpeedrun(gameId))}>
+                  Spin wheel
+                </Button>
+                <Button
+                  disabled={busy || round?.status !== SpeedrunRoundStatus.Ready}
+                  onClick={() => run(() => api.edit.editStartSpeedrunRound(gameId, round!.id!))}
+                >
+                  Start selected round
+                </Button>
+                <Button
+                  color="red"
+                  disabled={busy || !round}
+                  onClick={() => run(() => api.edit.editEndSpeedrunRound(gameId, round!.id!))}
+                >
+                  End round
+                </Button>
+                <Button
+                  variant="light"
+                  disabled={busy || !activeRound}
+                  onClick={() => run(() => api.edit.editExtendSpeedrunRound(gameId, round!.id!, 300))}
+                >
+                  Extend +5
+                </Button>
                 <TextInput
                   w={120}
                   aria-label="Custom extend time"
@@ -124,7 +143,9 @@ const Speedrun: FC = () => {
                 <Button
                   variant="light"
                   disabled={busy || !activeRound || !parseDurationSeconds(extendTime)}
-                  onClick={() => run(() => api.edit.editExtendSpeedrunRound(gameId, round!.id!, parseDurationSeconds(extendTime)!))}
+                  onClick={() =>
+                    run(() => api.edit.editExtendSpeedrunRound(gameId, round!.id!, parseDurationSeconds(extendTime)!))
+                  }
                 >
                   Extend
                 </Button>
@@ -140,7 +161,11 @@ const Speedrun: FC = () => {
                 <Button
                   mt={25}
                   disabled={busy || !activeRound || !parseDurationSeconds(remainingTime)}
-                  onClick={() => run(() => api.edit.editSetSpeedrunRoundTimer(gameId, round!.id!, parseDurationSeconds(remainingTime)!))}
+                  onClick={() =>
+                    run(() =>
+                      api.edit.editSetSpeedrunRoundTimer(gameId, round!.id!, parseDurationSeconds(remainingTime)!)
+                    )
+                  }
                 >
                   Set timer
                 </Button>
@@ -148,31 +173,37 @@ const Speedrun: FC = () => {
             </Stack>
           </Card>
 
-          <Card withBorder>
+          <Card withBorder className={adminClasses.controlCard}>
             <Stack>
-              <Title order={3}>Speedrun settings</Title>
+              <Title order={3} className={adminClasses.controlHeader}>
+                Speedrun settings
+              </Title>
               <SimpleGrid cols={2}>
                 <Group grow align="end">
                   <NumberInput
                     label="Default round minutes"
                     min={0}
                     value={Math.floor((settings?.defaultRoundDurationSeconds ?? 1800) / 60)}
-                    onChange={(value) => setSettings({
-                      ...settings,
-                      defaultRoundDurationSeconds:
-                        getInputNumber(value) * 60 + (settings?.defaultRoundDurationSeconds ?? 1800) % 60,
-                    })}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        defaultRoundDurationSeconds:
+                          getInputNumber(value) * 60 + ((settings?.defaultRoundDurationSeconds ?? 1800) % 60),
+                      })
+                    }
                   />
                   <NumberInput
                     label="Seconds"
                     min={0}
                     max={59}
                     value={(settings?.defaultRoundDurationSeconds ?? 1800) % 60}
-                    onChange={(value) => setSettings({
-                      ...settings,
-                      defaultRoundDurationSeconds:
-                        Math.floor((settings?.defaultRoundDurationSeconds ?? 1800) / 60) * 60 + getInputNumber(value),
-                    })}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        defaultRoundDurationSeconds:
+                          Math.floor((settings?.defaultRoundDurationSeconds ?? 1800) / 60) * 60 + getInputNumber(value),
+                      })
+                    }
                   />
                 </Group>
                 <Group grow align="end">
@@ -180,48 +211,79 @@ const Speedrun: FC = () => {
                     label="Overtime minutes"
                     min={0}
                     value={Math.floor((settings?.overtimeSeconds ?? 300) / 60)}
-                    onChange={(value) => setSettings({
-                      ...settings,
-                      overtimeSeconds: getInputNumber(value) * 60 + (settings?.overtimeSeconds ?? 300) % 60,
-                    })}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        overtimeSeconds: getInputNumber(value) * 60 + ((settings?.overtimeSeconds ?? 300) % 60),
+                      })
+                    }
                   />
                   <NumberInput
                     label="Seconds"
                     min={0}
                     max={59}
                     value={(settings?.overtimeSeconds ?? 300) % 60}
-                    onChange={(value) => setSettings({
-                      ...settings,
-                      overtimeSeconds:
-                        Math.floor((settings?.overtimeSeconds ?? 300) / 60) * 60 + getInputNumber(value),
-                    })}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        overtimeSeconds:
+                          Math.floor((settings?.overtimeSeconds ?? 300) / 60) * 60 + getInputNumber(value),
+                      })
+                    }
                   />
                 </Group>
-                <Switch label="Allow manual extension" checked={settings?.allowManualExtend ?? true} onChange={(event) => setSettings({ ...settings, allowManualExtend: event.currentTarget.checked })} />
-                <Switch label="Emergency overtime announcement" checked={settings?.emergencyHintEnabled ?? true} onChange={(event) => setSettings({ ...settings, emergencyHintEnabled: event.currentTarget.checked })} />
+                <Switch
+                  label="Allow manual extension"
+                  checked={settings?.allowManualExtend ?? true}
+                  onChange={(event) => setSettings({ ...settings, allowManualExtend: event.currentTarget.checked })}
+                />
+                <Switch
+                  label="Emergency overtime announcement"
+                  checked={settings?.emergencyHintEnabled ?? true}
+                  onChange={(event) => setSettings({ ...settings, emergencyHintEnabled: event.currentTarget.checked })}
+                />
               </SimpleGrid>
-              <Textarea label="Emergency overtime message" value={settings?.emergencyHintText ?? ''} onChange={(event) => setSettings({ ...settings, emergencyHintText: event.currentTarget.value })} />
-              <Group><Button onClick={save} disabled={busy}>Save settings</Button></Group>
+              <Textarea
+                label="Emergency overtime message"
+                value={settings?.emergencyHintText ?? ''}
+                onChange={(event) => setSettings({ ...settings, emergencyHintText: event.currentTarget.value })}
+              />
+              <Group className={adminClasses.controlActions}>
+                <Button onClick={save} disabled={busy}>
+                  Save settings
+                </Button>
+              </Group>
             </Stack>
           </Card>
 
-          <Card withBorder>
+          <Card withBorder className={adminClasses.controlCard}>
             <Stack>
-              <Group justify="space-between">
+              <Group justify="space-between" className={adminClasses.controlHeader}>
                 <Title order={3}>Category pool</Title>
                 <Group>
-                  <Button variant="light" onClick={() => run(() => api.edit.editRefreshSpeedrunCategories(gameId))}>Refresh from challenges</Button>
-                  <Button variant="outline" color="red" disabled={!!round} onClick={() => run(() => api.edit.editResetSpeedrunCategories(gameId))}>Reset used categories</Button>
+                  <Button variant="light" onClick={() => run(() => api.edit.editRefreshSpeedrunCategories(gameId))}>
+                    Refresh from challenges
+                  </Button>
+                  <Button
+                    variant="outline"
+                    color="red"
+                    disabled={!!round}
+                    onClick={() => run(() => api.edit.editResetSpeedrunCategories(gameId))}
+                  >
+                    Reset used categories
+                  </Button>
                 </Group>
               </Group>
-              <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }}>
+              <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} className={adminClasses.categoryGrid}>
                 {settings?.categories?.map((category) => (
-                  <Card key={category.id} withBorder padding="sm">
+                  <Card key={category.id} withBorder padding="sm" className={adminClasses.categoryCard}>
                     <Stack gap="xs">
                       <Text fw={700}>{category.category}</Text>
                       <Group gap="xs">
                         <Badge color={category.used ? 'gray' : 'green'}>{category.used ? 'Used' : 'Available'}</Badge>
-                        <Badge color={category.included ? 'blue' : 'red'}>{category.included ? 'Enabled' : 'Disabled'}</Badge>
+                        <Badge color={category.included ? 'blue' : 'red'}>
+                          {category.included ? 'Enabled' : 'Disabled'}
+                        </Badge>
                       </Group>
                       <Group gap="xs">
                         <Button

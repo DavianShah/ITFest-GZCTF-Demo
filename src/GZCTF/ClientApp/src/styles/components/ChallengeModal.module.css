@@ -4,10 +4,12 @@
 }
 
 .header {
+  padding: var(--mantine-spacing-md);
   padding-bottom: var(--mantine-spacing-xs);
 }
 
 .body {
+  min-height: 0;
   padding-bottom: 0;
 }
 
@@ -15,17 +17,192 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  max-height: calc(50vh + 300px);
+  max-height: calc(100dvh - 2rem);
+  overflow: hidden;
+}
+
+.heading,
+.headingRow {
+  min-width: 0;
+}
+
+.titleContext {
+  min-width: 0;
+  width: calc(100% - 6.75rem);
+}
+
+.challengeTitle {
+  font-family: var(--ht-font-display);
+  font-size: clamp(var(--mantine-font-size-lg), 3vw, 1.5rem);
+  line-height: 1.15;
+}
+
+.challengeScore,
+.countdown {
+  font-family: var(--ht-font-technical);
+  letter-spacing: -0.03em;
+}
+
+.challengeScore {
+  min-width: 6rem;
+}
+
+.description {
+  padding-right: var(--mantine-spacing-xs);
+}
+
+.markdown {
+  line-height: 1.65;
+}
+
+.markdown :where(h1, h2, h3, h4) {
+  margin-block: 1.15em 0.45em;
+  font-family: var(--ht-font-display);
+  letter-spacing: -0.02em;
+}
+
+.markdown :where(pre, blockquote, table) {
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-radius: var(--ht-radius-sm);
+}
+
+.markdown :where(pre) {
+  box-shadow: var(--ht-shadow-xs);
+}
+
+.markdown :where(blockquote) {
+  border-left: 5px solid var(--ht-color-primary);
+}
+
+.markdown :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown :where(a) {
+  font-weight: 650;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.hints {
+  padding-top: var(--mantine-spacing-md);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.hint {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: color-mix(in srgb, var(--ht-color-yellow) 10%, var(--ht-color-surface));
+  border-left: 4px solid var(--ht-color-yellow);
+}
+
+.attachment,
+.deadlineNotice,
+.instanceSection {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: var(--ht-color-bg);
+  border: 1px solid var(--ht-color-border);
+}
+
+.attachment {
+  min-width: 0;
+}
+
+.attachmentAction {
+  min-width: 0;
+}
+
+.instanceSection {
+  border-left: 4px solid var(--ht-color-primary);
+}
+
+.deadlineNotice {
+  border-left: 4px solid var(--ht-color-yellow);
 }
 
 .footer {
   display: flex;
   justify-content: space-between;
   position: sticky;
-  background-color: var(--mantine-color-body);
+  background-color: var(--ht-color-surface);
   bottom: 0;
   width: 100%;
   z-index: 400;
-  padding: var(--mantine-spacing-md);
-  padding-top: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md) var(--mantine-spacing-md);
+  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
+}
+
+.submissionForm {
+  min-width: 0;
+}
+
+.submissionFields {
+  padding: var(--mantine-spacing-sm);
+  background: color-mix(in srgb, var(--ht-color-primary) 5%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.flagField,
+.submissionField {
+  min-width: 0;
+}
+
+.submitButton {
+  box-shadow: var(--ht-shadow-md);
+}
+
+@mixin smaller-than $mantine-breakpoint-sm {
+  .content {
+    width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .header {
+    padding: var(--mantine-spacing-sm);
+  }
+
+  .heading {
+    padding-top: 4px;
+  }
+
+  .body {
+    padding-inline: var(--mantine-spacing-sm);
+  }
+
+  .headingRow,
+  .deadlineNotice,
+  .attachment {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .titleContext {
+    width: 100%;
+  }
+
+  .challengeScore {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .attachmentAction {
+    max-width: 100%;
+  }
+
+  .description {
+    max-height: 38dvh;
+  }
+
+  .footer {
+    padding: var(--mantine-spacing-sm);
+  }
+
+  .submissionFields {
+    padding: var(--mantine-spacing-xs);
+  }
+
+  .submitButton {
+    width: 100%;
+  }
 }

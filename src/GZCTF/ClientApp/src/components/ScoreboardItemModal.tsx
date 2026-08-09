@@ -104,7 +104,12 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
   return (
     <Modal
       {...modalProps}
-      classNames={{ header: modalClasses.header, title: modalClasses.titleBar }}
+      classNames={{
+        content: modalClasses.content,
+        header: modalClasses.header,
+        title: modalClasses.titleBar,
+        body: modalClasses.body,
+      }}
       title={
         <Group justify="left" gap="md" wrap="nowrap" className={modalClasses.titleGroup}>
           <Avatar alt="avatar" src={item?.avatar} size={50} radius="md" className={modalClasses.avatar}>
@@ -133,18 +138,18 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
         </Group>
       }
     >
-      <Stack align="center" gap="xs">
-        <Stack w="85%" miw="20rem">
-          <Center h="14rem">
+      <Stack align="center" gap="xs" className={modalClasses.modalStack}>
+        <Stack className={modalClasses.overview}>
+          <Center h="14rem" className={modalClasses.charts}>
             {valid && radarData && memberContributionData && (
-              <Group wrap="nowrap" gap={0} justify="center" w="100%" h="100%">
+              <Group wrap="nowrap" gap={0} justify="center" w="100%" h="100%" className={modalClasses.chartPair}>
                 <TeamRadarMap {...radarData} />
                 <MemberContributionPie {...memberContributionData} />
               </Group>
             )}
           </Center>
-          <Group grow ta="center">
-            <Stack gap={2}>
+          <Group grow ta="center" className={modalClasses.metrics}>
+            <Stack gap={2} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.rank || '-'}
               </Text>
@@ -153,7 +158,7 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
               </Text>
             </Stack>
             {item?.divisionId && (
-              <Stack gap={2}>
+              <Stack gap={2} className={modalClasses.metric}>
                 <Text fw="bold" size="sm" ff="monospace">
                   {item?.divisionRank || '-'}
                 </Text>
@@ -162,7 +167,7 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
                 </Text>
               </Stack>
             )}
-            <Stack gap={2}>
+            <Stack gap={2} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.score}
               </Text>
@@ -170,7 +175,7 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
                 {t('game.label.score_table.score')}
               </Text>
             </Stack>
-            <Stack gap={2}>
+            <Stack gap={2} className={modalClasses.metric}>
               <Text fw="bold" size="sm" ff="monospace">
                 {item?.solvedCount}
               </Text>
@@ -179,11 +184,11 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
               </Text>
             </Stack>
           </Group>
-          <Progress value={solved * 100} />
+          <Progress value={solved * 100} className={modalClasses.progress} />
         </Stack>
         {item?.solvedCount && item?.solvedCount > 0 ? (
-          <ScrollArea scrollbarSize={6} h="12rem" w="100%" scrollbars="y">
-            <Table className={tableClasses.table}>
+          <ScrollArea scrollbarSize={6} h="12rem" w="100%" scrollbars="y" className={modalClasses.history}>
+            <Table className={`${tableClasses.table} ${modalClasses.historyTable}`}>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>{t('common.label.user')}</Table.Th>
@@ -225,7 +230,7 @@ export const ScoreboardItemModal: FC<ScoreboardItemModalProps> = (props) => {
             </Table>
           </ScrollArea>
         ) : (
-          <Text py="1rem" fw="bold">
+          <Text py="1rem" fw="bold" className={modalClasses.emptyHistory}>
             {t('game.placeholder.no_solved')}
           </Text>
         )}

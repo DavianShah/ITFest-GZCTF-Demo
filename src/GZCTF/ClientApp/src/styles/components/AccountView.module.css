@@ -1,0 +1,96 @@
+.viewport {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: var(--mantine-spacing-xl);
+  background-color: var(--ht-color-bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 26%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+
+  &::after {
+    position: absolute;
+    right: -6rem;
+    bottom: 8%;
+    width: 18rem;
+    height: 3rem;
+    background: var(--ht-color-yellow);
+    border: var(--ht-border-width) solid var(--ht-color-ink);
+    content: '';
+    opacity: 0.88;
+    rotate: -8deg;
+  }
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 27rem);
+}
+
+.brand {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto var(--mantine-spacing-md);
+  cursor: pointer;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  padding: clamp(var(--mantine-spacing-md), 5vw, var(--mantine-spacing-xl));
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-lg);
+
+  &::before {
+    position: absolute;
+    top: calc(-1 * var(--ht-border-width));
+    left: calc(-1 * var(--ht-border-width));
+    width: 4rem;
+    height: 7px;
+    background: var(--ht-color-coral);
+    content: '';
+  }
+}
+
+.title {
+  margin-bottom: var(--mantine-spacing-lg);
+  padding-bottom: var(--mantine-spacing-sm);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+  font-size: clamp(1.75rem, 7vw, 2.5rem);
+}
+
+.form {
+  width: 100%;
+}
+
+.content {
+  width: 100%;
+  gap: var(--mantine-spacing-sm);
+}
+
+@mixin smaller-than $mantine-breakpoint-xs {
+  .viewport {
+    align-items: flex-start;
+    padding: var(--mantine-spacing-md);
+    overflow-y: auto;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .shell {
+    margin: auto;
+  }
+
+  .brand {
+    transform: scale(0.88);
+  }
+
+  .panel {
+    padding: var(--mantine-spacing-md);
+  }
+}

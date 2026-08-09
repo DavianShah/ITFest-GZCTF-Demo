@@ -53,18 +53,19 @@ export const ChallengeCard: FC<ChallengeCardProps> = (props: ChallengeCardProps)
       shadow="sm"
       className={cx(misc.hoverCard, classes.root)}
       data-faded={solved || isFaded || undefined}
+      data-solved={solved || undefined}
       data-no-move
     >
-      <Stack gap="xs" pos="relative" style={{ zIndex: 99 }}>
-        <Group h="30px" wrap="nowrap" justify="space-between" gap={2}>
+      <Stack gap="xs" pos="relative" className={classes.content}>
+        <Group h="30px" wrap="nowrap" justify="space-between" gap={2} className={classes.titleRow}>
           <ScrollingText text={challenge.title || ''} size="lg" />
         </Group>
         <Divider size="sm" color={cateData?.color} />
         <Group wrap="nowrap" justify="space-between" align="center" gap={2}>
-          <Text ta="center" fw="bold" fz="lg" ff="monospace">
+          <Text ta="center" fw="bold" fz="lg" ff="monospace" className={classes.score}>
             {challenge.score}&nbsp;pts
           </Text>
-          <Stack gap="xs">
+          <Stack gap="xs" className={classes.solveMeta}>
             <Title order={6} ta="center" mt={`calc(${theme.spacing.xs} / 2)`}>
               <Trans
                 i18nKey={'challenge.content.solved'}

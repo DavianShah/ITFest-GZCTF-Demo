@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { GameNotice } from '@Api'
+import adminClasses from '@Styles/Admin.module.css'
 
 interface GameNoticeEditModalProps extends ModalProps {
   gameNotice?: GameNotice | null
@@ -67,7 +68,7 @@ export const GameNoticeEditModal: FC<GameNoticeEditModalProps> = (props) => {
 
   return (
     <Modal {...modalProps}>
-      <Stack>
+      <Stack className={adminClasses.modalBody}>
         <Text>{t('admin.content.markdown_inline_support')}</Text>
         <Textarea
           value={content}
@@ -77,7 +78,7 @@ export const GameNoticeEditModal: FC<GameNoticeEditModalProps> = (props) => {
           maxRows={16}
           onChange={(e) => setContent(e.currentTarget.value)}
         />
-        <Group grow m="auto" w="100%">
+        <Group grow m="auto" w="100%" className={adminClasses.modalActions}>
           <Button fullWidth disabled={disabled} onClick={onConfirm}>
             {t('common.modal.confirm')}
           </Button>
