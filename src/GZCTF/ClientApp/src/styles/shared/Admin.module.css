@@ -6,28 +6,38 @@
 }
 
 .globalTabs {
+  position: relative;
   gap: 3px;
-  padding: 4px;
+  padding: 11px 6px 6px;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
+}
+
+.globalTabs::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
+  content: '';
 }
 
 .toolbar {
   position: relative;
   min-width: 0;
-  min-height: 3rem;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-  background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  min-height: 3.5rem;
+  padding: calc(var(--mantine-spacing-sm) + 7px) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+  background: var(--ht-color-surface-raised);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 
   &::before {
     position: absolute;
-    inset: calc(-1 * var(--ht-border-width)) auto auto calc(-1 * var(--ht-border-width));
-    width: 3rem;
-    height: 5px;
-    background: var(--ht-color-coral);
+    inset: 0 0 auto;
+    height: 7px;
+    background: var(--ht-color-yellow);
     content: '';
   }
 }
@@ -57,23 +67,23 @@
   min-width: 0;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-md);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .surface::before,
 .section::before {
   position: absolute;
-  inset: calc(-1 * var(--ht-border-width)) auto auto calc(-1 * var(--ht-border-width));
-  width: 2.5rem;
-  height: 5px;
-  background: var(--ht-color-primary);
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
   content: '';
 }
 
 .ledgerSurface {
   overflow: hidden;
-  padding: var(--mantine-spacing-xs);
+  padding: 0 !important;
+  border-top: 7px solid var(--ht-color-yellow);
 }
 
 .ledgerViewport {
@@ -86,9 +96,9 @@
   border-collapse: collapse;
 
   :where(th) {
-    background: var(--ht-color-surface-raised);
+    background: var(--ht-color-ink);
     border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
-    color: var(--ht-color-text);
+    color: var(--mantine-color-white);
     font-size: var(--mantine-font-size-xs);
     font-weight: 750;
     letter-spacing: 0.04em;
@@ -96,21 +106,25 @@
   }
 
   :where(td) {
-    border-bottom: 1px solid var(--ht-color-border);
+    border-bottom: var(--ht-border-width) solid var(--ht-color-border);
   }
 
   :where(tbody tr) {
     transition: background-color var(--ht-motion-fast) var(--ht-ease-out);
 
     @mixin hover {
-      background: color-mix(in srgb, var(--ht-color-primary) 6%, var(--ht-color-surface));
+      background: color-mix(in srgb, var(--ht-color-yellow) 10%, var(--ht-color-surface));
     }
+  }
+
+  :where(tbody tr:nth-child(even)) {
+    background: color-mix(in srgb, var(--ht-color-surface-raised) 52%, var(--ht-color-surface));
   }
 }
 
 .identity {
   padding-left: var(--mantine-spacing-xs);
-  border-left: 3px solid var(--ht-color-primary);
+  border-left: 5px solid var(--ht-color-primary);
 }
 
 .technical {
@@ -119,32 +133,40 @@
 }
 
 .technicalAction {
+  color: var(--ht-color-primary);
   font-family: var(--ht-font-technical);
   text-decoration: underline;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 
 .note {
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm) 0;
-  border-top: 1px solid var(--ht-color-border);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .section {
+  overflow: hidden;
   gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md);
+  padding: calc(var(--mantine-spacing-md) + 7px) var(--mantine-spacing-md) var(--mantine-spacing-md);
 }
 
 .sectionHeading {
-  padding-bottom: var(--mantine-spacing-xs);
-  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+  margin: 0 calc(-1 * var(--mantine-spacing-md));
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--ht-color-ink);
+  border-bottom: 6px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
+  text-transform: uppercase;
 }
 
 .intro {
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
-  background: color-mix(in srgb, var(--ht-color-primary) 8%, var(--ht-color-surface));
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  border-left: 5px solid var(--ht-color-primary);
+  background: color-mix(in srgb, var(--ht-color-yellow) 13%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left: 7px solid var(--ht-color-primary);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .statusGrid {
@@ -156,14 +178,14 @@
   overflow: hidden;
   min-height: 5rem;
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 
   &::after {
     position: absolute;
     inset: 0 0 auto;
-    height: 4px;
+    height: 7px;
     background: var(--ht-color-yellow);
     content: '';
   }
@@ -173,6 +195,7 @@
   font-family: var(--ht-font-display);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  color: var(--ht-color-primary);
 }
 
 .configStack {
@@ -184,23 +207,30 @@
 .configSection {
   position: relative;
   gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md);
+  overflow: hidden;
+  padding: calc(var(--mantine-spacing-md) + 7px) var(--mantine-spacing-md) var(--mantine-spacing-md);
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 
   &::before {
     position: absolute;
-    inset: calc(-1 * var(--ht-border-width)) auto auto calc(-1 * var(--ht-border-width));
-    width: 3.5rem;
-    height: 5px;
-    background: var(--ht-color-primary);
+    inset: 0 0 auto;
+    height: 7px;
+    background: var(--ht-color-yellow);
     content: '';
   }
 }
 
 .configTitle {
+  margin: 0 calc(-1 * var(--mantine-spacing-md));
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--ht-color-ink);
+  border-bottom: 6px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
   font-size: var(--mantine-font-size-xl);
+  text-transform: uppercase;
 }
 
 .configGrid {
@@ -209,7 +239,8 @@
 
 .persistentAction {
   border-color: var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-md);
+  box-shadow: var(--ht-shadow-lg);
+  text-transform: uppercase;
 }
 
 .modalBody {
@@ -220,37 +251,42 @@
 .modalActions {
   justify-content: flex-end;
   padding-top: var(--mantine-spacing-sm);
-  border-top: var(--ht-border-width) solid var(--ht-color-border);
+  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .memberList {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .roleGrid {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .passwordResult {
   padding: var(--mantine-spacing-sm);
-  background: var(--ht-color-bg);
-  border-left: 4px solid var(--ht-color-yellow);
+  background: color-mix(in srgb, var(--ht-color-yellow) 14%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left-width: 7px;
 }
 
 .dangerAction {
   border-color: var(--ht-color-coral);
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .backButton {
-  flex: 0 0 12rem;
+  flex: 0 0 14rem;
+  width: 14rem !important;
   border-color: var(--ht-color-border-strong);
 }
 
 .gameToolbarActions {
+  flex: 1 1 0;
+  width: auto !important;
   min-width: 0;
   gap: var(--mantine-spacing-xs);
 }
@@ -263,23 +299,56 @@
 .gameNav {
   position: sticky;
   top: var(--mantine-spacing-sm);
-  flex: 0 0 12rem;
-  padding: var(--mantine-spacing-xs);
+  flex: 0 0 14rem;
+  width: 14rem !important;
+  padding: calc(var(--mantine-spacing-xs) + 7px) var(--mantine-spacing-xs) var(--mantine-spacing-xs);
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
+}
+
+.gameNav::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
+  content: '';
 }
 
 .gameTabsList {
   gap: 3px;
+  min-width: 0;
   border: 0;
 }
 
 .gameTab {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-items: center;
+  justify-content: stretch;
+  gap: var(--mantine-spacing-xs);
+  width: 100%;
+  max-width: 100%;
   min-height: 2.35rem;
-  border: 1px solid transparent;
-  border-radius: var(--ht-radius-sm);
+  padding-inline: var(--mantine-spacing-sm);
+  overflow: hidden;
+  border: var(--ht-border-width) solid transparent;
+  border-radius: 0;
   color: var(--ht-color-text-muted);
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  & > :where([data-position='left']) {
+    margin: 0;
+  }
+
+  & > :where(:not([data-position])) {
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+  }
 
   @mixin hover {
     background: var(--ht-color-surface-raised);
@@ -290,22 +359,28 @@
   &[data-active] {
     background: var(--ht-color-primary);
     border-color: var(--ht-color-border-strong);
-    box-shadow: var(--ht-shadow-xs);
+    box-shadow: var(--ht-shadow-sm);
     color: var(--ht-color-on-primary);
+    transform: translate(-1px, -1px);
   }
 }
 
 .workspace {
+  flex: 1 1 0;
+  width: auto !important;
   min-width: 0;
   gap: var(--mantine-spacing-md);
 }
 
 .formSection {
+  position: relative;
   min-width: 0;
-  padding: var(--mantine-spacing-md);
+  padding: calc(var(--mantine-spacing-md) + 7px) var(--mantine-spacing-md) var(--mantine-spacing-md);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-top: 7px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .formGrid {
@@ -314,22 +389,24 @@
 
 .posterDropzone {
   background: var(--ht-color-bg);
-  border-style: dashed;
-  box-shadow: none;
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .noticeList {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .noticeCard {
   width: 100%;
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  border-left: 4px solid var(--ht-color-primary);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left: 7px solid var(--ht-color-primary);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .controlStack {
@@ -341,7 +418,8 @@
   overflow: hidden;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 
   &::before {
     position: absolute;
@@ -357,17 +435,27 @@
 }
 
 .controlHeader {
-  padding-bottom: var(--mantine-spacing-xs);
-  border-bottom: 1px solid var(--ht-color-border);
+  margin: calc(-1 * var(--mantine-spacing-md)) calc(-1 * var(--mantine-spacing-md)) 0;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--ht-color-ink);
+  border-bottom: 6px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
+  text-transform: uppercase;
 }
 
 .controlActions {
   gap: var(--mantine-spacing-xs);
   padding-top: var(--mantine-spacing-xs);
-  border-top: 1px solid var(--ht-color-border);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .timerReadout {
+  align-self: flex-start;
+  padding: 5px 8px;
+  background: var(--ht-color-ink);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-xs);
+  color: var(--ht-color-yellow);
   font-family: var(--ht-font-technical);
   font-size: var(--mantine-font-size-lg);
   font-variant-numeric: tabular-nums;
@@ -379,15 +467,17 @@
 }
 
 .categoryCard {
-  background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
-  box-shadow: none;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-top: 6px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .soundGrid {
   padding: var(--mantine-spacing-sm);
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .disclosureTable {
@@ -397,15 +487,17 @@
 .emptyState {
   padding: var(--mantine-spacing-xl);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) dashed var(--ht-color-border);
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
 }
 
 .challengePager {
   min-width: 0;
-  padding: var(--mantine-spacing-xs);
-  background: var(--ht-color-surface);
+  padding: calc(var(--mantine-spacing-xs) + 7px) var(--mantine-spacing-xs) var(--mantine-spacing-xs);
+  background: var(--ht-color-surface-raised);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-xs);
+  border-top: 7px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .challengePagerContext {
@@ -415,21 +507,32 @@
 }
 
 .challengeCard {
+  position: relative;
   overflow: hidden;
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
+
+  &::after {
+    position: absolute;
+    inset: auto 0 0;
+    height: 6px;
+    background: repeating-conic-gradient(var(--ht-color-ink) 0 25%, transparent 0 50%) 0 / 8px 8px;
+    content: '';
+    pointer-events: none;
+  }
 
   @mixin hover {
     border-color: var(--ht-color-border-strong);
-    box-shadow: var(--ht-shadow-sm);
+    box-shadow: var(--ht-shadow-md);
   }
 }
 
 .challengeIdentity {
   min-width: 0;
   padding-left: var(--mantine-spacing-xs);
-  border-left: 3px solid var(--ht-color-primary);
+  border-left: 5px solid var(--ht-color-primary);
 }
 
 .editorPage {
@@ -449,11 +552,12 @@
   height: 100%;
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .testContainerArea {
-  border-left: 5px solid var(--ht-color-yellow);
+  border-left: 7px solid var(--ht-color-primary);
 }
 
 .attachmentSection {
@@ -461,43 +565,51 @@
   gap: var(--mantine-spacing-sm);
   padding: var(--mantine-spacing-md);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left: 7px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .flagGrid {
   padding: var(--mantine-spacing-xs);
+  background: var(--ht-color-bg);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .flagCard {
-  background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
-  box-shadow: none;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .uploadList {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) dashed var(--ht-color-border);
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
 }
 
 .selectionArea {
   padding: var(--mantine-spacing-sm);
-  background: color-mix(in srgb, var(--ht-color-primary) 8%, var(--ht-color-surface));
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  background: color-mix(in srgb, var(--ht-color-yellow) 12%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left: 7px solid var(--ht-color-primary);
 }
 
 .divisionCard {
   break-inside: avoid;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-top: 7px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .divisionMetadata {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .drawerBody {
@@ -507,7 +619,7 @@
 .permissionPanel {
   padding: var(--mantine-spacing-sm);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .reviewAccordion {
@@ -518,23 +630,25 @@
   overflow: hidden;
   margin-bottom: var(--mantine-spacing-xs);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 
   &[data-active] {
-    border-color: var(--ht-color-border-strong);
+    border-color: var(--ht-color-primary);
+    box-shadow: var(--ht-shadow-md);
   }
 }
 
 .reviewMember {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .reviewStatusRail {
   padding-left: var(--mantine-spacing-sm);
-  border-left: var(--ht-border-width) solid var(--ht-color-border);
+  border-left: 6px solid var(--ht-color-yellow);
 }
 
 .writeupLayout {
@@ -542,29 +656,33 @@
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-bg);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-top: 7px solid var(--ht-color-yellow);
+  box-shadow: var(--ht-shadow-md);
 }
 
 .writeupViewer {
   min-width: 0;
   overflow: hidden;
-  border-right: var(--ht-border-width) solid var(--ht-color-border);
+  border-right: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .writeupRail {
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-surface);
-  border-left: 4px solid var(--ht-color-primary);
+  border-left: 7px solid var(--ht-color-primary);
 }
 
 .writeupCard {
   background: var(--ht-color-surface);
-  border-radius: var(--ht-radius-sm);
+  border: var(--ht-border-width) solid transparent;
+  border-radius: 0;
 }
 
 .selectedWriteup {
-  background: color-mix(in srgb, var(--ht-color-primary) 10%, var(--ht-color-surface));
-  box-shadow: var(--ht-shadow-xs);
+  background: var(--ht-color-yellow);
+  border-color: var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-sm);
+  color: var(--ht-color-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {

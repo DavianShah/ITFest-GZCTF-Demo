@@ -1,13 +1,14 @@
 .group {
   width: 100%;
-  top: 16px;
-  padding-bottom: 8px;
+  top: 0;
+  min-height: 82px;
   z-index: 50;
   justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 var(--header-px) var(--mantine-spacing-sm) var(--header-px);
+  align-items: center;
+  padding: var(--mantine-spacing-sm) var(--header-px);
   position: relative;
-  background-color: light-dark(var(--mantine-color-light-2), var(--mantine-color-gray-7));
+  background-color: var(--ht-color-surface);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
 
   &[data-sticky] {
     position: sticky;
@@ -16,11 +17,23 @@
   &[data-sticky]::before {
     content: '';
     position: absolute;
-    top: -16px;
+    top: 0;
     right: 0;
+    left: auto;
+    width: 9rem;
+    height: 8px;
+    background-color: var(--ht-color-yellow);
+  }
+
+  &::after {
+    position: absolute;
+    bottom: calc(-1 * var(--ht-border-width));
     left: 0;
-    padding-top: 16px;
-    background-color: light-dark(var(--mantine-color-light-2), var(--mantine-color-gray-7));
+    width: 20%;
+    height: 7px;
+    background: var(--ht-color-red);
+    border-right: var(--ht-border-width) solid var(--ht-color-ink);
+    content: '';
   }
 }
 
@@ -44,5 +57,9 @@
 .subtitle {
   font-family: var(--mantine-font-family-monospace);
   font-weight: bold;
-  color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-gray-4));
+  max-width: 48%;
+  color: var(--ht-color-text-muted);
+  font-size: var(--mantine-font-size-sm);
+  text-align: right;
+  text-transform: uppercase;
 }

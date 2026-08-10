@@ -9,14 +9,15 @@
   left: 0;
   right: 0;
   height: rem(240px);
-  padding-left: calc(var(--app-shell-navbar-offset, 0rem) + var(--mantine-spacing-xl) * 2);
+  padding-left: calc(var(--mantine-spacing-xl) * 2);
   padding-right: calc(var(--mantine-spacing-xl) * 2);
 
   @mixin smaller-than $mantine-breakpoint-md {
     padding: var(--mantine-spacing-xl);
   }
 
-  background-color: var(--ht-color-surface);
-  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: 0 -8px 0 color-mix(in srgb, var(--ht-color-primary) 12%, transparent);
+  color: var(--mantine-color-white);
+  background-color: var(--ht-color-ink);
+  border-top: 8px solid var(--ht-color-yellow);
+  box-shadow: 0 -13px 0 var(--ht-color-red);
 }

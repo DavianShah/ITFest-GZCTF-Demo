@@ -162,7 +162,7 @@ const TableRow: FC<{
   }, [solved])
 
   return (
-    <Table.Tr className={classes.row}>
+    <Table.Tr className={classes.row} data-rank={item.rank > 0 && item.rank <= 3 ? item.rank : undefined}>
       <Table.Td className={cx(classes.mono, classes.left)} style={{ left: Lefts[0] }}>
         {item.rank || '-'}
       </Table.Td>
@@ -178,7 +178,7 @@ const TableRow: FC<{
           maw={Widths[2] - 10}
           className={cx(classes.pointer, classes.teamTrigger)}
         >
-          <Avatar alt="avatar" src={item.avatar} radius="xl" size={30} color={theme.primaryColor}>
+          <Avatar alt="avatar" src={item.avatar} radius={0} size={30} color={theme.primaryColor}>
             {item.name?.slice(0, 1) ?? 'T'}
           </Avatar>
           <Stack gap={0} h="2.5rem" justify="center" w={Widths[2] - 45}>

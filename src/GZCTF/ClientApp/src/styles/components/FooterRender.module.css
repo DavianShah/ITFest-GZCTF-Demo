@@ -2,7 +2,7 @@
   overflow-x: auto;
   text-align: center;
   font-size: var(--mantine-font-size-sm);
-  color: var(--ht-color-text-muted);
+  color: var(--mantine-color-gray-3);
   font-family: var(--ht-font-technical);
 
   & p {
@@ -22,17 +22,17 @@
   }
 
   & strong {
-    color: var(--ht-color-primary);
+    color: var(--ht-color-yellow);
   }
 
   & a {
-    color: var(--ht-color-text-muted);
+    color: var(--mantine-color-gray-3);
     text-decoration: none;
     transition: all 0.2s ease-in-out;
   }
 
   & a:hover {
-    color: var(--ht-color-primary);
+    color: var(--ht-color-yellow);
     text-decoration: none;
   }
 }

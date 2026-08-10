@@ -6,9 +6,18 @@
 .emptyState {
   min-width: 0;
   padding: var(--mantine-spacing-sm);
-  background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  background: var(--ht-color-surface-raised);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
+}
+
+.root {
+  border-top: 7px solid var(--ht-color-ink);
+}
+
+.emptyState {
+  border-left: 7px solid var(--ht-color-yellow);
 }
 
 .emptyCopy {
@@ -30,16 +39,21 @@
 }
 
 .entryInput {
+  background: var(--ht-color-surface);
+  border-color: var(--ht-color-border-strong);
   letter-spacing: -0.02em;
 }
 
 .entryActions {
   flex-wrap: nowrap;
+  background: var(--ht-color-yellow);
+  border-left: var(--ht-border-width) solid var(--ht-color-border-strong);
+  color: var(--ht-color-ink);
 }
 
 .lifecycle {
   padding-top: var(--mantine-spacing-sm);
-  border-top: 1px solid var(--ht-color-border);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .lifecycleActions {
@@ -48,7 +62,9 @@
 
 .countdown {
   margin-left: 0.4em;
-  color: var(--ht-color-primary);
+  padding: 2px 5px;
+  background: var(--ht-color-ink);
+  color: var(--ht-color-yellow);
 }
 
 @mixin smaller-than $mantine-breakpoint-sm {

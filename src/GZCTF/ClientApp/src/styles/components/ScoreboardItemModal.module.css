@@ -1,12 +1,18 @@
 .content {
   max-height: calc(100dvh - 2rem);
   overflow: hidden;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-lg);
 }
 
 .header {
   display: flex;
   align-items: center;
   overflow: hidden;
+  background: var(--ht-color-ink);
+  border-bottom: 7px solid var(--ht-color-yellow);
 }
 
 .body {
@@ -30,6 +36,9 @@
 
 .avatar {
   flex: 0 0 auto;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .infoWrap {
@@ -52,11 +61,16 @@
   white-space: nowrap;
   display: block;
   font-family: var(--ht-font-display);
-  font-weight: 750;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .divisionBadge {
   flex: 0 0 auto;
+  background: var(--ht-color-yellow);
+  border-color: var(--ht-color-ink);
+  color: var(--ht-color-ink);
 }
 
 .bioText {
@@ -78,13 +92,14 @@
   min-width: 0;
   padding: var(--mantine-spacing-sm);
   background: var(--ht-color-bg);
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .charts {
   min-width: 0;
   overflow: hidden;
-  border-bottom: 1px solid var(--ht-color-border);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .chartPair {
@@ -95,25 +110,32 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
   gap: 0;
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .metric {
   min-width: 0;
   padding: var(--mantine-spacing-xs);
-  border-right: 1px solid var(--ht-color-border);
+  border-right: var(--ht-border-width) solid var(--ht-color-border);
 
   &:last-child {
     border-right: 0;
   }
 }
 
+.metric:first-child {
+  background: var(--ht-color-yellow);
+  color: var(--ht-color-ink);
+}
+
 .progress {
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-radius: 0;
 }
 
 .history {
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-sm);
 }
 
 .historyTable {
@@ -124,7 +146,7 @@
   width: 100%;
   text-align: center;
   background: var(--ht-color-bg);
-  border: 1px dashed var(--ht-color-border);
+  border: var(--ht-border-width) dashed var(--ht-color-border);
 }
 
 @mixin smaller-than $mantine-breakpoint-sm {
@@ -160,7 +182,7 @@
   }
 
   .metric:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--ht-color-border);
+    border-bottom: var(--ht-border-width) solid var(--ht-color-border);
   }
 
   .historyTable {

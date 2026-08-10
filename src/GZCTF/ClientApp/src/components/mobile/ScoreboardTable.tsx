@@ -27,11 +27,11 @@ const TableRow: FC<{
   }, [solved])
 
   return (
-    <Table.Tr className={classes.row}>
+    <Table.Tr className={classes.row} data-rank={item.rank > 0 && item.rank <= 3 ? item.rank : undefined}>
       <Table.Td className={cx(classes.mono, classes.left)}>{item.rank || '-'}</Table.Td>
       <Table.Td className={cx(classes.left, classes.teamCell)}>
         <Group justify="left" gap={5} wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-          <Avatar alt="avatar" src={item.avatar} radius="xl" size={30} color={theme.primaryColor}>
+          <Avatar alt="avatar" src={item.avatar} radius={0} size={30} color={theme.primaryColor}>
             {item.name?.slice(0, 1) ?? 'T'}
           </Avatar>
           <ScrollingText

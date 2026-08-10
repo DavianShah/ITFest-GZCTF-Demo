@@ -4,13 +4,27 @@
 }
 
 .header {
+  position: relative;
   padding: var(--mantine-spacing-md);
-  padding-bottom: var(--mantine-spacing-xs);
+  padding-bottom: var(--mantine-spacing-sm);
+  background: var(--ht-color-ink);
+  border-bottom: 7px solid var(--ht-color-yellow);
+}
+
+.header::after {
+  position: absolute;
+  right: var(--mantine-spacing-md);
+  bottom: -7px;
+  width: 7rem;
+  height: 7px;
+  background: repeating-conic-gradient(var(--ht-color-ink) 0 25%, transparent 0 50%) 0 / 8px 8px;
+  content: '';
 }
 
 .body {
   min-height: 0;
-  padding-bottom: 0;
+  padding: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-sm);
 }
 
 .content {
@@ -19,6 +33,10 @@
   justify-content: space-between;
   max-height: calc(100dvh - 2rem);
   overflow: hidden;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-lg);
 }
 
 .heading,
@@ -34,7 +52,10 @@
 .challengeTitle {
   font-family: var(--ht-font-display);
   font-size: clamp(var(--mantine-font-size-lg), 3vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
   line-height: 1.15;
+  text-transform: uppercase;
 }
 
 .challengeScore,
@@ -45,10 +66,21 @@
 
 .challengeScore {
   min-width: 6rem;
+  padding: 4px 8px;
+  background: var(--ht-color-yellow);
+  border: var(--ht-border-width) solid var(--ht-color-ink);
+  box-shadow: var(--ht-shadow-xs);
+  color: var(--ht-color-ink);
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-1deg);
 }
 
 .description {
+  padding: var(--mantine-spacing-sm);
   padding-right: var(--mantine-spacing-xs);
+  background: var(--ht-color-bg);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .markdown {
@@ -59,19 +91,22 @@
   margin-block: 1.15em 0.45em;
   font-family: var(--ht-font-display);
   letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .markdown :where(pre, blockquote, table) {
   border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
 }
 
 .markdown :where(pre) {
+  background: var(--ht-color-surface-raised);
   box-shadow: var(--ht-shadow-xs);
 }
 
 .markdown :where(blockquote) {
-  border-left: 5px solid var(--ht-color-primary);
+  background: color-mix(in srgb, var(--ht-color-yellow) 12%, var(--ht-color-surface));
+  border-left: 7px solid var(--ht-color-yellow);
 }
 
 .markdown :where(table) {
@@ -93,20 +128,24 @@
 
 .hint {
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-  background: color-mix(in srgb, var(--ht-color-yellow) 10%, var(--ht-color-surface));
-  border-left: 4px solid var(--ht-color-yellow);
+  background: color-mix(in srgb, var(--ht-color-yellow) 14%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-left-width: 7px;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .attachment,
 .deadlineNotice,
 .instanceSection {
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm);
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .attachment {
   min-width: 0;
+  border-left-width: 7px;
+  border-left-color: var(--ht-color-yellow);
 }
 
 .attachmentAction {
@@ -114,11 +153,12 @@
 }
 
 .instanceSection {
-  border-left: 4px solid var(--ht-color-primary);
+  padding: 0;
+  border-left: 7px solid var(--ht-color-primary);
 }
 
 .deadlineNotice {
-  border-left: 4px solid var(--ht-color-yellow);
+  border-left: 7px solid var(--ht-color-yellow);
 }
 
 .footer {
@@ -130,7 +170,7 @@
   width: 100%;
   z-index: 400;
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md) var(--mantine-spacing-md);
-  border-top: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-top: 7px solid var(--ht-color-ink);
 }
 
 .submissionForm {
@@ -138,9 +178,19 @@
 }
 
 .submissionFields {
+  position: relative;
   padding: var(--mantine-spacing-sm);
-  background: color-mix(in srgb, var(--ht-color-primary) 5%, var(--ht-color-surface));
-  border: var(--ht-border-width) solid var(--ht-color-border);
+  background: color-mix(in srgb, var(--ht-color-yellow) 7%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-sm);
+}
+
+.submissionFields::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--ht-color-primary);
+  content: '';
 }
 
 .flagField,
@@ -149,17 +199,23 @@
 }
 
 .submitButton {
+  background: var(--ht-color-primary);
   box-shadow: var(--ht-shadow-md);
+  text-transform: uppercase;
 }
 
 @mixin smaller-than $mantine-breakpoint-sm {
   .content {
     width: calc(100vw - 1rem);
-    max-height: calc(100dvh - 1rem);
+    max-height: calc(100dvh - 2rem);
+    justify-content: flex-start;
+    overflow-y: auto;
   }
 
   .header {
+    flex: 0 0 auto;
     padding: var(--mantine-spacing-sm);
+    padding-bottom: var(--mantine-spacing-sm);
   }
 
   .heading {
@@ -167,7 +223,9 @@
   }
 
   .body {
-    padding-inline: var(--mantine-spacing-sm);
+    flex: 0 0 auto;
+    padding: var(--mantine-spacing-sm);
+    overflow: visible;
   }
 
   .headingRow,
@@ -191,10 +249,13 @@
   }
 
   .description {
-    max-height: 38dvh;
+    max-height: none;
+    padding: var(--mantine-spacing-xs);
   }
 
   .footer {
+    position: static;
+    flex: 0 0 auto;
     padding: var(--mantine-spacing-sm);
   }
 

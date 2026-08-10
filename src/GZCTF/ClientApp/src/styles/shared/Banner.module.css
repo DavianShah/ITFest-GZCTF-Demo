@@ -4,10 +4,19 @@
   justify-content: center;
   background-size: cover;
   background-position: center center;
-  padding: calc(var(--mantine-spacing-xl) * 3) 0;
+  padding: calc(var(--mantine-spacing-xl) * 2.5) 0;
 
-  background: linear-gradient(110deg, var(--ht-color-surface) 0 64%, transparent 64%), var(--ht-color-bg);
-  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
+  background:
+    linear-gradient(110deg, var(--ht-color-surface) 0 64%, transparent 64%),
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 14%, transparent) 1px, transparent 1px),
+    var(--ht-color-bg);
+  background-size:
+    auto,
+    22px 22px,
+    22px 22px,
+    auto;
+  border-bottom: 6px solid var(--ht-color-ink);
 
   @mixin smaller-than $mantine-breakpoint-sm {
     justify-content: start;
@@ -24,7 +33,7 @@
   width: 100%;
   z-index: 1;
   padding: var(--mantine-spacing-lg);
-  border-left: 6px solid var(--ht-color-coral);
+  border-left: 8px solid var(--ht-color-red);
 
   @mixin smaller-than $mantine-breakpoint-md {
     padding: var(--mantine-spacing-md) calc(var(--mantine-spacing-md) * 2);
@@ -64,12 +73,16 @@
   padding: var(--mantine-spacing-xl);
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border);
+  box-shadow: var(--ht-shadow-lg);
 }
 
 .banner {
   max-width: 50%;
   height: 100%;
   width: 40vw;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0 !important;
+  box-shadow: var(--ht-shadow-lg);
 
   @mixin smaller-than $mantine-breakpoint-sm {
     display: none;
@@ -77,6 +90,6 @@
 }
 
 .date {
-  color: var(--ht-color-text-muted);
+  color: var(--ht-color-ink);
   font-family: var(--ht-font-technical);
 }

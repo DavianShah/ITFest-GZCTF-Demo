@@ -2,10 +2,11 @@ import {
   ActionIcon,
   AppShell,
   Avatar,
+  Group,
   Menu,
   MenuDivider,
   Popover,
-  Stack,
+  Text,
   Tooltip,
   useMantineColorScheme,
 } from '@mantine/core'
@@ -27,20 +28,19 @@ import {
   mdiTransitConnectionVariant,
 } from '@mdi/js'
 import { Icon } from '@mdi/react'
-import cx from 'clsx'
 import React, { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
-import { LogoBox } from '@Components/LogoBox'
+import { LogoHeader } from '@Components/LogoHeader'
 import { AppControlProps } from '@Components/WithNavbar'
 import { WsrxManager } from '@Components/WsrxManager'
 import { clearLocalCache } from '@Utils/Cache'
 import { LanguageMap, SupportedLanguages, useLanguage } from '@Utils/I18n'
+import { useIsMobile } from '@Utils/ThemeOverride'
 import { useConfig } from '@Hooks/useConfig'
 import { useLogOut, useUser } from '@Hooks/useUser'
 import { ContainerPortMappingType, Role } from '@Api'
 import classes from '@Styles/AppNavbar.module.css'
-import misc from '@Styles/Misc.module.css'
 
 interface NavbarItem {
   icon: string
@@ -61,7 +61,7 @@ const NavbarLink: FC<NavbarLinkProps> = (props: NavbarLinkProps) => {
   const { t } = useTranslation()
 
   return (
-    <Tooltip label={t(props.label)} classNames={classes} position="right">
+    <Tooltip label={t(props.label)} classNames={classes} position="bottom">
       <ActionIcon
         onClick={props.onClick}
         component={Link}
@@ -70,6 +70,9 @@ const NavbarLink: FC<NavbarLinkProps> = (props: NavbarLinkProps) => {
         className={classes.link}
       >
         <Icon path={props.icon} size={1} />
+        <Text component="span" className={classes.linkLabel}>
+          {t(props.label)}
+        </Text>
       </ActionIcon>
     </Tooltip>
   )
@@ -84,6 +87,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
   const { config } = useConfig()
   const { t } = useTranslation()
   const { setLanguage, supportedLanguages } = useLanguage()
+  const isMobile = useIsMobile()
 
   const items: NavbarItem[] = [
     { icon: mdiHomeVariantOutline, label: 'common.tab.home', link: '/' },
@@ -120,20 +124,22 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
   const loggedIn = user && !error
 
   return (
-    <AppShell.Navbar className={classes.navbar}>
-      {/* Logo */}
-      <AppShell.Section grow>
-        <LogoBox size="100%" className={classes.logo} component={Link} to="/" />
+    <AppShell.Header hidden={isMobile} h={72} className={classes.navbar}>
+      <AppShell.Section className={classes.brandSection}>
+        <Link className={classes.brandLink} to="/">
+          <LogoHeader />
+        </Link>
       </AppShell.Section>
 
-      {/* Common Nav */}
-      <AppShell.Section className={cx(classes.section, misc.justifyCenter)}>{links}</AppShell.Section>
+      <AppShell.Section component="nav" className={classes.section}>
+        {links}
+      </AppShell.Section>
 
-      <AppShell.Section className={cx(classes.section, misc.justifyEnd)}>
-        <Stack w="100%" align="center" justify="center" gap={5}>
+      <AppShell.Section className={classes.utilities}>
+        <Group wrap="nowrap" gap={6}>
           {/* WebSocket Reflector X Integration */}
           {config.portMapping === ContainerPortMappingType.PlatformProxy && (
-            <Popover position="right" offset={24} width={320}>
+            <Popover position="bottom-end" offset={18} width={320}>
               <Popover.Target>
                 <ActionIcon className={classes.link}>
                   <Icon path={mdiTransitConnectionVariant} size={1} />
@@ -146,7 +152,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
           )}
 
           {/* Language */}
-          <Menu position="right" offset={24} width={160}>
+          <Menu position="bottom-end" offset={18} width={160}>
             <Menu.Target>
               <ActionIcon className={classes.link}>
                 <Icon path={mdiTranslate} size={1} />
@@ -168,7 +174,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
               theme: colorScheme === 'dark' ? t('common.tab.theme.light') : t('common.tab.theme.dark'),
             })}
             classNames={classes}
-            position="right"
+            position="bottom"
           >
             <ActionIcon onClick={() => toggleColorScheme()} className={classes.link}>
               {colorScheme === 'dark' ? (
@@ -180,7 +186,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
           </Tooltip>
 
           {/* User Info */}
-          <Menu position="right-end" offset={24}>
+          <Menu position="bottom-end" offset={18}>
             <Menu.Target>
               <ActionIcon className={classes.link}>
                 {user?.avatar ? (
@@ -227,8 +233,8 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
               )}
             </Menu.Dropdown>
           </Menu>
-        </Stack>
+        </Group>
       </AppShell.Section>
-    </AppShell.Navbar>
+    </AppShell.Header>
   )
 }

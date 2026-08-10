@@ -3,14 +3,15 @@
   position: relative;
   overflow: hidden;
   color: var(--ht-color-text);
-  border-color: var(--ht-color-border-strong);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-lg);
 
   &::before {
     position: absolute;
     z-index: 3;
     top: 0;
     left: 0;
-    width: 7px;
+    width: 8px;
     height: 100%;
     background: var(--game-accent, var(--ht-color-primary));
     content: '';
@@ -26,7 +27,7 @@
   }
 
   &[data-status='ended'] {
-    --game-accent: var(--ht-status-ended);
+    --game-accent: var(--ht-color-ink);
   }
 }
 
@@ -47,12 +48,25 @@
 .statusBadge {
   position: relative;
   z-index: 1;
-  box-shadow: var(--ht-shadow-xs);
+  color: var(--mantine-color-white);
+  background: var(--ht-color-ink);
+  border-color: var(--ht-color-ink);
+  box-shadow: var(--ht-shadow-sm);
+  rotate: -2deg;
+}
+
+.root[data-status='coming'] .statusBadge {
+  color: var(--ht-color-ink);
+  background: var(--ht-color-yellow);
+}
+
+.root[data-status='ongoing'] .statusBadge {
+  background: var(--ht-color-red);
 }
 
 .body {
   gap: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md);
 }
 
 .chipRow {
@@ -70,12 +84,13 @@
   align-items: center;
   gap: var(--mantine-spacing-xs);
   padding: var(--mantine-spacing-xs);
-  background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  background: var(--ht-color-utility);
+  border: var(--ht-border-width) solid var(--ht-color-ink);
+  color: var(--ht-color-ink);
 }
 
 .time {
-  color: var(--ht-color-text-muted);
+  color: var(--ht-color-ink);
   font-family: var(--ht-font-technical);
   font-size: var(--mantine-font-size-xs);
   font-weight: 650;

@@ -1,20 +1,29 @@
 .viewport {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
-  padding: var(--mantine-spacing-xl);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(var(--mantine-spacing-md), 4vw, calc(var(--mantine-spacing-xl) * 2));
   background-color: var(--ht-color-bg);
   background-image:
     linear-gradient(color-mix(in srgb, var(--ht-color-border) 26%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 26%, transparent) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-size: 22px 22px;
+
+  &::before {
+    position: absolute;
+    inset: 34% 0 auto 0;
+    height: 28%;
+    background: linear-gradient(90deg, transparent 28%, color-mix(in srgb, var(--ht-color-red) 18%, transparent));
+    content: '';
+  }
 
   &::after {
     position: absolute;
-    right: -6rem;
-    bottom: 8%;
-    width: 18rem;
-    height: 3rem;
+    right: -5rem;
+    bottom: 6%;
+    width: 22rem;
+    height: 2.75rem;
     background: var(--ht-color-yellow);
     border: var(--ht-border-width) solid var(--ht-color-ink);
     content: '';
@@ -26,20 +35,96 @@
 .shell {
   position: relative;
   z-index: 1;
-  width: min(100%, 27rem);
+  display: grid;
+  grid-template-columns: minmax(21rem, 1fr) minmax(24rem, 29rem);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 7rem);
+  width: min(100%, 74rem);
+}
+
+.identity {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 34rem;
+  padding: clamp(var(--mantine-spacing-md), 4vw, calc(var(--mantine-spacing-xl) * 2));
+
+  &::after {
+    width: min(22rem, 75%);
+    height: 22px;
+    margin-top: var(--mantine-spacing-xl);
+    background:
+      linear-gradient(45deg, var(--ht-color-ink) 25%, transparent 25%) 0 0 / 12px 12px,
+      linear-gradient(45deg, transparent 75%, var(--ht-color-ink) 75%) 0 0 / 12px 12px,
+      linear-gradient(45deg, transparent 75%, var(--ht-color-ink) 75%) 6px -6px / 12px 12px,
+      linear-gradient(45deg, var(--ht-color-ink) 25%, var(--ht-color-surface) 25%) 6px -6px / 12px 12px;
+    border: var(--ht-border-width) solid var(--ht-color-ink);
+    content: '';
+  }
 }
 
 .brand {
   width: max-content;
   max-width: 100%;
-  margin: 0 auto var(--mantine-spacing-md);
+  margin-bottom: var(--mantine-spacing-lg);
   cursor: pointer;
+}
+
+.presenter,
+.terminalLabel {
+  width: max-content;
+  padding: 4px 10px;
+  color: var(--mantine-color-white);
+  background: var(--ht-color-ink);
+  font-family: var(--ht-font-technical);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.presenter {
+  rotate: -1.5deg;
+}
+
+.manifesto {
+  display: flex;
+  flex-direction: column;
+  margin: var(--mantine-spacing-lg) 0;
+  font-size: clamp(3rem, 6vw, 5.6rem);
+  letter-spacing: -0.055em;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.manifesto span {
+  color: var(--ht-color-text);
+  font: inherit;
+}
+
+.manifesto span:first-child {
+  color: var(--ht-color-red);
+}
+
+.manifesto span:nth-child(3) {
+  color: var(--ht-color-blue);
+}
+
+.slogan {
+  max-width: 32rem;
+  padding: var(--mantine-spacing-sm) 0 var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  color: var(--ht-color-text-muted);
+  border-left: 3px solid var(--ht-color-red);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 550;
 }
 
 .panel {
   position: relative;
   width: 100%;
-  padding: clamp(var(--mantine-spacing-md), 5vw, var(--mantine-spacing-xl));
+  padding: clamp(var(--mantine-spacing-md), 4vw, var(--mantine-spacing-xl));
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
   box-shadow: var(--ht-shadow-lg);
@@ -48,11 +133,22 @@
     position: absolute;
     top: calc(-1 * var(--ht-border-width));
     left: calc(-1 * var(--ht-border-width));
-    width: 4rem;
-    height: 7px;
-    background: var(--ht-color-coral);
+    top: -10px;
+    left: 42%;
+    width: 5rem;
+    height: 18px;
+    background: var(--ht-color-yellow);
+    border: var(--ht-border-width) solid var(--ht-color-ink);
+    box-shadow: var(--ht-shadow-xs);
     content: '';
+    rotate: -3deg;
   }
+}
+
+.terminalLabel {
+  margin-bottom: var(--mantine-spacing-md);
+  color: var(--ht-color-surface);
+  background: var(--ht-color-red);
 }
 
 .title {
@@ -92,5 +188,42 @@
 
   .panel {
     padding: var(--mantine-spacing-md);
+  }
+}
+
+@mixin smaller-than $mantine-breakpoint-md {
+  .viewport {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .shell {
+    grid-template-columns: 1fr;
+    gap: var(--mantine-spacing-lg);
+    width: min(100%, 34rem);
+    margin: auto;
+  }
+
+  .identity {
+    min-height: auto;
+    padding: var(--mantine-spacing-sm) 0;
+  }
+
+  .identity::after,
+  .slogan {
+    display: none;
+  }
+
+  .brand {
+    margin: 0 0 var(--mantine-spacing-sm);
+  }
+
+  .manifesto {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 0 0.25em;
+    margin: var(--mantine-spacing-sm) 0 0;
+    font-size: clamp(2rem, 10vw, 3.25rem);
+    line-height: 0.9;
   }
 }

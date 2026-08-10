@@ -1,18 +1,28 @@
 .workspace {
   display: grid;
-  grid-template-columns: 10.5rem minmax(0, 1fr);
-  gap: var(--mantine-spacing-sm);
+  grid-template-columns: 11.5rem minmax(0, 1fr);
+  gap: var(--mantine-spacing-md);
   min-width: 0;
   width: 100%;
 }
 
 .sidebar {
+  position: relative;
   align-self: start;
   min-width: 0;
-  padding: var(--mantine-spacing-xs);
+  padding: calc(var(--mantine-spacing-sm) + 7px) var(--mantine-spacing-xs) var(--mantine-spacing-sm);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-sm);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
+}
+
+.sidebar::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
+  content: '';
 }
 
 .tabRoot {
@@ -23,6 +33,7 @@
 .tabList {
   width: 100%;
   gap: 4px;
+  border: 0;
 }
 
 .tabLabel {
@@ -31,25 +42,47 @@
 
 .tab {
   min-height: 2.5rem;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  color: var(--ht-color-text);
+  text-transform: uppercase;
 
-  &:not([data-active='true']) {
+  &:not([data-active]) {
     span[data-position='left'] {
       color: var(--tabs-color);
       filter: saturate(0.8);
     }
   }
+
+  &[data-active] {
+    background: var(--ht-color-yellow);
+    border-color: var(--ht-color-border-strong);
+    box-shadow: var(--ht-shadow-sm);
+    color: var(--ht-color-ink);
+    transform: translate(-1px, -1px);
+  }
 }
 
 .switch {
   justify-content: space-between;
+  padding-bottom: var(--mantine-spacing-xs);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .scrollArea {
+  position: relative;
   min-width: 0;
   height: calc(100vh - 6.67rem);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-sm);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 6%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-top-width: 7px;
+  border-top-color: var(--ht-color-primary);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .cardGrid {
@@ -64,6 +97,12 @@
   text-align: center;
 }
 
+.panelEmpty :where(h1, h2, h3),
+.fullEmpty :where(h1, h2, h3) {
+  font-family: var(--ht-font-display);
+  text-transform: uppercase;
+}
+
 @mixin smaller-than $mantine-breakpoint-sm {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -71,6 +110,7 @@
 
   .sidebar {
     width: 100%;
+    padding-top: calc(var(--mantine-spacing-sm) + 7px);
   }
 
   .tabList {
@@ -78,7 +118,7 @@
     grid-auto-flow: column;
     grid-auto-columns: 9rem;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding: 2px 2px 6px;
   }
 
   .tab {

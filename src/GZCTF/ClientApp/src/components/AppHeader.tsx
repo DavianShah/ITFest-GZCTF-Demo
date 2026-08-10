@@ -57,7 +57,7 @@ export const AppHeader: FC<AppControlProps> = ({ openColorModal }) => {
           </Menu>
           <Menu shadow="md" opened={opened} onClose={() => setOpened(false)} width={200} offset={13}>
             <Menu.Target>
-              <Burger opened={opened} onClick={() => setOpened((o) => !o)} />
+              <Burger className={classes.button} opened={opened} onClick={() => setOpened((o) => !o)} />
             </Menu.Target>
             <Menu.Dropdown>
               {user && !error ? (

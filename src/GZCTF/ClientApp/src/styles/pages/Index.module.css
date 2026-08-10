@@ -8,11 +8,17 @@
 }
 
 .posts::before {
-  width: min(14rem, 36%);
-  height: 6px;
-  background: var(--ht-color-coral);
-  border: 1px solid var(--ht-color-ink);
-  content: '';
+  width: max-content;
+  padding: 5px 12px;
+  color: var(--mantine-color-white);
+  background: var(--ht-color-ink);
+  border-left: 6px solid var(--ht-color-red);
+  box-shadow: var(--ht-shadow-xs);
+  content: '/// LATEST INTEL';
+  font-family: var(--ht-font-technical);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.05em;
 }
 
 .wrapper {
@@ -37,4 +43,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-top: 8px solid var(--ht-color-yellow);
+  box-shadow: var(--ht-shadow-lg);
 }

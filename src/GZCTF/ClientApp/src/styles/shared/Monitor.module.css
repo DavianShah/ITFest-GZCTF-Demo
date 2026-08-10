@@ -1,27 +1,28 @@
 .shell {
   display: grid;
-  grid-template-columns: 10rem minmax(0, 1fr);
+  grid-template-columns: 12rem minmax(0, 1fr);
   align-items: start;
-  gap: var(--mantine-spacing-md);
+  gap: var(--mantine-spacing-lg);
   width: 100%;
   min-width: 0;
 }
 
 .navRail {
-  position: relative;
+  position: sticky;
+  top: 5rem;
   gap: var(--mantine-spacing-sm);
   min-width: 0;
-  padding: var(--mantine-spacing-sm);
+  padding: calc(var(--mantine-spacing-sm) + 7px) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 
   &::before {
     position: absolute;
-    inset: calc(-1 * var(--ht-border-width)) auto auto calc(-1 * var(--ht-border-width));
-    width: 3rem;
-    height: 5px;
-    background: var(--ht-color-coral);
+    inset: 0 0 auto;
+    height: 7px;
+    background: var(--ht-color-yellow);
     content: '';
   }
 }
@@ -32,24 +33,67 @@
   width: 100%;
 }
 
+.scoreboardButton {
+  padding-inline: var(--mantine-spacing-sm);
+  text-transform: uppercase;
+}
+
+.scoreboardButton :global(.mantine-Button-inner) {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: var(--mantine-spacing-xs);
+  justify-content: stretch;
+}
+
+.scoreboardButton :global(.mantine-Button-section) {
+  margin: 0;
+}
+
+.scoreboardButton :global(.mantine-Button-label) {
+  overflow: visible;
+  text-align: left;
+}
+
 .tabsRoot {
   display: block;
 }
 
 .tabsList {
   gap: 4px;
+  min-width: 0;
   border: 0;
 }
 
 .tab {
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-items: center;
+  justify-content: stretch;
+  gap: var(--mantine-spacing-xs);
+  width: 100%;
+  max-width: 100%;
   min-height: 2.5rem;
+  padding-inline: var(--mantine-spacing-sm);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
+  text-align: left;
+  text-transform: uppercase;
+
+  & > :where([data-position='left']) {
+    margin: 0;
+  }
+
+  & > :where(:not([data-position])) {
+    min-width: 0;
+    text-align: left;
+  }
 
   &[data-active] {
+    background: var(--ht-color-primary);
     border-color: var(--ht-color-border-strong);
-    box-shadow: var(--ht-shadow-xs);
+    box-shadow: var(--ht-shadow-sm);
+    color: var(--mantine-color-white);
+    transform: translate(-1px, -1px);
   }
 }
 
@@ -60,11 +104,21 @@
 }
 
 .toolbar {
+  position: relative;
   min-width: 0;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-  background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-xs);
+  padding: calc(var(--mantine-spacing-sm) + 7px) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+  background: var(--ht-color-surface-raised);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
+}
+
+.toolbar::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
+  content: '';
 }
 
 .toolbarActions {
@@ -82,12 +136,17 @@
   overflow: hidden;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-md);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
+}
+
+.dataSurface {
+  border-top: 7px solid var(--ht-color-yellow);
 }
 
 .eventViewport {
   padding: var(--mantine-spacing-xs);
+  border-top: 7px solid var(--ht-color-primary);
 }
 
 .eventList {
@@ -96,12 +155,13 @@
 
 .eventRow {
   background: var(--ht-color-surface);
-  border: 1px solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
-  box-shadow: none;
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-left: 6px solid var(--ht-color-primary);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 
   @mixin hover {
-    background: color-mix(in srgb, var(--ht-color-primary) 6%, var(--ht-color-surface));
+    background: color-mix(in srgb, var(--ht-color-yellow) 10%, var(--ht-color-surface));
     border-color: var(--ht-color-border-strong);
   }
 }
@@ -112,8 +172,8 @@
 
 .eventMeta {
   min-width: 0;
-  padding-top: 2px;
-  border-top: 1px solid color-mix(in srgb, var(--ht-color-border) 65%, transparent);
+  padding-top: 4px;
+  border-top: 1px dashed var(--ht-color-border);
 }
 
 .technical,
@@ -123,7 +183,10 @@
 }
 
 .technicalBadge {
-  box-shadow: none;
+  background: var(--ht-color-bg);
+  border-color: var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .submissionTable {
@@ -133,8 +196,8 @@
 .resultCell svg {
   box-sizing: content-box;
   padding: 4px;
-  border: 1px solid currentColor;
-  border-radius: var(--ht-radius-sm);
+  border: var(--ht-border-width) solid currentColor;
+  border-radius: 0;
 }
 
 .disclosureLink {
@@ -165,13 +228,19 @@
 .cheatAccordionItem {
   overflow: hidden;
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
-  box-shadow: var(--ht-shadow-xs);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-sm);
 
   &[data-active] {
     border-color: var(--ht-color-border-strong);
   }
+}
+
+.cheatAccordionItem[data-active] .cheatAccordionControl {
+  background: var(--ht-color-ink);
+  border-bottom: 6px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
 }
 
 .cheatAccordionControl {
@@ -187,7 +256,7 @@
 .statusZone {
   flex: 0 0 auto;
   padding-left: var(--mantine-spacing-sm);
-  border-left: var(--ht-border-width) solid var(--ht-color-border);
+  border-left: var(--ht-border-width) solid currentColor;
 }
 
 .statusBadge {
@@ -196,20 +265,21 @@
 
 .adminActions {
   padding-left: var(--mantine-spacing-sm);
-  border-left: var(--ht-border-width) dashed var(--ht-color-border-strong);
+  border-left: var(--ht-border-width) dashed currentColor;
 }
 
 .cheatPanel {
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
   background: var(--ht-color-bg);
-  border-top: 1px solid var(--ht-color-border);
+  border-top: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 .evidenceRow {
   min-width: 48rem;
   padding: var(--mantine-spacing-xs);
   background: var(--ht-color-surface);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-left: 6px solid var(--ht-color-yellow);
 }
 
 .evidenceLead,
@@ -224,7 +294,7 @@
 .emptyState {
   padding: var(--mantine-spacing-xl);
   background: var(--ht-color-surface);
-  border: var(--ht-border-width) dashed var(--ht-color-border);
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
 }
 
 .trafficSurface {
@@ -232,8 +302,9 @@
   overflow-x: auto;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-md);
-  box-shadow: var(--ht-shadow-sm);
+  border-top: 7px solid var(--ht-color-yellow);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .trafficGrid {
@@ -245,8 +316,9 @@
 }
 
 .trafficHeader {
-  background: var(--ht-color-bg);
-  border-bottom-color: var(--ht-color-border-strong);
+  background: var(--ht-color-ink);
+  border-bottom: 6px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
 }
 
 .trafficSelect {
@@ -257,18 +329,19 @@
 .fileItem {
   margin-top: 2px;
   background: var(--ht-color-surface);
-  border: 1px solid transparent;
-  border-radius: var(--ht-radius-sm);
+  border: var(--ht-border-width) solid transparent;
+  border-radius: 0;
 
   @mixin hover {
-    background: color-mix(in srgb, var(--ht-color-primary) 7%, var(--ht-color-surface));
+    background: color-mix(in srgb, var(--ht-color-yellow) 9%, var(--ht-color-surface));
     border-color: var(--ht-color-border);
   }
 
   &[data-active] {
-    background: color-mix(in srgb, var(--ht-color-primary) 14%, var(--ht-color-surface));
-    border-color: var(--ht-color-primary);
-    box-shadow: inset 4px 0 0 var(--ht-color-primary);
+    background: var(--ht-color-yellow);
+    border-color: var(--ht-color-border-strong);
+    box-shadow: inset 6px 0 0 var(--ht-color-primary);
+    color: var(--ht-color-ink);
   }
 }
 
@@ -300,7 +373,7 @@
 .fileDelete {
   flex: 0 0 2.5rem;
   padding-left: var(--mantine-spacing-xs);
-  border-left: 1px solid var(--ht-color-border);
+  border-left: var(--ht-border-width) solid var(--ht-color-border);
 }
 
 @mixin smaller-than $mantine-breakpoint-sm {
@@ -309,6 +382,7 @@
   }
 
   .navRail {
+    position: static;
     width: 100%;
   }
 

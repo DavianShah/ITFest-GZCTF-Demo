@@ -52,17 +52,7 @@ export const WithNavBar: FC<WithNavBarProps> = ({
         gutter={22}
         opacity={colorScheme === 'dark' ? 0.018 : 0.025}
       >
-        <AppShell
-          p={0}
-          header={{ height: 60, collapsed: !isMobile }}
-          navbar={{
-            width: 65,
-            breakpoint: 'sm',
-            collapsed: {
-              mobile: true,
-            },
-          }}
-        >
+        <AppShell p={0} header={{ height: isMobile ? 60 : 72 }}>
           <AppHeader openColorModal={openColorModal} />
           <AppNavbar openColorModal={openColorModal} />
           <AppShell.Main w="100%">

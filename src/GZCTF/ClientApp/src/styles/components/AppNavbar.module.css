@@ -1,79 +1,94 @@
 .link {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--mantine-radius-md);
+  width: auto;
+  min-width: 42px;
+  height: 38px;
+  padding-inline: var(--mantine-spacing-sm);
+  border: 0;
+  border-bottom: 4px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   cursor: pointer;
-  border: 1px solid transparent;
+  color: var(--ht-color-text);
 
-  @mixin dark {
-    color: var(--mantine-color-gray-0);
-
-    &:hover {
-      background-color: color-mix(in srgb, var(--mantine-primary-color-filled) 20%, transparent);
-      border-color: var(--ht-color-border);
-    }
-
-    &[data-active] {
-      background-color: var(--mantine-primary-color-filled);
-      color: var(--mantine-primary-color-contrast);
-      border-color: var(--ht-color-border-strong);
-    }
+  &:hover {
+    background: var(--ht-color-yellow);
+    color: var(--ht-color-ink);
+    border-bottom-color: var(--ht-color-ink);
   }
 
-  @mixin light {
-    color: var(--mantine-color-gray-7);
-
-    &:hover {
-      background-color: color-mix(in srgb, var(--mantine-primary-color-filled) 12%, var(--ht-color-surface));
-      border-color: var(--ht-color-border);
-    }
-
-    &[data-active] {
-      background-color: var(--mantine-primary-color-filled);
-      color: var(--mantine-primary-color-contrast);
-    }
+  &[data-active] {
+    background: transparent;
+    color: var(--ht-color-primary);
+    border-bottom-color: var(--ht-color-yellow);
   }
 }
 
 .navbar {
-  padding: var(--mantine-spacing-xs);
+  display: grid;
+  grid-template-columns: minmax(14rem, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+  padding: 0 var(--mantine-spacing-md);
   border: 0;
-  border-right: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-md);
+  border-bottom: 5px solid var(--ht-color-ink);
+  box-shadow: none;
   background-color: var(--ht-color-surface);
 
-  @media (max-width: $mantine-breakpoint-xs) {
+  @media (max-width: $mantine-breakpoint-sm) {
     display: none;
   }
 }
 
 .tooltip {
-  margin-left: 20px;
   font-weight: 500;
-  color: var(--mantine-color-light-0);
-  background-color: var(--mantine-primary-color-6);
-
-  @mixin dark {
-    background-color: darken(var(--mantine-primary-color-8), 0.45);
-    color: var(--mantine-primary-color-2);
-  }
+  color: var(--mantine-color-white);
+  background-color: var(--ht-color-ink);
 }
 
 .section {
   display: flex;
   align-items: center;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: var(--mantine-spacing-xs);
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
 }
 
-.logo {
-  width: 100%;
-  height: auto;
-  position: relative;
+.brandSection,
+.utilities {
+  min-width: 0;
+}
+
+.brandLink {
+  display: block;
+  width: max-content;
+  color: inherit;
+  text-decoration: none;
+}
+
+.utilities {
+  justify-self: end;
+}
+
+.utilities .link {
+  width: 38px;
+  padding: 0;
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  box-shadow: var(--ht-shadow-xs);
+}
+
+.utilities .link:hover {
+  border-color: var(--ht-color-ink);
+  transform: translate(-1px, -1px);
+}
+
+.linkLabel {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+  line-height: 1;
 }
 
 .main {
@@ -81,8 +96,12 @@
   align-items: center;
   position: relative;
   z-index: 10;
-  box-shadow: inset 0 1px 0 var(--ht-color-border);
+  box-shadow: none;
   background-color: var(--ht-color-bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 9%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
   min-height: 100vh;
 
   &[data-mobile] {
@@ -91,5 +110,21 @@
 
   &[data-pb] {
     padding-bottom: var(--mantine-spacing-xl);
+  }
+}
+
+@mixin smaller-than 1120px {
+  .navbar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--mantine-spacing-xs);
+  }
+
+  .link {
+    min-width: 36px;
+    padding-inline: 8px;
+  }
+
+  .linkLabel {
+    display: none;
   }
 }

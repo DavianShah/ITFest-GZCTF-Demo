@@ -2,11 +2,17 @@
   width: 100%;
   z-index: 150;
   border: 0;
-  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
-  box-shadow: var(--ht-shadow-sm);
+  border-bottom: 5px solid var(--ht-color-ink);
+  box-shadow: none;
   background-color: var(--ht-color-surface);
 }
 
 .button {
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-0));
+  width: 38px;
+  height: 38px;
+  color: var(--ht-color-text);
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }

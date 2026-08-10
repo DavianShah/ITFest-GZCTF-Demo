@@ -15,7 +15,7 @@
 .actionIcon,
 .paginationControl {
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
   box-shadow: var(--ht-shadow-sm);
   transition:
     background-color var(--ht-motion-fast) var(--ht-ease-out),
@@ -50,6 +50,15 @@
   box-shadow: none;
 }
 
+.button[data-variant='filled'] {
+  box-shadow: var(--ht-shadow-md);
+}
+
+.button[data-variant='outline'],
+.button[data-variant='default'] {
+  background: var(--ht-color-surface);
+}
+
 .closeButton {
   border: 1px solid transparent;
   border-radius: var(--ht-radius-sm);
@@ -69,7 +78,7 @@
   &:not([data-variant='unstyled']) {
     background: var(--ht-color-surface);
     border: var(--ht-border-width) solid var(--ht-color-border);
-    border-radius: var(--ht-radius-sm);
+    border-radius: 0;
     color: var(--ht-color-text);
     transition:
       background-color var(--ht-motion-fast) var(--ht-ease-out),
@@ -122,8 +131,8 @@
 .surface {
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-md);
-  box-shadow: var(--ht-shadow-sm);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .loader {
@@ -214,13 +223,13 @@
 .floatingSurface {
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-md);
+  border-radius: 0;
   box-shadow: var(--ht-shadow-lg);
 }
 
 .overlayHeader {
-  background: var(--ht-color-surface);
-  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+  background: var(--ht-color-ink);
+  border-bottom: 5px solid var(--ht-color-yellow);
   min-height: 3.25rem;
 }
 
@@ -229,6 +238,8 @@
   font-size: var(--mantine-font-size-lg);
   font-weight: 750;
   letter-spacing: -0.01em;
+  color: var(--mantine-color-white);
+  text-transform: uppercase;
 }
 
 .overlayBody {
@@ -247,7 +258,7 @@
 
 .badge {
   border-width: var(--ht-border-width);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
   font-weight: 700;
   letter-spacing: 0.025em;
   text-transform: uppercase;
@@ -259,12 +270,12 @@
 
 .tabsList {
   gap: 3px;
-  border-color: var(--ht-color-border);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .tab {
   border: var(--ht-border-width) solid transparent;
-  border-radius: var(--ht-radius-sm) var(--ht-radius-sm) 0 0;
+  border-radius: 0;
   color: var(--ht-color-text-muted);
   padding: var(--mantine-spacing-xs);
   transition:
@@ -280,9 +291,10 @@
   }
 
   &[data-active] {
-    background: var(--ht-color-primary);
-    border-color: var(--ht-color-border-strong);
-    color: var(--ht-color-on-primary);
+    background: var(--ht-color-ink);
+    border-color: var(--ht-color-ink);
+    border-bottom-color: var(--ht-color-yellow);
+    color: var(--mantine-color-white);
     transform: translateY(-1px);
   }
 }
@@ -290,7 +302,7 @@
 .segmentedControl {
   background: var(--ht-color-bg);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
   padding: 2px;
 }
 
@@ -301,7 +313,7 @@
 .segmentIndicator {
   background: var(--ht-color-primary);
   border: 1px solid var(--ht-color-border-strong);
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
   box-shadow: var(--ht-shadow-xs);
 }
 
@@ -321,7 +333,7 @@
 }
 
 .tableHead {
-  background: var(--ht-color-surface-raised);
+  background: var(--ht-color-ink);
 }
 
 .tableRow {
@@ -340,7 +352,7 @@
 
 .tableHeaderCell {
   border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
-  color: var(--ht-color-text);
+  color: var(--mantine-color-white);
   font-size: var(--mantine-font-size-xs);
   font-weight: 750;
   letter-spacing: 0.04em;
@@ -364,7 +376,7 @@
 .notification {
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--notification-color, var(--ht-color-border-strong));
-  border-radius: var(--ht-radius-md);
+  border-radius: 0;
   box-shadow: var(--ht-shadow-md);
 }
 
@@ -383,7 +395,7 @@
 
 .menuItem {
   border: 1px solid transparent;
-  border-radius: var(--ht-radius-sm);
+  border-radius: 0;
   font-weight: 550;
 
   @mixin hover {

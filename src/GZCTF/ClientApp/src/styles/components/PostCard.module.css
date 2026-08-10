@@ -3,10 +3,21 @@
   overflow: visible;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-sm);
+  box-shadow: var(--ht-shadow-md);
+
+  &::after {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 5rem;
+    height: 8px;
+    background: repeating-linear-gradient(135deg, var(--ht-color-ink) 0 5px, var(--ht-color-yellow) 5px 10px);
+    border: 1px solid var(--ht-color-ink);
+    content: '';
+  }
 
   &[data-pinned] {
-    border-left: 6px solid var(--ht-color-yellow);
+    border-left: 8px solid var(--ht-color-yellow);
   }
 }
 
@@ -16,7 +27,7 @@
 
 .quote {
   flex: 0 0 auto;
-  color: var(--ht-color-primary);
+  color: var(--ht-color-red);
 }
 
 .body {
@@ -67,7 +78,7 @@
 }
 
 .tag {
-  color: var(--ht-color-primary);
+  color: var(--ht-color-red);
   font-family: var(--ht-font-technical);
 }
 

@@ -1,8 +1,53 @@
 .brand {
   display: inline-block;
-  color: light-dark(var(--mantine-primary-color-6), var(--mantine-primary-color-4));
+  color: var(--ht-color-red);
+}
+
+.root {
+  min-width: 0;
+}
+
+.mark {
+  flex: 0 0 auto;
+  padding: 3px;
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+}
+
+.wordmark {
+  min-width: 0;
 }
 
 .title {
-  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-light-0));
+  max-width: 12rem;
+  overflow: hidden;
+  color: var(--ht-color-red);
+  font-size: 1.45rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.kicker {
+  color: var(--ht-color-text);
+  font-family: var(--ht-font-technical);
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+@mixin smaller-than $mantine-breakpoint-xs {
+  .mark {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .title {
+    max-width: 9rem;
+    font-size: 1.1rem;
+  }
 }

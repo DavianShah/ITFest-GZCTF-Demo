@@ -2,6 +2,10 @@
   width: 100%;
   min-height: 100vh;
   padding: var(--mantine-spacing-xl) 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ht-color-border) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ht-color-border) 9%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 .panel {
@@ -10,6 +14,17 @@
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
   box-shadow: var(--ht-shadow-lg);
+
+  &::before {
+    display: block;
+    width: 7rem;
+    height: 8px;
+    margin: calc(-1 * clamp(var(--mantine-spacing-md), 4vw, calc(var(--mantine-spacing-xl) * 1.5))) 0
+      var(--mantine-spacing-lg);
+    background: var(--ht-color-red);
+    border-right: 2rem solid var(--ht-color-yellow);
+    content: '';
+  }
 }
 
 .header {

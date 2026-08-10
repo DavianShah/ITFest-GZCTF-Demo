@@ -28,31 +28,36 @@
 
 .root {
   position: relative;
-  min-height: 10rem;
+  min-height: 9rem;
   overflow: hidden;
-  filter: saturate(0.92);
-  border-color: var(--ht-color-border-strong);
+  padding: var(--mantine-spacing-sm);
+  filter: saturate(0.96);
+  background: var(--ht-color-surface);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 
   &::before {
     position: absolute;
-    inset: 0 0 auto;
-    height: 5px;
-    background: var(--ht-color-primary);
+    inset: auto 0 0;
+    height: 7px;
+    background: repeating-conic-gradient(var(--ht-color-ink) 0 25%, transparent 0 50%) 0 / 8px 8px;
     content: '';
     pointer-events: none;
+    z-index: 110;
   }
 
   &[data-solved]::before {
-    background: var(--ht-status-solved);
+    background: repeating-linear-gradient(135deg, var(--ht-status-solved) 0 6px, var(--ht-color-ink) 6px 12px);
   }
 
   &[data-faded] {
     @mixin dark {
-      filter: brightness(0.8);
+      filter: brightness(0.82) saturate(0.75);
     }
 
     @mixin light {
-      filter: brightness(0.95);
+      filter: brightness(0.97) saturate(0.78);
     }
   }
 }
@@ -63,15 +68,31 @@
 }
 
 .titleRow {
-  padding-top: 2px;
+  margin: calc(-1 * var(--mantine-spacing-sm));
+  margin-bottom: 0;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: var(--ht-color-ink);
+  border-bottom: 5px solid var(--ht-color-yellow);
+  color: var(--mantine-color-white);
 }
 
 .score {
+  padding: 3px 6px;
+  background: var(--ht-color-yellow);
+  border: 1px solid var(--ht-color-ink);
+  color: var(--ht-color-ink);
   letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .solveMeta {
   min-width: 6.5rem;
+}
+
+.solveMeta :where(h1, h2, h3, h4, h5, h6) {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .flag {
@@ -85,9 +106,10 @@
   padding: calc(0.25 * var(--mantine-spacing-xs));
   border-bottom: var(--ht-border-width) solid var(--ht-color-border-strong);
   border-left: var(--ht-border-width) solid var(--ht-color-border-strong);
-  border-radius: 0 0 0 var(--ht-radius-md);
+  border-radius: 0;
   background-color: var(--ht-status-solved);
   color: var(--mantine-color-white);
+  box-shadow: -2px 2px 0 var(--ht-color-ink);
 }
 
 .icon {
@@ -96,6 +118,7 @@
   left: 0;
   transform: translateY(35%);
   z-index: 80;
+  opacity: 0.55;
 }
 
 .blood {
@@ -110,6 +133,6 @@
 
 @mixin smaller-than $mantine-breakpoint-xs {
   .root {
-    min-height: 9rem;
+    min-height: 8.5rem;
   }
 }

@@ -16,7 +16,6 @@ import { mdiAccountMultiplePlus, mdiCheck, mdiClose, mdiHumanGreetingVariant } f
 import { Icon } from '@mdi/react'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LogoHeader } from '@Components/LogoHeader'
 import { TeamCard } from '@Components/TeamCard'
 import { TeamCreateModal } from '@Components/TeamCreateModal'
 import { TeamEditModal } from '@Components/TeamEditModal'
@@ -115,7 +114,9 @@ const Teams: FC = () => {
               btns
             ) : (
               <>
-                <LogoHeader />
+                <Title order={1} className={experience.pageTitle}>
+                  {t('team.title.index')}
+                </Title>
                 <Group className={experience.pageActions} justify="right">
                   {btns}
                 </Group>

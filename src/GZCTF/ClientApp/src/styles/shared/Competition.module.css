@@ -2,12 +2,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
   align-items: start;
-  gap: var(--mantine-spacing-sm);
+  gap: var(--mantine-spacing-lg);
   min-width: 0;
 }
 
 .supportRail {
   min-width: 0;
+  position: sticky;
+  top: 5rem;
 }
 
 .speedrunBanner,
@@ -23,17 +25,19 @@
 .speedrunBanner,
 .teamRank,
 .noticePanel {
-  box-shadow: var(--ht-shadow-sm);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-md);
 }
 
 .speedrunBanner::before,
 .timelineSurface::before {
   position: absolute;
-  inset: calc(-1 * var(--ht-border-width)) auto auto calc(-1 * var(--ht-border-width));
-  width: 3.5rem;
-  height: 6px;
-  background: var(--ht-color-coral);
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--ht-color-yellow);
   content: '';
+  z-index: 2;
 }
 
 .speedrunBanner {
@@ -45,15 +49,31 @@
 .noticePanel::after {
   position: absolute;
   inset: 0 0 auto;
-  height: 4px;
+  height: 7px;
   background: var(--ht-color-primary);
   content: '';
   pointer-events: none;
 }
 
+.teamRank {
+  padding-top: calc(var(--mantine-spacing-md) + 2px);
+}
+
+.teamRank::after {
+  background: var(--ht-color-yellow);
+}
+
+.noticePanel {
+  padding-top: calc(var(--mantine-spacing-md) + 2px);
+}
+
 .rankIdentity {
   padding-bottom: var(--mantine-spacing-xs);
-  border-bottom: 1px solid var(--ht-color-border);
+  border-bottom: var(--ht-border-width) solid var(--ht-color-border);
+}
+
+.rankIdentity :where(h1, h2, h3, h4) {
+  text-transform: uppercase;
 }
 
 .rankMetrics {
@@ -62,28 +82,35 @@
   gap: 0;
   overflow: hidden;
   background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
 }
 
 .rankMetric {
   min-width: 0;
+  max-width: none;
   padding: var(--mantine-spacing-xs);
-  border-right: 1px solid var(--ht-color-border);
+  border-right: var(--ht-border-width) solid var(--ht-color-border);
 
   &:last-child {
     border-right: 0;
   }
 }
 
+.rankMetric:first-child {
+  background: var(--ht-color-yellow);
+  color: var(--ht-color-ink);
+}
+
 .rankProgress {
-  border: 1px solid var(--ht-color-border);
+  border: var(--ht-border-width) solid var(--ht-color-border);
+  border-radius: 0;
 }
 
 .teamToken {
-  padding: 2px var(--mantine-spacing-xs);
-  background: var(--ht-color-bg);
-  border: 1px dashed var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
+  padding: 3px var(--mantine-spacing-xs);
+  background: color-mix(in srgb, var(--ht-color-yellow) 18%, var(--ht-color-surface));
+  border: var(--ht-border-width) dashed var(--ht-color-border);
+  border-radius: 0;
 }
 
 .noticeFilter {
@@ -95,8 +122,8 @@
 }
 
 .noticeList :where(li) {
-  padding-block: 4px;
-  border-bottom: 1px solid color-mix(in srgb, var(--ht-color-border) 55%, transparent);
+  padding-block: var(--mantine-spacing-xs);
+  border-bottom: 1px solid var(--ht-color-border);
 }
 
 .scoreboardStack {
@@ -108,10 +135,21 @@
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border-strong);
   box-shadow: var(--ht-shadow-md);
+  border-radius: 0;
 }
 
 .timelineSurface {
-  padding: var(--mantine-spacing-sm);
+  padding: calc(var(--mantine-spacing-md) + 7px) var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+}
+
+.timelineSurface::after {
+  position: absolute;
+  inset: auto var(--mantine-spacing-sm) 0 auto;
+  width: 7rem;
+  height: 7px;
+  background: repeating-conic-gradient(var(--ht-color-ink) 0 25%, transparent 0 50%) 0 / 8px 8px;
+  content: '';
+  pointer-events: none;
 }
 
 .scoreboardSurface > * {
@@ -128,23 +166,28 @@
 
 .writeupStatus {
   flex-shrink: 0;
-  padding: 3px var(--mantine-spacing-xs);
-  background: var(--ht-color-bg);
-  border: 1px solid var(--ht-color-border);
-  border-radius: var(--ht-radius-sm);
+  padding: 4px var(--mantine-spacing-xs);
+  background: var(--ht-color-yellow);
+  border: var(--ht-border-width) solid var(--ht-color-ink);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
+  color: var(--ht-color-ink);
+  transform: rotate(1deg);
 }
 
 .writeupInstructions {
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
-  background: var(--ht-color-bg);
-  border-left: 4px solid var(--ht-color-yellow);
+  background: color-mix(in srgb, var(--ht-color-yellow) 12%, var(--ht-color-surface));
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-left-width: 7px;
 }
 
 .writeupFile {
   min-height: 5rem;
   background: var(--ht-color-bg);
-  border-style: dashed;
-  box-shadow: none;
+  border: var(--ht-border-width) dashed var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 @mixin smaller-than $mantine-breakpoint-lg {
@@ -156,6 +199,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
+    position: static;
   }
 }
 
@@ -173,7 +217,7 @@
   }
 
   .rankMetric:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--ht-color-border);
+    border-bottom: var(--ht-border-width) solid var(--ht-color-border);
   }
 
   .timelineSurface {

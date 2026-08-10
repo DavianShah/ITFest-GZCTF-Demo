@@ -19,7 +19,23 @@
   position: relative;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-sm);
+  box-shadow: var(--ht-shadow-lg);
+
+  &::before {
+    position: absolute;
+    z-index: 2;
+    top: -1px;
+    right: var(--mantine-spacing-md);
+    padding: 3px 8px;
+    color: var(--mantine-color-white);
+    background: var(--ht-color-ink);
+    border: 1px solid var(--ht-color-ink);
+    content: 'TEAM FILE';
+    font-family: var(--ht-font-technical);
+    font-size: 0.6rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+  }
 
   &[data-role='captain'] {
     border-top: 6px solid var(--ht-color-yellow);
@@ -31,7 +47,7 @@
   position: relative;
   background: var(--ht-color-surface);
   border: var(--ht-border-width) solid var(--ht-color-border);
-  box-shadow: var(--ht-shadow-sm);
+  box-shadow: var(--ht-shadow-md);
 
   &[data-role='captain'] {
     border-top: 6px solid var(--ht-color-yellow);
@@ -41,6 +57,13 @@
 .contentGroup {
   align-items: center;
   padding: var(--mantine-spacing-sm);
+}
+
+.contentGroup > :first-child,
+.contentGroupMobile > :first-child {
+  border: var(--ht-border-width) solid var(--ht-color-border-strong);
+  border-radius: 0;
+  box-shadow: var(--ht-shadow-xs);
 }
 
 .contentGroupMobile {
