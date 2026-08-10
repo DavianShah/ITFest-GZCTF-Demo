@@ -7,6 +7,9 @@ import { initReactI18next } from 'react-i18next'
 import { BrowserRouter } from 'react-router'
 import manifest from 'virtual:i18n-manifest'
 import { convertLanguage, LanguageProvider } from '@Utils/I18n'
+import { installDemoMode } from './demo'
+
+installDemoMode()
 
 i18n
   .use(LanguageDetector)

@@ -1,0 +1,57 @@
+.bar {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 4999;
+  min-height: 38px;
+  padding: 5px 7px;
+  border: 2px solid #1b1b1b;
+  background: #ffd800;
+  box-shadow: 4px 4px 0 #1b1b1b;
+  color: #1b1b1b;
+  font-family: var(--mantine-font-family-headings);
+}
+
+.label,
+.credentials {
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.credentials {
+  padding-left: 8px;
+  border-left: 2px solid #1b1b1b;
+}
+
+.role {
+  width: 165px;
+}
+
+.role input {
+  height: 26px;
+  min-height: 26px;
+  border: 2px solid #1b1b1b;
+  border-radius: 0;
+  background: #fffef9;
+  color: #1b1b1b;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+@media (max-width: 36em) {
+  .bar {
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100vw - 16px);
+  }
+
+  .label {
+    font-size: 0.65rem;
+  }
+
+  .role {
+    width: 155px;
+  }
+}

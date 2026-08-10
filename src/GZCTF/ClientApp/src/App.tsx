@@ -20,6 +20,7 @@ import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
 import '@mantine/dropzone/styles.css'
 import '@mantine/notifications/styles.css'
+import { DemoBar } from './demo'
 import './styles/App.css'
 
 export const App: FC = () => {
@@ -50,6 +51,7 @@ export const App: FC = () => {
                 }}
               >
                 <WsrxProvider>
+                  <DemoBar />
                   <Suspense
                     fallback={
                       <Center h="100vh" w="100vw">

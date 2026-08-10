@@ -1,0 +1,5 @@
+{
+  "buildCommand": "corepack pnpm check && corepack pnpm exec vite build",
+  "outputDirectory": "build",
+  "rewrites": [{ "destination": "/index.html", "source": "/(.*)" }]
+}

@@ -7,6 +7,7 @@ import { t } from 'i18next'
 import { createContext, useCallback, use, useEffect, useMemo, useState } from 'react'
 import { showErrorMsg } from '@Utils/Shared'
 import { useConfig } from '@Hooks/useConfig'
+import { DEMO_MODE } from '../demo'
 
 interface CustomWsrxOptions {
   name: string
@@ -103,6 +104,7 @@ export const WsrxProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const wsrx = useMemo(() => new Wsrx(getWsrxConfig(wsrxOptions)), [])
 
   const doWsrxConnect = useDebouncedCallback(async () => {
+    if (DEMO_MODE) return
     try {
       wsrx.connect()
     } catch (err) {
