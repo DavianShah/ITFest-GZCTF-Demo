@@ -551,6 +551,8 @@ export const demoReads: Record<string, unknown> = {
 }
 
 export const getDemoRead = (path: string) => {
+  if (demoReads[path] !== undefined) return demoReads[path]
+
   if (/\/challenges\/\d+\/status\/\d+$/.test(path)) return 'Accepted'
 
   if (path.startsWith('/api/posts/')) {
@@ -563,7 +565,7 @@ export const getDemoRead = (path: string) => {
     return challengeDetails[id] ?? challengeDetails[101]
   }
 
-  return demoReads[path]
+  return undefined
 }
 
 export const demoMutationResult = (path: string, body: unknown) => {
