@@ -3,6 +3,7 @@ import { showNotification } from '@mantine/notifications'
 import { HubConnectionBuilder } from '@microsoft/signalr'
 import { AxiosError, AxiosHeaders, InternalAxiosRequestConfig } from 'axios'
 import { FC, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import { useUser } from '@Hooks/useUser'
 import api, { Role } from '@Api'
 import classes from './Demo.module.css'
@@ -13,6 +14,7 @@ export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 const SESSION_KEY = 'hacktoday-demo-session'
 const ROLE_KEY = 'hacktoday-demo-role'
 const DEMO_ACTION_EVENT = 'hacktoday-demo-action'
+const DEMO_SESSION_EVENT = 'hacktoday-demo-session-change'
 
 const getRole = () => (localStorage.getItem(ROLE_KEY) as Role | null) ?? Role.Admin
 const hasSession = () => localStorage.getItem(SESSION_KEY) === 'active'
@@ -118,6 +120,7 @@ export const installDemoMode = () => {
     if (path === '/api/account/logout') {
       localStorage.removeItem(SESSION_KEY)
       localStorage.removeItem(ROLE_KEY)
+      window.setTimeout(() => window.dispatchEvent(new Event(DEMO_SESSION_EVENT)))
       return response(config, {})
     }
 
@@ -148,6 +151,7 @@ export const installDemoMode = () => {
 
 export const DemoBar: FC = () => {
   const { user, mutate } = useUser()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const notify = () =>
@@ -160,6 +164,15 @@ export const DemoBar: FC = () => {
     window.addEventListener(DEMO_ACTION_EVENT, notify)
     return () => window.removeEventListener(DEMO_ACTION_EVENT, notify)
   }, [])
+
+  useEffect(() => {
+    const revalidate = () => {
+      void mutate()
+      navigate('/account/login', { replace: true })
+    }
+    window.addEventListener(DEMO_SESSION_EVENT, revalidate)
+    return () => window.removeEventListener(DEMO_SESSION_EVENT, revalidate)
+  }, [mutate, navigate])
 
   if (!DEMO_MODE) return null
 
@@ -183,9 +196,7 @@ export const DemoBar: FC = () => {
             void mutate()
           }}
         />
-      ) : (
-        <Text className={classes.credentials}>LOGIN admin / demo123</Text>
-      )}
+      ) : null}
     </Group>
   )
 }

@@ -459,9 +459,140 @@ export const demoReads: Record<string, unknown> = {
       members: [{ id: members[0].userId, userName: 'admin', captain: false }],
     },
   ],
+  '/api/admin/onboarding': [
+    {
+      inviteId: 1,
+      teamName: 'CYBERKNIGHTS',
+      captainEmail: 'captain@demo.invalid',
+      gameTitles: [game.title],
+      status: 'Pending',
+      createdAtUtc: now - 3_600_000,
+      expiresAtUtc: now + 259_200_000,
+      openedAtUtc: null,
+      consumedAtUtc: null,
+      revokedAtUtc: null,
+      lastSentAtUtc: now - 3_600_000,
+      sendCount: 1,
+      lastEmailQueued: true,
+      teamId: 2,
+    },
+  ],
+  '/api/admin/teams': {
+    data: [
+      {
+        id: 2,
+        name: 'CYBERKNIGHTS',
+        bio: 'Breaking systems, building trust.',
+        avatar: null,
+        locked: false,
+        members: [
+          { id: members[0].userId, userName: members[0].userName, avatar: null, captain: true },
+          { id: members[1].userId, userName: members[1].userName, avatar: null, captain: false },
+        ],
+      },
+      {
+        id: 5,
+        name: 'NULLBYTE',
+        bio: 'University security research collective.',
+        avatar: null,
+        locked: true,
+        members: [{ id: members[1].userId, userName: members[1].userName, avatar: null, captain: true }],
+      },
+    ],
+    length: 2,
+    total: 2,
+  },
+  '/api/admin/instances': {
+    data: [
+      {
+        team: { id: 2, name: 'CYBERKNIGHTS', avatar: null },
+        challenge: { id: 101, title: 'Baby SQLi', category: 'Web' },
+        image: 'hacktoday/demo-challenge:latest',
+        containerGuid: '33333333-3333-3333-3333-333333333333',
+        containerId: 'demo-baby-sqli',
+        startedAt: now - 600_000,
+        expectStopAt: now + 3_000_000,
+        ip: 'demo-target.invalid',
+        port: 31337,
+      },
+    ],
+    length: 1,
+    total: 1,
+  },
+  '/api/admin/logs': [
+    {
+      time: now - 60_000,
+      name: 'admin',
+      level: 'Information',
+      ip: '192.0.2.10',
+      msg: 'Demo administration service is ready.',
+      status: 'Success',
+    },
+    {
+      time: now - 120_000,
+      name: 'system',
+      level: 'Warning',
+      ip: '127.0.0.1',
+      msg: 'Mock data mode is active.',
+      status: 'Pending',
+    },
+  ],
   '/api/edit/games': { data: [editGame], length: 1, total: 1 },
   '/api/edit/games/1': editGame,
+  '/api/edit/games/1/notices': [
+    { id: 1, type: 'Normal', time: now - 900_000, values: ['Competition systems online.'] },
+    { id: 2, type: 'FirstBlood', time: now - 700_000, values: ['ZERODAY', 'Baby SQLi'] },
+  ],
+  '/api/edit/games/1/bloodnotification': {
+    enabled: true,
+    discordWebhookUrl: 'https://discord.com/api/webhooks/demo/mock',
+    maxRank: 3,
+    template: '{team} solved {challenge}',
+    embedTitleTemplate: '{emoji} {blood} BLOOD!',
+    embedDescriptionTemplate: '**{team}** conquered **{challenge}** and claimed rank **#{rank}**!',
+    embedColor: '#cf001c',
+    embedFieldsTemplate: 'Team|{team}|true\nChallenge|{challenge}|true\nPoints|{score}|true',
+    embedFooterTemplate: 'Solved at {time} • ITFest CTF',
+    timeZone: 'Asia/Jakarta',
+  },
   '/api/edit/games/1/speedrun': speedrun,
+  '/api/edit/games/1/livescoreboard': {
+    enabled: true,
+    title: 'HackToday Live Scoreboard',
+    subtitle: 'IT TODAY 2026',
+    soundEnabled: true,
+    volume: 0.7,
+    visualIntensity: 'Normal',
+    sounds: {},
+  },
+  '/api/edit/games/1/aidisclosures': [
+    {
+      submissionId: 1,
+      submitTimeUtc: now - 35_000,
+      team: 'CYBERKNIGHTS',
+      user: 'admin',
+      challenge: 'Baby SQLi',
+      answer: 'HT26{redacted_correct_flag}',
+      status: 'Accepted',
+      aiUsageDisclosure: 'Saya tidak memakai AI',
+      solverFileName: null,
+      solverFileSize: null,
+      hasSolverFile: false,
+    },
+    {
+      submissionId: 2,
+      submitTimeUtc: now - 78_000,
+      team: 'CYBERKNIGHTS',
+      user: 'packetstorm',
+      challenge: 'Heap of Trouble',
+      answer: 'HT26{almost_there}',
+      status: 'WrongAnswer',
+      aiUsageDisclosure: 'https://example.invalid/demo-disclosure',
+      solverFileName: 'solver.py',
+      solverFileSize: 2048,
+      hasSolverFile: true,
+    },
+  ],
   '/api/edit/games/1/challenges': editChallenges,
   '/api/edit/games/1/challenges/101': editChallenge,
   '/api/edit/games/1/challenges/105': { ...editChallenge, ...editChallenges.find(({ id }) => id === 105) },
@@ -489,6 +620,33 @@ export const demoReads: Record<string, unknown> = {
       registeredMembers: [members[1].userId],
       divisionId: 1,
       status: 'Pending',
+    },
+  ],
+  '/api/admin/games/1/whitelist': [
+    {
+      teamId: 2,
+      teamName: 'CYBERKNIGHTS',
+      captainEmail: 'captain@demo.invalid',
+      source: 'BulkOnboarding',
+      status: 'Accepted',
+    },
+    {
+      teamId: 5,
+      teamName: 'NULLBYTE',
+      captainEmail: 'nullbyte@demo.invalid',
+      source: 'ManualWhitelist',
+      status: 'Pending',
+    },
+  ],
+  '/api/admin/games/1/whitelist/search-teams': [
+    {
+      id: 7,
+      locked: false,
+      captainId: members[1].userId,
+      name: 'FLAGHUNTERS',
+      bio: 'Demo whitelist search result.',
+      avatar: null,
+      members: [members[1]],
     },
   ],
   '/api/admin/writeups/1': {
@@ -569,6 +727,8 @@ export const getDemoRead = (path: string) => {
 }
 
 export const demoMutationResult = (path: string, body: unknown) => {
+  if (path === '/api/admin/teams/search') return demoReads['/api/admin/teams']
+  if (path === '/api/admin/users/search') return demoReads['/api/admin/users']
   if (/\/container\/\d+(?:\/extend)?$/.test(path)) {
     return { entry: 'demo-target.invalid:31337', expectStopAt: Date.now() + 3_600_000 }
   }
